@@ -6,6 +6,10 @@ The framework does not change gameplay by itself. It does not replace BepInEx, l
 
 Nexus Mods: https://www.nexusmods.com/graveyardkeeper2/mods/42
 
+Source code: https://github.com/SuperMan4eg/GK2-Mod-Framework
+
+The repository tracks current development. Use the Nexus Mods page for packaged release builds.
+
 ## Requirements
 
 - Graveyard Keeper 2 for Windows x64
