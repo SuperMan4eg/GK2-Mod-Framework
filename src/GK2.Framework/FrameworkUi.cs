@@ -187,6 +187,35 @@ namespace GK2.Framework
             }
         }
 
+        internal static void ApplyGearButton(LazyButton button)
+        {
+            if (button == null) return;
+
+            if (button.targetGraphic is Image image)
+            {
+                image.sprite = NativeUiSkin.SettingsGearSprite;
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.color = Color.white;
+                image.material = null;
+            }
+
+            button.transition = Selectable.Transition.ColorTint;
+            ColorBlock colors = button.colors;
+            colors.normalColor = new Color(0.92f, 0.92f, 0.92f, 1f);
+            colors.highlightedColor = Color.white;
+            colors.selectedColor = Color.white;
+            colors.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
+            colors.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.45f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
+            button.spriteState = default;
+
+            TextMeshProUGUI label = button.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (label != null) label.gameObject.SetActive(false);
+        }
+
         internal static RectTransform CreateVerticalScrollContent(Image frame, out ScrollRect scroll)
         {
             scroll = frame.gameObject.AddComponent<ScrollRect>();

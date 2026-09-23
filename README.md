@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.6
+# GK2 Mod Framework 0.1.7
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -38,7 +38,8 @@ To uninstall, close the game and remove that DLL. Mods that require the framewor
 
 - Native-style **Mods** window in the main menu
 - Responsive safe-area fitting for the Mods window and Framework-hosted mod Settings pages
-- Configurable Framework window scale from 50% to 100% via `BepInEx/config/ru.superman4eg.gk2.framework.cfg`
+- Dedicated **Framework Settings** gear button in the Mods menu
+- Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
 - Compatibility and dependency status
 - Runtime enable/disable for mods that explicitly support it
@@ -77,13 +78,13 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 **The Mods button is missing:** confirm that BepInEx loaded and that `GK2_FRAMEWORK_READY` appears in `BepInEx/LogOutput.log`.
 
-**A mod does not appear:** check that its DLL is in `BepInEx/plugins`, it declares the framework as a hard BepInEx dependency, and its plugin ID is unique.
+**A mod does not appear:** the Mods list only contains mods that register with GK2 Mod Framework. A standalone BepInEx mod can still run normally but will not appear unless you installed its Framework-compatible build or an optional Framework bridge. Check `BepInEx/LogOutput.log` for `Registered GK2 mod [<id>]`; if that line is missing, the loaded plugin is not integrated with the Framework.
 
 **A mod shows Unknown Build or Incompatible:** open its details in the Mods menu. Do not force-enable a mod that requires a known game build.
 
 **A mod shows Faulted or a dependency error:** read the reason in the details panel and inspect `BepInEx/LogOutput.log`. Include the game build, framework version, and relevant log section when reporting a problem.
 
-**The Mods window is larger than you prefer:** automatic fitting requires no configuration. To make Framework-hosted windows even smaller, close the game and edit `BepInEx/config/ru.superman4eg.gk2.framework.cfg`, then set `WindowScalePercent` to a value from 50 to 100. The default value `100` still shrinks automatically when needed to keep the window inside the current safe area.
+**The Mods window is larger than you prefer:** automatic fitting requires no configuration. To make Framework-hosted windows even smaller, open **Mods -> Framework Settings** and lower **Window scale (%)**. The default value `100` still shrinks automatically when needed to keep the window inside the current safe area. The same value remains stored in `BepInEx/config/ru.superman4eg.gk2.framework.cfg`.
 
 Do not install development outputs such as PDB files, `bin`/`obj` folders, diagnostic DLLs, or extra copies of BepInEx/Harmony libraries.
 

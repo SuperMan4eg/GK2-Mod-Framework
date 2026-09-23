@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using BepInEx.Bootstrap;
 using LazyBearTechnology;
 using TMPro;
 using UnityEngine;
@@ -40,6 +42,32 @@ namespace GK2.Framework
                 .OrderBy(m => m.Metadata.Name, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(m => m.Metadata.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
+            FrameworkLog.Source?.LogInfo(
+                "GK2_MODS_REGISTRY_SNAPSHOT: total=" + FrameworkApi.Mods.Count
+                + ";visible=" + mods.Count
+                + ";ids=" + string.Join(",", FrameworkApi.Mods.Select(m => m.Metadata.Id)));
+
+            if (mods.Count == 0)
+            {
+                string pluginIds = string.Join(",", Chainloader.PluginInfos.Keys
+                    .Where(id => !string.Equals(id, FrameworkPlugin.PluginGuid, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(id => id, StringComparer.OrdinalIgnoreCase));
+                Assembly[] frameworkAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => string.Equals(a.GetName().Name, "GK2.Framework", StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+                string assemblyInfo = string.Join(" | ", frameworkAssemblies.Select(a =>
+                    (a.GetName().Version?.ToString() ?? "<no-version>")
+                    + " @ " + SafeAssemblyLocation(a)
+                    + " # " + a.ManifestModule.ModuleVersionId));
+
+                FrameworkLog.Source?.LogInfo(
+                    "GK2_MODS_EMPTY_DIAGNOSTIC: bepinexPlugins="
+                    + Math.Max(0, Chainloader.PluginInfos.Count - 1)
+                    + ";pluginIds=" + pluginIds
+                    + ";frameworkAssemblies=" + frameworkAssemblies.Length
+                    + ";assemblies=" + assemblyInfo);
+            }
 
             FrameworkUi.SetContentHeight(content, 18f + mods.Count * 40f);
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
@@ -161,6 +189,12 @@ namespace GK2.Framework
                     pair.Value.SetActive(string.Equals(
                         pair.Key, selectedId, StringComparison.OrdinalIgnoreCase));
             }
+        }
+
+        private static string SafeAssemblyLocation(Assembly assembly)
+        {
+            try { return string.IsNullOrWhiteSpace(assembly?.Location) ? "<dynamic>" : assembly.Location; }
+            catch { return "<unavailable>"; }
         }
     }
 }

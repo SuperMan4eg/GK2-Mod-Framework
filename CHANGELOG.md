@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.7 — 2026-09-23
+
+- Added a compact gear-shaped **Framework Settings** button to the Mods menu without exposing the framework as a normal mod-list entry or drawing a rectangular button background.
+- The Framework Settings page now exposes `Window scale (%)` through the same native-style settings UI used by framework mods.
+- Window scale changes apply immediately while the settings page is open and remain stored in the existing BepInEx framework config.
+- Runtime-tested the new entry point at `1600x900`, including the standalone `i_bronze_gear` target graphic, live 70% scaling, Back navigation, and gamepad-navigation registration.
+- Hidden the disabled per-mod Settings button when no Framework-integrated mod is selected.
+- Clarified the empty state: standalone BepInEx mods only appear in the list when they register directly with the Framework or include a Framework bridge.
+- Added registry and loaded-assembly diagnostics when the Mods list is unexpectedly empty, including registered IDs, detected BepInEx plugin IDs, and duplicate Framework assembly locations.
+
 ## 0.1.6 — 2026-09-23
 
 - Added responsive safe-area fitting for the Framework Mods window and all Framework-hosted mod Settings pages.

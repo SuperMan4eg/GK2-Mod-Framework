@@ -46,6 +46,7 @@ namespace GK2.Framework
         internal static Sprite StatusOffSprite { get; private set; }
         internal static Sprite StatusWarningSprite { get; private set; }
         internal static Sprite StatusErrorSprite { get; private set; }
+        internal static Sprite SettingsGearSprite { get; private set; }
 
         internal static bool TryCapture()
         {
@@ -133,6 +134,8 @@ namespace GK2.Framework
                     loadedSprites, "fishing_attention_mark_at_0");
                 StatusErrorSprite = FindSprite(
                     loadedSprites, "btn_i-close_cross-s", "cross");
+                SettingsGearSprite = FindSprite(
+                    loadedSprites, "i_bronze_gear", "i_b_alchemy_gear");
 
                 IsReady =
                     RegularFont != null
@@ -163,7 +166,8 @@ namespace GK2.Framework
                     "GK2_NATIVE_STATUS_ICONS: ok=" + SpriteName(StatusOkSprite)
                     + ";off=" + SpriteName(StatusOffSprite)
                     + ";warning=" + SpriteName(StatusWarningSprite)
-                    + ";error=" + SpriteName(StatusErrorSprite));
+                    + ";error=" + SpriteName(StatusErrorSprite)
+                    + ";settings=" + SpriteName(SettingsGearSprite));
                 return IsReady;
             }
             catch (Exception ex)

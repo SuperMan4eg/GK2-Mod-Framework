@@ -21,6 +21,7 @@ namespace GK2.Framework
         private ModsMenuModList modList;
         private ModsMenuDetails details;
         private ModsMenuSettingsPage settingsPage;
+        private LazyButton frameworkSettingsButton;
         private RegisteredMod selected;
 
         internal static void OpenFromMainMenu(UIMainMenuWindow mainMenu)
@@ -214,6 +215,22 @@ namespace GK2.Framework
             detailPanel.transform.SetParent(mainPage.transform, true);
             mainPage.transform.SetParent(panelRect, true);
 
+            frameworkSettingsButton = FrameworkUi.CreateButton(
+                "FrameworkSettings",
+                panelRect,
+                null,
+                string.Empty,
+                new Vector2(-50f, 8f),
+                new Vector2(-14f, 44f),
+                new Vector2(1f, 0f),
+                new Vector2(1f, 0f));
+            FrameworkUi.ApplyGearButton(frameworkSettingsButton);
+            TextMeshProUGUI frameworkSettingsLabel = frameworkSettingsButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (frameworkSettingsLabel != null) frameworkSettingsLabel.gameObject.SetActive(false);
+            frameworkSettingsButton.onClick.AddListener(OpenFrameworkSettingsPage);
+            frameworkSettingsButton.SetCallbacksIntoGamepadNavigationItem();
+            frameworkSettingsButton.transform.SetParent(mainPage.transform, true);
+
             modList = new ModsMenuModList(listPanel, Select);
             details = new ModsMenuDetails(detailPanel, template, ToggleSelected, OpenSettingsPage);
             settingsPage = new ModsMenuSettingsPage(panelRect, template, CloseSettingsPage);
@@ -311,10 +328,30 @@ namespace GK2.Framework
 
         private void OpenSettingsPage()
         {
-            if (selected == null || selected.Settings.Items.Count == 0) return;
+            OpenSettingsPage(selected);
+        }
+
+        private void OpenFrameworkSettingsPage()
+        {
+            RegisteredMod framework = null;
+            foreach (RegisteredMod mod in FrameworkApi.Mods)
+            {
+                if (mod.Metadata.Id == FrameworkPlugin.PluginGuid)
+                {
+                    framework = mod;
+                    break;
+                }
+            }
+
+            OpenSettingsPage(framework);
+        }
+
+        private void OpenSettingsPage(RegisteredMod mod)
+        {
+            if (mod == null || mod.Settings.Items.Count == 0) return;
             mainPage.SetActive(false);
             if (closeButton != null) closeButton.gameObject.SetActive(false);
-            settingsPage.Open(selected);
+            settingsPage.Open(mod);
             RefreshGamepadNavigation();
         }
 

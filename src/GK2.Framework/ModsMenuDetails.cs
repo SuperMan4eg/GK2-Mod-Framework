@@ -61,12 +61,18 @@ namespace GK2.Framework
         {
             if (mod == null)
             {
-                metadataText.text = FrameworkUi.L("mods.none", "No framework mods registered.");
+                metadataText.text = FrameworkUi.L(
+                    "mods.none",
+                    "No Framework-integrated mods are registered.\n\n"
+                    + "Standalone BepInEx mods can still run, but they appear here only when they register directly with the Framework or include a Framework bridge.");
                 enabledButton.gameObject.SetActive(false);
                 enabledButton.interactable = false;
+                settingsButton.gameObject.SetActive(false);
                 settingsButton.interactable = false;
                 return;
             }
+
+            settingsButton.gameObject.SetActive(true);
 
             Gk2ModMetadata meta = mod.Metadata;
             ModUiState state = ModUiStateResolver.Get(mod);
