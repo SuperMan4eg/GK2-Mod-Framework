@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+Artifacts/
+Backups/
+Diagnostics/
+Evidence/
+Publishing/
+src/GK2.Framework.Probe/
+STATUS.md
+RELEASE_READINESS.md
+publisher.json
+*.user
+*.suo
+*.log

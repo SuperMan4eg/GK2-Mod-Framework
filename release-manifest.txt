@@ -1,0 +1,16 @@
+# Runtime archive paths, relative to the staging root.
+BepInEx/plugins/GK2.Framework.dll
+README.md
+CHANGELOG.md
+docs/NEW_MOD_GUIDE.md
+docs/PUBLIC_API.md
+docs/OPTIONAL_INTEGRATION.md
+Templates/GK2.Framework.ModTemplate/GK2.Framework.ModTemplate.csproj
+Templates/GK2.Framework.ModTemplate/Plugin.cs
+Templates/GK2.Framework.ModTemplate/README.md
+Templates/GK2.Framework.OptionalIntegrationTemplate/README.md
+Templates/GK2.Framework.OptionalIntegrationTemplate/Main/Main.csproj
+Templates/GK2.Framework.OptionalIntegrationTemplate/Main/MainPlugin.cs
+Templates/GK2.Framework.OptionalIntegrationTemplate/FrameworkBridge/FrameworkBridge.csproj
+Templates/GK2.Framework.OptionalIntegrationTemplate/FrameworkBridge/FrameworkBridgePlugin.cs
+LICENSE
