@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.6 — 2026-09-23
+
+- Added responsive safe-area fitting for the Framework Mods window and all Framework-hosted mod Settings pages.
+- Fixed the fixed-size `760x500` Framework panel overflowing lower resolutions such as `1600x900` after the game's UI scale factor was applied.
+- Added a configurable `WindowScalePercent` setting from 50% to 100% in 10% steps, stored in the Framework BepInEx config.
+- Automatic fitting always caps the selected scale so the Framework window remains inside the current safe area.
+- Added live refitting when resolution, safe area, game UI scale, or the user scale setting changes.
+- Runtime-tested automatic fitting at `1600x900` and gamepad directional navigation while scaled; synthetic fit checks also cover `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
+
 ## 0.1.5 — 2026-09-23
 
 - Fixed a controller-mode crash when opening the runtime-created Mods menu.

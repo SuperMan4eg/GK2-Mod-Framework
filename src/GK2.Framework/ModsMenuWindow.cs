@@ -8,9 +8,15 @@ namespace GK2.Framework
 {
     internal sealed class ModsMenuWindow : LazyWindow<LazyWidgetDataBase>
     {
+        private static readonly Vector2 BasePanelSize = new Vector2(760f, 500f);
         private static ModsMenuWindow instance;
         private static UIMainMenuWindow returnWindow;
 
+        private RectTransform panelRect;
+        private Vector2 lastSafeAreaSize = new Vector2(-1f, -1f);
+        private Vector2 lastSafeAreaPosition = new Vector2(-1f, -1f);
+        private float lastGameScale = -1f;
+        private int lastUserScalePercent = -1;
         private GameObject mainPage;
         private ModsMenuModList modList;
         private ModsMenuDetails details;
@@ -35,6 +41,11 @@ namespace GK2.Framework
                 instance.Close();
             else if (returnWindow != null)
                 OpenFromMainMenu(returnWindow);
+        }
+
+        internal static void RefreshResponsiveScale()
+        {
+            instance?.ApplyResponsiveScale(force: true);
         }
 
         private static ModsMenuWindow CreateInstance(UIMainMenuWindow mainMenu)
@@ -90,9 +101,9 @@ namespace GK2.Framework
                 "Panel", root, NativeUiSkin.IsReady
                     ? Color.clear
                     : new Color(0.055f, 0.035f, 0.03f, 0.99f));
-            RectTransform panelRect = panel.rectTransform;
+            panelRect = panel.rectTransform;
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(760f, 500f);
+            panelRect.sizeDelta = BasePanelSize;
             panelRect.anchoredPosition = Vector2.zero;
 
             if (NativeUiSkin.IsReady)
@@ -219,6 +230,7 @@ namespace GK2.Framework
             // are discoverable when the game is already in gamepad mode.
             if (!gameObject.activeSelf) gameObject.SetActive(true);
 
+            ApplyResponsiveScale(force: true);
             base.Open(data);
             RefreshMods();
             RefreshGamepadNavigation();
@@ -236,6 +248,7 @@ namespace GK2.Framework
 
         protected override void Update()
         {
+            ApplyResponsiveScale(force: false);
             if (settingsPage.HandleUpdate()) return;
             base.Update();
         }
@@ -317,6 +330,39 @@ namespace GK2.Framework
         {
             if (!LazyInput.IsGamepadActive) return;
             GamepadNavigationController.ReinitItems(focusOnFirstActive: true);
+        }
+
+        private void ApplyResponsiveScale(bool force)
+        {
+            if (panelRect == null) return;
+
+            Rect safeArea = Screen.safeArea;
+            float gameScale = LazyUI.ScaleFactor > 0.001f
+                ? LazyUI.ScaleFactor
+                : ResolutionConfig.GetUiScaleFactor();
+            int userPercent = FrameworkUi.WindowScalePercent?.Value ?? 100;
+
+            if (!force
+                && Mathf.Approximately(lastSafeAreaSize.x, safeArea.width)
+                && Mathf.Approximately(lastSafeAreaSize.y, safeArea.height)
+                && Mathf.Approximately(lastSafeAreaPosition.x, safeArea.x)
+                && Mathf.Approximately(lastSafeAreaPosition.y, safeArea.y)
+                && Mathf.Approximately(lastGameScale, gameScale)
+                && lastUserScalePercent == userPercent)
+                return;
+
+            float applied = FrameworkUi.CalculateResponsiveWindowScale(BasePanelSize, gameScale, safeArea);
+            panelRect.localScale = new Vector3(applied, applied, 1f);
+
+            lastSafeAreaSize = safeArea.size;
+            lastSafeAreaPosition = safeArea.position;
+            lastGameScale = gameScale;
+            lastUserScalePercent = userPercent;
+
+            FrameworkLog.Source?.LogInfo(
+                $"GK2_UI_WINDOW_SCALE: screen={Screen.width}x{Screen.height};"
+                + $"safe={safeArea.width:0}x{safeArea.height:0}@{safeArea.x:0},{safeArea.y:0};"
+                + $"gameScale={gameScale:0.###};user={userPercent}%;applied={applied:0.###}");
         }
 
         protected override void TestDraw() { }

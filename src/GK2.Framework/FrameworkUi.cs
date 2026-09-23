@@ -1,3 +1,4 @@
+using BepInEx.Configuration;
 using LazyBearTechnology;
 using TMPro;
 using UnityEngine;
@@ -8,8 +9,30 @@ namespace GK2.Framework
     internal static class FrameworkUi
     {
         internal static TextMeshProUGUI StyleSource { get; set; }
+        internal static ConfigEntry<int> WindowScalePercent { get; set; }
 
         internal static string L(string key, string fallback) => FrameworkLocalization.Get(key, fallback);
+
+        internal static float GetWindowScaleLimit()
+        {
+            int percent = WindowScalePercent?.Value ?? 100;
+            return Mathf.Clamp(percent / 100f, 0.5f, 1f);
+        }
+
+        internal static float CalculateResponsiveWindowScale(Vector2 baseSize, float gameScaleFactor, Rect safeArea)
+        {
+            if (baseSize.x <= 0f || baseSize.y <= 0f) return GetWindowScaleLimit();
+
+            float scaleFactor = gameScaleFactor > 0.001f ? gameScaleFactor : 1f;
+            float safeWidth = Mathf.Max(1f, safeArea.width / scaleFactor);
+            float safeHeight = Mathf.Max(1f, safeArea.height / scaleFactor);
+            const float margin = 16f;
+
+            float fitWidth = Mathf.Max(0.01f, safeWidth - margin * 2f) / baseSize.x;
+            float fitHeight = Mathf.Max(0.01f, safeHeight - margin * 2f) / baseSize.y;
+            float fit = Mathf.Min(1f, fitWidth, fitHeight);
+            return Mathf.Clamp(Mathf.Min(fit, GetWindowScaleLimit()), 0.5f, 1f);
+        }
 
         internal static Image CreateImage(string name, Transform parent, Color color)
         {

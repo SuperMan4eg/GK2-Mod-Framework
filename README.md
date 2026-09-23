@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.5
+# GK2 Mod Framework 0.1.6
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -37,6 +37,8 @@ To uninstall, close the game and remove that DLL. Mods that require the framewor
 ## Player features
 
 - Native-style **Mods** window in the main menu
+- Responsive safe-area fitting for the Mods window and Framework-hosted mod Settings pages
+- Configurable Framework window scale from 50% to 100% via `BepInEx/config/ru.superman4eg.gk2.framework.cfg`
 - Installed framework mod list and detailed metadata
 - Compatibility and dependency status
 - Runtime enable/disable for mods that explicitly support it
@@ -64,7 +66,8 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 - Verified on Graveyard Keeper 2 full-release Steam builds `25457344` and `25467846`, Unity `6000.3.9f1`, Mono x64.
 - Backward compatibility was also rechecked on Demo build `25344626`.
-- Mouse input is verified. In 0.1.5, the gamepad-mode Mods menu open path and directional navigation are runtime-tested, including main-list and settings-page navigation. Physical controller hardware is not part of the automated test.
+- Mouse input is verified. The gamepad-mode Mods menu open path and directional navigation are runtime-tested, including the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
+- Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
@@ -79,6 +82,8 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 **A mod shows Unknown Build or Incompatible:** open its details in the Mods menu. Do not force-enable a mod that requires a known game build.
 
 **A mod shows Faulted or a dependency error:** read the reason in the details panel and inspect `BepInEx/LogOutput.log`. Include the game build, framework version, and relevant log section when reporting a problem.
+
+**The Mods window is larger than you prefer:** automatic fitting requires no configuration. To make Framework-hosted windows even smaller, close the game and edit `BepInEx/config/ru.superman4eg.gk2.framework.cfg`, then set `WindowScalePercent` to a value from 50 to 100. The default value `100` still shrinks automatically when needed to keep the window inside the current safe area.
 
 Do not install development outputs such as PDB files, `bin`/`obj` folders, diagnostic DLLs, or extra copies of BepInEx/Harmony libraries.
 

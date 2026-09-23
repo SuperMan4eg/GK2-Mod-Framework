@@ -8,7 +8,7 @@ namespace GK2.Framework
     {
         public const string PluginGuid = "ru.superman4eg.gk2.framework";
         public const string PluginName = "GK2 Mod Framework";
-        public const string PluginVersion = "0.1.5";
+        public const string PluginVersion = "0.1.6";
         private Harmony harmony;
 
         private void Awake()
@@ -31,6 +31,21 @@ namespace GK2.Framework
                 PluginGuid, PluginName, "SuperMan4eg", PluginVersion,
                 "Shared lifecycle, compatibility, settings and Mods menu API for GK2 BepInEx mods.");
             public override Gk2ModMetadata Metadata => metadata;
+
+            public override void OnRegister(Gk2ModContext context)
+            {
+                FrameworkUi.WindowScalePercent = context.Settings.AddIntSlider(
+                    "UI",
+                    "WindowScalePercent",
+                    100,
+                    50,
+                    100,
+                    "Window scale (%)",
+                    "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area.",
+                    10,
+                    -100);
+                FrameworkUi.WindowScalePercent.SettingChanged += (_, __) => ModsMenuWindow.RefreshResponsiveScale();
+            }
         }
     }
 }
