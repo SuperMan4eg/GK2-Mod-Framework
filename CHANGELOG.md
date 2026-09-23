@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5 — 2026-09-23
+
+- Fixed a controller-mode crash when opening the runtime-created Mods menu.
+- Guarded controller button-tip rendering when the runtime window has no serialized `LazyButtonTipsStr`.
+- Reinitialized gamepad navigation after dynamic mod/settings controls are created or page visibility changes.
+- Initialized the runtime gamepad navigation group list so directional navigation cannot dereference an unassigned serialized list.
+
 ## 0.1.4 — 2026-09-23
 
 - Added an official optional-integration mode for standalone mods through `Gk2ModMetadata(..., frameworkManagesEnabledState: false)`.

@@ -29,7 +29,11 @@ namespace GK2.Framework
             selectionMarks.Clear();
             statusBadges.Clear();
             for (int i = content.childCount - 1; i >= 0; i--)
-                UnityEngine.Object.Destroy(content.GetChild(i).gameObject);
+            {
+                GameObject oldItem = content.GetChild(i).gameObject;
+                oldItem.SetActive(false);
+                UnityEngine.Object.Destroy(oldItem);
+            }
 
             List<RegisteredMod> mods = FrameworkApi.Mods
                 .Where(m => !string.Equals(m.Metadata.Id, FrameworkPlugin.PluginGuid, StringComparison.OrdinalIgnoreCase))

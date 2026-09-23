@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.4
+# GK2 Mod Framework 0.1.5
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -64,7 +64,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 - Verified on Graveyard Keeper 2 full-release Steam builds `25457344` and `25467846`, Unity `6000.3.9f1`, Mono x64.
 - Backward compatibility was also rechecked on Demo build `25344626`.
-- Mouse input is verified. Gamepad navigation is not verified.
+- Mouse input is verified. In 0.1.5, the gamepad-mode Mods menu open path and directional navigation are runtime-tested, including main-list and settings-page navigation. Physical controller hardware is not part of the automated test.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.

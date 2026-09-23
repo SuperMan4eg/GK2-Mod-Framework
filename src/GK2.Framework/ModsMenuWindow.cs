@@ -56,7 +56,8 @@ namespace GK2.Framework
             canvas.sortingOrder = 450;
 
             root.AddComponent<GraphicRaycaster>();
-            root.AddComponent<GamepadNavigationController>();
+            GamepadNavigationController navigation = root.AddComponent<GamepadNavigationController>();
+            navigation.navigationGroupSources = new System.Collections.Generic.List<GamepadNavigationController.NavigationGroupSource>();
 
             ModsMenuWindow window = root.AddComponent<ModsMenuWindow>();
             window.BuildUi(template);
@@ -213,10 +214,24 @@ namespace GK2.Framework
             mainPage.SetActive(true);
             if (closeButton != null) closeButton.gameObject.SetActive(true);
 
-            // Important: dynamic LazyButtons are created only after the window hierarchy
-            // has been activated by base.Open(), otherwise LazyButton.Awake can reset listeners.
+            // LazyWindow initializes its gamepad controller before activating the window.
+            // Runtime-created windows therefore need to be active first so navigation items
+            // are discoverable when the game is already in gamepad mode.
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
+
             base.Open(data);
             RefreshMods();
+            RefreshGamepadNavigation();
+        }
+
+        protected override void PrintTips()
+        {
+            if (lazyButtonTips != null) base.PrintTips();
+        }
+
+        protected override void PrintTips(GamepadNavigationItem gamepadNavigationItem)
+        {
+            if (lazyButtonTips != null) base.PrintTips(gamepadNavigationItem);
         }
 
         protected override void Update()
@@ -287,13 +302,21 @@ namespace GK2.Framework
             mainPage.SetActive(false);
             if (closeButton != null) closeButton.gameObject.SetActive(false);
             settingsPage.Open(selected);
+            RefreshGamepadNavigation();
         }
 
         private void CloseSettingsPage()
         {
             settingsPage.Close();
             mainPage.SetActive(true);
-            if (closeButton != null) closeButton.gameObject.SetActive(true);
+            if (closeButton != null) closeButton.gameObject.SetActive(!LazyInput.IsGamepadActive);
+            RefreshGamepadNavigation();
+        }
+
+        private void RefreshGamepadNavigation()
+        {
+            if (!LazyInput.IsGamepadActive) return;
+            GamepadNavigationController.ReinitItems(focusOnFirstActive: true);
         }
 
         protected override void TestDraw() { }
