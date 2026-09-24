@@ -8,6 +8,8 @@
 - Unknown builds remain fail-closed for mods that do not explicitly confirm a validated contract, and an incompatible base fingerprint cannot be overridden.
 - Existing 0.1.x mods remain binary-compatible; no existing metadata constructor or lifecycle signature changed.
 - Fixed Mods-list status badges so informational `StatusDetail` text on a `Compatible` mod no longer turns the mod into a warning. Compatible enabled mods show `OK`; pending restart remains `WARN`; actual compatibility/dependency failures keep their error state.
+- Fixed live language switching for Framework UI: reopening Mods after a game-language change now rebuilds the persistent Framework window with the current translations and current native TMP font, preventing mixed RU/KO/EN text and blank Hangul labels.
+- Framework-owned setting names/descriptions are resolved at render time instead of staying frozen in the startup language, and the injected main-menu Mods button now resolves its font directly from the current game language.
 - Runtime-tested the new opt-in path on Steam build `25509347`: the Framework correctly kept the global build status `Unknown`, validated consumer mods could confirm their own contracts and run, while an older strict mod without confirmation remained `UnknownBuild`.
 
 ## 0.1.10 — 2026-09-24

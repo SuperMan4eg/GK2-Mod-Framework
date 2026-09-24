@@ -93,6 +93,10 @@ namespace GK2.Framework
                     + "\n" + FrameworkUi.L("mods.runtime", "Runtime") + ": " + ModUiStateResolver.RuntimeLabel(mod);
             }
 
+            string description = meta.Id == FrameworkPlugin.PluginGuid
+                ? FrameworkUi.L("framework.description", meta.Description)
+                : meta.Description;
+
             metadataText.text =
                 meta.Name
                 + "\n\n" + FrameworkUi.L("mods.version", "Version") + ": " + meta.Version
@@ -101,7 +105,7 @@ namespace GK2.Framework
                 + issue
                 + "\n" + FrameworkUi.L("mods.dependencies", "Dependencies") + ": " + FormatDependencies(mod)
                 + enabledInfo
-                + "\n\n" + meta.Description;
+                + "\n\n" + description;
 
             enabledButton.gameObject.SetActive(meta.FrameworkManagesEnabledState);
             FrameworkUi.SetRect(

@@ -75,7 +75,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
-- English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI and can load UTF-8 JSON language files for integrated mods that explicitly use the localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
+- English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI and can load UTF-8 JSON language files for integrated mods that explicitly use the localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Framework 0.1.11 rebuilds its persistent Mods UI after a game-language change so translated labels and native language fonts stay synchronized when switching languages without restarting the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
 
 ## Troubleshooting
 

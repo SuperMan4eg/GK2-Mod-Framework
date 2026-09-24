@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using LazyBearTechnology;
 using TMPro;
@@ -23,11 +24,28 @@ namespace GK2.Framework
         private ModsMenuSettingsPage settingsPage;
         private LazyButton frameworkSettingsButton;
         private RegisteredMod selected;
+        private string builtLanguage;
 
         internal static void OpenFromMainMenu(UIMainMenuWindow mainMenu)
         {
             if (mainMenu == null) return;
             returnWindow = mainMenu;
+            string currentLanguage = FrameworkLocalization.CurrentLanguage;
+            if (instance != null
+                && !string.Equals(instance.builtLanguage, currentLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                FrameworkLog.Source?.LogInfo(
+                    "GK2_MODS_UI_LANGUAGE_REBUILD: from=" + instance.builtLanguage
+                    + ";to=" + currentLanguage);
+                GameObject stale = instance.gameObject;
+                instance = null;
+                if (stale != null)
+                {
+                    stale.SetActive(false);
+                    UnityEngine.Object.Destroy(stale);
+                }
+            }
+
             if (instance == null) instance = CreateInstance(mainMenu);
             if (instance.IsShown) return;
 
@@ -72,6 +90,7 @@ namespace GK2.Framework
             navigation.navigationGroupSources = new System.Collections.Generic.List<GamepadNavigationController.NavigationGroupSource>();
 
             ModsMenuWindow window = root.AddComponent<ModsMenuWindow>();
+            window.builtLanguage = FrameworkLocalization.CurrentLanguage;
             window.BuildUi(template);
             window.Init();
             return window;

@@ -183,6 +183,28 @@ namespace GK2.Framework
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
         }
 
+        private string GetDisplayName(IGk2Setting setting)
+        {
+            if (selected?.Metadata.Id == FrameworkPlugin.PluginGuid
+                && string.Equals(setting.UniqueKey, "UI.WindowScalePercent", StringComparison.OrdinalIgnoreCase))
+            {
+                return FrameworkUi.L("settings.window_scale", setting.DisplayName);
+            }
+
+            return setting.DisplayName;
+        }
+
+        private string GetDescription(IGk2Setting setting)
+        {
+            if (selected?.Metadata.Id == FrameworkPlugin.PluginGuid
+                && string.Equals(setting.UniqueKey, "UI.WindowScalePercent", StringComparison.OrdinalIgnoreCase))
+            {
+                return FrameworkUi.L("settings.window_scale_description", setting.Description ?? string.Empty);
+            }
+
+            return setting.Description ?? string.Empty;
+        }
+
         private void CreateSectionHeader(string section, int index, float y)
         {
             Image header = FrameworkUi.CreateImage(
@@ -227,7 +249,7 @@ namespace GK2.Framework
 
             TextMeshProUGUI name = FrameworkUi.CreateText(
                 "Name", row.rectTransform, 15f, TextAlignmentOptions.Left, Color.white);
-            name.text = setting.DisplayName;
+            name.text = GetDisplayName(setting);
             if (NativeUiSkin.IsReady)
             {
                 name.fontSize = 16f;
@@ -242,7 +264,7 @@ namespace GK2.Framework
                 13f,
                 TextAlignmentOptions.TopLeft,
                 new Color(0.82f, 0.78f, 0.73f));
-            description.text = setting.Description ?? string.Empty;
+            description.text = GetDescription(setting);
             if (NativeUiSkin.IsReady)
             {
                 FrameworkUi.ApplyLabelText(description);

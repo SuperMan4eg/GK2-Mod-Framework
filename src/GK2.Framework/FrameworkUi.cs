@@ -188,7 +188,7 @@ namespace GK2.Framework
             }
         }
 
-        private static void ApplyRegularFont(TextMeshProUGUI text)
+        internal static void ApplyRegularFont(TextMeshProUGUI text)
         {
             TMP_FontAsset resolved = NativeUiSkin.GetRegularFontForCurrentLanguage();
             if (resolved == null) return;
@@ -199,7 +199,7 @@ namespace GK2.Framework
                 : resolved.material;
         }
 
-        private static void ApplyBoldFont(TextMeshProUGUI text)
+        internal static void ApplyBoldFont(TextMeshProUGUI text)
         {
             TMP_FontAsset resolved = NativeUiSkin.GetBoldFontForCurrentLanguage();
             if (resolved == null) return;

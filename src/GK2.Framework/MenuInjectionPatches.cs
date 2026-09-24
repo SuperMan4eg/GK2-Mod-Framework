@@ -489,12 +489,18 @@ namespace GK2.Framework
 
         private void Apply()
         {
+            NativeUiSkin.TryCapture();
             string text = FrameworkLocalization.Get("mods.title", "Mods");
             if (labels != null)
                 foreach (TextMeshProUGUI label in labels)
                     if (label != null)
                     {
-                        if (styleSource != null)
+                        if (NativeUiSkin.IsReady)
+                        {
+                            FrameworkUi.ApplyBoldFont(label);
+                            if (styleSource != null) label.color = styleSource.color;
+                        }
+                        else if (styleSource != null)
                         {
                             label.font = styleSource.font;
                             label.fontSharedMaterial = styleSource.fontSharedMaterial;
