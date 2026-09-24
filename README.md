@@ -30,9 +30,9 @@ To verify loading, open `BepInEx/LogOutput.log` and look for `GK2_FRAMEWORK_READ
 
 ## Updating and uninstalling
 
-To update, close the game and replace `BepInEx/plugins/GK2.Framework.dll`. Existing BepInEx configuration files are preserved.
+To update, close the game and extract the new archive into the game folder, allowing it to replace the existing Framework files. Starting with 0.1.8, the archive includes localization files under `BepInEx/plugins/GK2.Framework/Localization`, so updating only `GK2.Framework.dll` is not sufficient. Existing BepInEx configuration files are preserved.
 
-To uninstall, close the game and remove that DLL. Mods that require the framework will no longer load. Their configuration files and save data are not removed automatically.
+To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and the `BepInEx/plugins/GK2.Framework` folder. Mods that require the framework will no longer load. Their configuration files and save data are not removed automatically.
 
 ## Player features
 
@@ -73,7 +73,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
-- English is the built-in fallback language. Mods are responsible for localizing their metadata and setting descriptions.
+- English is the built-in fallback language. Framework 0.1.8 can load UTF-8 JSON language files for Framework-owned text and for integrated mods that explicitly use the localization API. Individual mods remain responsible for choosing which of their own strings are localized.
 
 ## Troubleshooting
 
