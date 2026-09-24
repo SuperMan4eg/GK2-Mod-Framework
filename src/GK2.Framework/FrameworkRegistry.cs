@@ -21,6 +21,8 @@ namespace GK2.Framework
         internal bool StartupEnabledPreference { get; }
         internal bool RegistrationFailed { get; set; }
         internal bool LifecycleFaulted { get; set; }
+        internal bool CurrentBuildCompatibilityConfirmed { get; set; }
+        internal string CurrentBuildCompatibilityDetail { get; set; }
         internal RegisteredMod(IGk2Mod instance, Gk2Settings settings, ConfigEntry<bool> enabled)
         {
             Instance = instance;
@@ -53,7 +55,11 @@ namespace GK2.Framework
             var settings = new Gk2Settings(config);
             var record = new RegisteredMod(mod, settings, enabled);
             byId.Add(metadata.Id, record); ordered.Add(record);
-            if (!Safe(record, "OnRegister", () => mod.OnRegister(new Gk2ModContext(settings, new Gk2ModLogger(log, metadata.Id), build))))
+            if (!Safe(record, "OnRegister", () => mod.OnRegister(new Gk2ModContext(
+                settings,
+                new Gk2ModLogger(log, metadata.Id),
+                build,
+                detail => ConfirmCurrentBuildCompatibility(record, detail)))))
                 record.RegistrationFailed = true;
             ReevaluateAll();
             log.LogInfo($"Registered GK2 mod [{metadata.Id}] {metadata.Version} by {metadata.Author}; status={record.Status}");
@@ -174,6 +180,25 @@ namespace GK2.Framework
             }
         }
 
+        private void ConfirmCurrentBuildCompatibility(RegisteredMod record, string detail)
+        {
+            if (record == null)
+                throw new ArgumentNullException(nameof(record));
+
+            if (build.Status == BuildCompatibilityStatus.Incompatible)
+                throw new InvalidOperationException(
+                    "The current game build cannot be confirmed because the base build fingerprint is incompatible.");
+
+            record.CurrentBuildCompatibilityConfirmed = true;
+            record.CurrentBuildCompatibilityDetail = string.IsNullOrWhiteSpace(detail)
+                ? "Mod compatibility contract passed for the current game build."
+                : detail.Trim();
+
+            log.LogInfo(
+                $"[{record.Metadata.Id}] GK2_BUILD_CONTRACT_PASSED: build={build.AssemblyCSharpSha256}; "
+                + record.CurrentBuildCompatibilityDetail);
+        }
+
         private ModCompatibilityStatus ResolveBaseStatus(RegisteredMod record, out string detail)
         {
             if (record.RegistrationFailed)
@@ -190,8 +215,13 @@ namespace GK2.Framework
 
             if (record.Metadata.RequiresKnownBuild && build.Status != BuildCompatibilityStatus.Compatible)
             {
-                detail = "Known compatible game build required; current build is " + build.Status;
-                return ModCompatibilityStatus.UnknownBuild;
+                bool contractAllowsUnknownBuild = build.Status == BuildCompatibilityStatus.Unknown
+                    && record.CurrentBuildCompatibilityConfirmed;
+                if (!contractAllowsUnknownBuild)
+                {
+                    detail = "Known compatible game build required; current build is " + build.Status;
+                    return ModCompatibilityStatus.UnknownBuild;
+                }
             }
 
             foreach (Gk2ModDependency dep in record.Instance.Dependencies ?? Array.Empty<Gk2ModDependency>())
@@ -225,7 +255,18 @@ namespace GK2.Framework
                 }
             }
 
-            detail = build.Status == BuildCompatibilityStatus.Compatible ? string.Empty : "Running on an unverified game build";
+            if (build.Status == BuildCompatibilityStatus.Compatible)
+            {
+                detail = string.Empty;
+            }
+            else if (record.CurrentBuildCompatibilityConfirmed)
+            {
+                detail = record.CurrentBuildCompatibilityDetail;
+            }
+            else
+            {
+                detail = "Running on an unverified game build";
+            }
             return ModCompatibilityStatus.Compatible;
         }
 

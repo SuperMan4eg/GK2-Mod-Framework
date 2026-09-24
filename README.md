@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.10
+# GK2 Mod Framework 0.1.11
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -13,11 +13,12 @@ The repository tracks current development. Use the Nexus Mods page for packaged 
 ## Requirements
 
 - Graveyard Keeper 2 for Windows x64
-- Verified full-release Steam builds: `25457344`, `25467846`, `25506711`
+- Known full-release Steam fingerprints: `25457344`, `25467846`, `25506711`
+- Structural unknown-build path verified on Steam build `25509347`
 - Demo build `25344626` remains supported
 - BepInEx `5.4.23.5` x64
 
-Mods that require a known build may remain disabled after future game updates until that build is verified and added to the framework fingerprint list.
+Mods that require a known build remain fail-closed by default after future game updates. Starting with Framework 0.1.11, a mod that explicitly validates its own required game-side API contract can confirm that contract during registration and continue running on an otherwise unknown whole-assembly fingerprint.
 
 ## Installation
 
@@ -42,6 +43,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
 - Compatibility and dependency status
+- Opt-in structural compatibility checks so validated mods can survive unrelated game updates without waiting for a new whole-assembly fingerprint
 - Runtime enable/disable for mods that explicitly support it
 - Restart-required state for mods that cannot be toggled safely at runtime
 - Optional integration mode for standalone mods that should not expose a framework-owned Enable/Disable control
@@ -66,7 +68,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 ## Compatibility and known limitations
 
-- Verified on Graveyard Keeper 2 full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64.
+- Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was additionally runtime-tested on Steam build `25509347`, whose Assembly-CSharp hash changed while its decompiled C# remained identical to `25506711`.
 - Backward compatibility was also rechecked on Demo build `25344626`.
 - Mouse input is verified. The gamepad-mode Mods menu open path and directional navigation are runtime-tested, including the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
@@ -81,7 +83,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 **A mod does not appear:** the Mods list only contains mods that register with GK2 Mod Framework. A standalone BepInEx mod can still run normally but will not appear unless you installed its Framework-compatible build or an optional Framework bridge. Check `BepInEx/LogOutput.log` for `Registered GK2 mod [<id>]`; if that line is missing, the loaded plugin is not integrated with the Framework.
 
-**A mod shows Unknown Build or Incompatible:** open its details in the Mods menu. Do not force-enable a mod that requires a known game build.
+**A mod shows Unknown Build or Incompatible:** open its details in the Mods menu. Mods that implement the Framework 0.1.11 structural compatibility contract may continue running on an unknown whole-assembly fingerprint after validating the exact game API they use. Mods without that opt-in check remain blocked; do not force-enable them.
 
 **A mod shows Faulted or a dependency error:** read the reason in the details panel and inspect `BepInEx/LogOutput.log`. Include the game build, framework version, and relevant log section when reporting a problem.
 

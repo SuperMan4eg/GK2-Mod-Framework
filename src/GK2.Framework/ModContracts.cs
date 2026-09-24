@@ -76,15 +76,31 @@ namespace GK2.Framework
 
     public sealed class Gk2ModContext
     {
+        private readonly Action<string> confirmCurrentBuildCompatibility;
+
         public Gk2Settings Settings { get; }
         public Gk2ModLogger Log { get; }
         public BuildFingerprint Build { get; }
 
-        internal Gk2ModContext(Gk2Settings settings, Gk2ModLogger log, BuildFingerprint build)
+        internal Gk2ModContext(
+            Gk2Settings settings,
+            Gk2ModLogger log,
+            BuildFingerprint build,
+            Action<string> confirmCurrentBuildCompatibility = null)
         {
             Settings = settings;
             Log = log;
             Build = build;
+            this.confirmCurrentBuildCompatibility = confirmCurrentBuildCompatibility;
+        }
+
+        public void ConfirmCurrentBuildCompatibility(string detail = null)
+        {
+            if (confirmCurrentBuildCompatibility == null)
+                throw new InvalidOperationException(
+                    "Build compatibility confirmation is unavailable in this Framework context.");
+
+            confirmCurrentBuildCompatibility(detail);
         }
     }
 

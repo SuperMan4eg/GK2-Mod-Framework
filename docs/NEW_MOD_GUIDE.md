@@ -40,6 +40,29 @@ Set `supportsRuntimeToggle` to `true` only when `OnDisable` completely reverses 
 
 Set `requiresKnownBuild` to `true` when the mod depends on specific game methods or fields and an unknown build could be unsafe.
 
+Starting with Framework 0.1.11, a mod can stay fail-closed by default while still surviving harmless game updates. In `OnRegister()`, validate the exact game-side contract your mod needs. If every required type/member/signature is still present, call `context.ConfirmCurrentBuildCompatibility(...)`. This lets only that mod run on an otherwise unknown whole-assembly fingerprint.
+
+Example:
+
+```csharp
+public override void OnRegister(Gk2ModContext context)
+{
+    MethodInfo target = AccessTools.Method(typeof(SomeGameType), "TargetMethod");
+    MethodInfo dependency = AccessTools.Method(typeof(OtherGameType), "RequiredCall");
+    if (target == null || target.ReturnType != typeof(bool) || dependency == null)
+        throw new MissingMethodException("Required game API contract changed.");
+    if (!Gk2CompatibilityInspector.Calls(target, dependency))
+        throw new MissingMethodException("Expected game call path changed.");
+
+    context.ConfirmCurrentBuildCompatibility(
+        "Target method/signature/call-path contract is intact.");
+
+    // Register settings after or before the check as appropriate.
+}
+```
+
+Do not confirm an unknown build just because `OnRegister()` completed. The confirmation is only for mods that perform a real structural compatibility check first.
+
 ## 3. Use the lifecycle
 
 - `OnRegister` — add settings and perform compatibility checks.
@@ -153,6 +176,6 @@ Verify all of the following:
 6. Restart-only mods show the current and next-start state correctly.
 7. Loading a save and returning to the main menu leaves no stale session references.
 8. The BepInEx log contains no new exceptions.
-9. A mod with `RequiresKnownBuild=true` is tested against the exact supported game fingerprint.
+9. A mod with `RequiresKnownBuild=true` is tested against the exact supported game fingerprint, or its structural compatibility contract is deliberately tested on an unknown build before using `ConfirmCurrentBuildCompatibility`.
 
 For exact contracts and stability boundaries, see `PUBLIC_API.md`.

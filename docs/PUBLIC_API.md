@@ -45,7 +45,13 @@ An exception in a lifecycle callback is isolated and logged. The mod becomes `Fa
 
 ## Context
 
-`Gk2ModContext` provides `Settings`, a mod-prefixed `Log`, and the current `Build` fingerprint.
+`Gk2ModContext` provides `Settings`, a mod-prefixed `Log`, the current `Build` fingerprint, and `ConfirmCurrentBuildCompatibility(detail)`.
+
+`ConfirmCurrentBuildCompatibility` is an opt-in escape hatch for a mod with `RequiresKnownBuild=true` when the Framework does not recognize the current whole-assembly fingerprint. Call it only from `OnRegister()` and only after the mod has verified every game-side method, field, property, type/signature, or other runtime contract it depends on. A successful confirmation allows that mod to run on a `BuildCompatibilityStatus.Unknown` build while keeping the global build fingerprint unknown. It does not override `BuildCompatibilityStatus.Incompatible`.
+
+Do not call this method merely because registration did not throw. A mod that does not perform a real structural compatibility check should remain fail-closed on unknown builds.
+
+`Gk2CompatibilityInspector.Calls(source, target)` is a public helper for stronger contract checks. It reads the original IL body of `source` and returns whether it contains a direct `call`/`callvirt` to `target`, resolving metadata tokens through reflection. This is useful when the mod depends not only on a member existing, but on a specific game pipeline still calling that member. Combine it with normal reflection checks for parameter/return types, field/property types, constants, and other invariants your patch assumes.
 
 ## Settings
 
@@ -75,7 +81,7 @@ Usage rules:
 
 ## Compatibility and runtime state
 
-`BuildFingerprint` contains the Unity version, the location and SHA-256 hash of `Assembly-CSharp.dll`, and a `BuildCompatibilityStatus`. A mod with `RequiresKnownBuild=true` is blocked on an unknown build.
+`BuildFingerprint` contains the Unity version, the location and SHA-256 hash of `Assembly-CSharp.dll`, and a `BuildCompatibilityStatus`. By default, a mod with `RequiresKnownBuild=true` is blocked on an unknown build. Starting with Framework 0.1.11, that specific mod may remain compatible on an unknown whole-assembly fingerprint when its `OnRegister()` performs a real structural contract check and then calls `context.ConfirmCurrentBuildCompatibility(...)`. Mods that do not opt in remain blocked.
 
 `RegisteredMod` exposes metadata, settings, compatibility status and detail, current enabled state, next-start state, and pending-restart state. Runtime state setters are not public. For registrations with `FrameworkManagesEnabledState=false`, framework enable-state setters return `false`, no framework Enabled entry is created, and the registration remains active whenever its compatibility/dependency state permits it.
 

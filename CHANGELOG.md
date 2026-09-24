@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.11 — 2026-09-24
+
+- Added opt-in structural compatibility confirmation for mods that validate their own game-side API contract on an otherwise unknown game build.
+- Added `Gk2ModContext.ConfirmCurrentBuildCompatibility(detail)`; a `RequiresKnownBuild=true` mod may call it from `OnRegister()` only after its required methods, fields, properties and signatures have been validated successfully.
+- Added public `Gk2CompatibilityInspector.Calls(source, target)` for targeted IL call-path validation without exposing Harmony internals to consumer mods.
+- Unknown builds remain fail-closed for mods that do not explicitly confirm a validated contract, and an incompatible base fingerprint cannot be overridden.
+- Existing 0.1.x mods remain binary-compatible; no existing metadata constructor or lifecycle signature changed.
+- Runtime-tested the new opt-in path on Steam build `25509347`: the Framework correctly kept the global build status `Unknown`, validated consumer mods could confirm their own contracts and run, while an older strict mod without confirmation remained `UnknownBuild`.
+
 ## 0.1.10 — 2026-09-24
 
 - Added compatibility with Graveyard Keeper 2 Steam build `25506711`.

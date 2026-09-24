@@ -34,3 +34,5 @@ dotnet build .\YourMod.csproj -c Release -p:FrameworkDll="D:\Path\GK2.Framework.
 See `docs/NEW_MOD_GUIDE.md` in the framework package for lifecycle, settings, dependency, packaging, and testing guidance.
 
 The template intentionally contains no game patches. Each mod must select compatible patch points and completely reverse runtime changes in `OnDisable` before declaring `SupportsRuntimeToggle=true`.
+
+If your mod sets `requiresKnownBuild: true`, Framework 0.1.11+ can avoid unnecessary breakage after unrelated game updates: validate the exact game-side members/call paths your mod depends on during `OnRegister()`, then call `context.ConfirmCurrentBuildCompatibility(...)`. Do not confirm an unknown build without a real contract check.
