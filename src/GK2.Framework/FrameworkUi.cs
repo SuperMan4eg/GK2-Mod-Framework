@@ -112,7 +112,17 @@ namespace GK2.Framework
 
             go.AddComponent<GamepadNavigationItem>();
             TextMeshProUGUI text = CreateText("Label", go.transform, 17f, TextAlignmentOptions.Center, Color.white);
-            Stretch(text.rectTransform);
+            SetRect(
+                text.rectTransform,
+                new Vector2(4f, 2f),
+                new Vector2(-4f, -2f),
+                Vector2.zero,
+                Vector2.one);
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 11f;
+            text.fontSizeMax = 17f;
             text.text = label;
             return button;
         }
@@ -173,6 +183,7 @@ namespace GK2.Framework
             {
                 ApplyBoldFont(label);
                 label.fontSize = 16f;
+                label.fontSizeMax = 16f;
                 label.color = NativeUiSkin.ButtonTextColor;
             }
         }

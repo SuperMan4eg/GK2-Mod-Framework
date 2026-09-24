@@ -42,7 +42,7 @@
   "mods.version": "Версия",
   "settings.general": "Общие",
   "settings.press_key": "Нажмите клавишу (Esc — отмена)",
-  "settings.reset": "Сбросить",
+  "settings.reset": "Сброс",
   "settings.reset_all": "Сбросить всё",
   "settings.ui": "Интерфейс",
   "settings.window_scale": "Масштаб окна (%)",

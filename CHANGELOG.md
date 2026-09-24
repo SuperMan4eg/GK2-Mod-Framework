@@ -6,7 +6,9 @@
 - Framework UI now resolves its regular and bold TMP font assets through the game's native `LazyFontData` language mapping instead of forcing Latin-only `small_font` / `small_font_bold` assets.
 - Korean now uses the game's built-in `korean` font atlas; the same path also selects the game's native Japanese and Chinese font assets when those languages are active.
 - Added complete built-in Russian and Korean Framework localization catalogs alongside the complete English catalog (48/48 Framework-owned UI keys in each language).
-- Kept the existing Framework UI colors, layout and native skin behavior unchanged for non-CJK languages.
+- Fixed localized Settings UI layout: the Russian per-setting Reset label is now shorter, button labels do not wrap, text inputs/read-only values use safe inner padding, and dropdown option labels keep full horizontal width instead of collapsing into vertical text.
+- Hardened the runtime TMP dropdown template with stretch anchors, explicit item sizing, no-wrap/ellipsis text, a standard `CanvasGroup`, and a layout rebuild after option population.
+- Kept the existing Framework UI colors, layout and native skin behavior unchanged outside these fixes.
 
 ## 0.1.8 — 2026-09-24
 

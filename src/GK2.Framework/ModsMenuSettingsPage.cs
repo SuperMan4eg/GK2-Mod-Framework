@@ -461,7 +461,14 @@ namespace GK2.Framework
                 "Caption", background.transform, NativeUiSkin.IsReady ? 16f : 15f,
                 TextAlignmentOptions.Center, Color.white);
             FrameworkUi.ApplyValueText(caption);
-            FrameworkUi.Stretch(caption.rectTransform);
+            FrameworkUi.SetRect(
+                caption.rectTransform,
+                new Vector2(8f, 2f),
+                new Vector2(-8f, -2f),
+                Vector2.zero,
+                Vector2.one);
+            caption.textWrappingMode = TextWrappingModes.NoWrap;
+            caption.overflowMode = TextOverflowModes.Ellipsis;
             dropdown.captionText = caption;
 
             GameObject template = new GameObject("Template", typeof(RectTransform));
@@ -476,7 +483,12 @@ namespace GK2.Framework
             Image templateImage = template.AddComponent<Image>();
             templateImage.color = new Color(0.12f, 0.065f, 0.045f, 1f);
             FrameworkUi.ApplyCell(templateImage);
+            template.AddComponent<CanvasGroup>();
             ScrollRect dropdownScroll = template.AddComponent<ScrollRect>();
+            dropdownScroll.horizontal = false;
+            dropdownScroll.vertical = true;
+            dropdownScroll.movementType = ScrollRect.MovementType.Clamped;
+            dropdownScroll.scrollSensitivity = 30f;
 
             Image viewport = FrameworkUi.CreateImage("Viewport", template.transform, Color.white);
             FrameworkUi.Stretch(viewport.rectTransform);
@@ -485,19 +497,33 @@ namespace GK2.Framework
             RectTransform dropdownContent =
                 new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
             dropdownContent.SetParent(viewport.transform, false);
-            FrameworkUi.Stretch(dropdownContent);
+            dropdownContent.anchorMin = new Vector2(0f, 1f);
+            dropdownContent.anchorMax = new Vector2(1f, 1f);
+            dropdownContent.pivot = new Vector2(0.5f, 1f);
+            dropdownContent.anchoredPosition = Vector2.zero;
+            dropdownContent.sizeDelta = Vector2.zero;
 
             VerticalLayoutGroup layout = dropdownContent.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.childControlWidth = true;
+            layout.childForceExpandWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandHeight = false;
 
             ContentSizeFitter fitter = dropdownContent.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             GameObject item = new GameObject("Item", typeof(RectTransform));
             item.transform.SetParent(dropdownContent, false);
+            RectTransform itemRect = (RectTransform)item.transform;
+            itemRect.anchorMin = new Vector2(0f, 1f);
+            itemRect.anchorMax = new Vector2(1f, 1f);
+            itemRect.pivot = new Vector2(0.5f, 1f);
+            itemRect.sizeDelta = new Vector2(0f, 30f);
             LayoutElement itemLayout = item.AddComponent<LayoutElement>();
+            itemLayout.minHeight = 30f;
             itemLayout.preferredHeight = 30f;
+            itemLayout.flexibleWidth = 1f;
             Image itemBg = item.AddComponent<Image>();
             itemBg.color = new Color(0.2f, 0.1f, 0.07f, 1f);
             FrameworkUi.ApplyCell(itemBg);
@@ -507,8 +533,17 @@ namespace GK2.Framework
             TextMeshProUGUI itemLabel = FrameworkUi.CreateText(
                 "Item Label", item.transform, 14f, TextAlignmentOptions.Left, Color.white);
             FrameworkUi.ApplyLabelText(itemLabel);
-            itemLabel.rectTransform.offsetMin = new Vector2(10f, 0f);
-            itemLabel.rectTransform.offsetMax = new Vector2(-6f, 0f);
+            FrameworkUi.SetRect(
+                itemLabel.rectTransform,
+                new Vector2(10f, 2f),
+                new Vector2(-8f, -2f),
+                Vector2.zero,
+                Vector2.one);
+            itemLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            itemLabel.overflowMode = TextOverflowModes.Ellipsis;
+            itemLabel.enableAutoSizing = true;
+            itemLabel.fontSizeMin = 11f;
+            itemLabel.fontSizeMax = 14f;
 
             dropdownScroll.viewport = viewport.rectTransform;
             dropdownScroll.content = dropdownContent;
@@ -532,6 +567,8 @@ namespace GK2.Framework
 
             dropdown.SetValueWithoutNotify(selectedIndex);
             dropdown.RefreshShownValue();
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dropdownContent);
             dropdown.onValueChanged.AddListener(index =>
             {
                 if (index < 0 || index >= setting.Choices.Count) return;
@@ -673,13 +710,29 @@ namespace GK2.Framework
             FrameworkUi.Stretch(bg.rectTransform);
 
             TMP_InputField input = bg.gameObject.AddComponent<TMP_InputField>();
+
+            RectTransform textViewport =
+                new GameObject("Text Area", typeof(RectTransform), typeof(RectMask2D))
+                    .GetComponent<RectTransform>();
+            textViewport.SetParent(bg.transform, false);
+            FrameworkUi.SetRect(
+                textViewport,
+                new Vector2(8f, 2f),
+                new Vector2(-8f, -2f),
+                Vector2.zero,
+                Vector2.one);
+
             TextMeshProUGUI text = FrameworkUi.CreateText(
-                "Text", bg.transform, NativeUiSkin.IsReady ? 16f : 15f,
+                "Text", textViewport, NativeUiSkin.IsReady ? 16f : 15f,
                 TextAlignmentOptions.Left, Color.white);
             FrameworkUi.ApplyValueText(text);
             FrameworkUi.Stretch(text.rectTransform);
+            input.textViewport = textViewport;
             input.textComponent = text;
+            input.lineType = TMP_InputField.LineType.SingleLine;
             input.text = Convert.ToString(setting.Value);
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Masking;
             input.onEndEdit.AddListener(value =>
             {
                 setting.Value = value;
@@ -693,7 +746,14 @@ namespace GK2.Framework
                 "ReadOnly", parent, NativeUiSkin.IsReady ? 16f : 15f,
                 TextAlignmentOptions.Left, Color.white);
             FrameworkUi.ApplyValueText(text);
-            FrameworkUi.Stretch(text.rectTransform);
+            FrameworkUi.SetRect(
+                text.rectTransform,
+                new Vector2(8f, 2f),
+                new Vector2(-8f, -2f),
+                Vector2.zero,
+                Vector2.one);
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
             text.text = Convert.ToString(setting.Value);
         }
 
