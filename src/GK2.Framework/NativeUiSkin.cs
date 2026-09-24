@@ -14,6 +14,8 @@ namespace GK2.Framework
         internal static TMP_FontAsset BoldFont { get; private set; }
         internal static Material RegularMaterial { get; private set; }
         internal static Material BoldMaterial { get; private set; }
+        private static LazyFontData regularFontData;
+        private static LazyFontData boldFontData;
 
         internal static Color LabelColor { get; private set; }
         internal static Color ValueColor { get; private set; }
@@ -82,6 +84,9 @@ namespace GK2.Framework
                 RegularMaterial = labelText?.fontSharedMaterial;
                 BoldFont = headerText?.font;
                 BoldMaterial = headerText?.fontSharedMaterial;
+                LazyFontData[] loadedFontData = Resources.FindObjectsOfTypeAll<LazyFontData>();
+                regularFontData = FindFontData(loadedFontData, RegularFont?.name, "small_font");
+                boldFontData = FindFontData(loadedFontData, BoldFont?.name, "small_font_bold");
                 LabelColor = labelText != null ? labelText.color : new Color(0.59f, 0.55f, 0.53f, 1f);
                 ValueColor = valueText != null ? valueText.color : new Color(1f, 0.74f, 0f, 1f);
                 HintColor = hintText != null ? hintText.color : LabelColor;
@@ -180,6 +185,64 @@ namespace GK2.Framework
 
         private static Image GetImage(Transform transform) =>
             transform == null ? null : transform.GetComponent<Image>();
+
+        internal static TMP_FontAsset GetRegularFontForCurrentLanguage() =>
+            ResolveLanguageFont(regularFontData, RegularFont);
+
+        internal static TMP_FontAsset GetBoldFontForCurrentLanguage() =>
+            ResolveLanguageFont(boldFontData, BoldFont);
+
+        private static TMP_FontAsset ResolveLanguageFont(LazyFontData fontData, TMP_FontAsset fallback)
+        {
+            if (fontData == null) return fallback;
+            try
+            {
+                string language = LLBase.CurrentLang;
+                if (string.IsNullOrWhiteSpace(language))
+                {
+                    language = FrameworkLocalization.CurrentLanguage;
+                    if (string.Equals(language, "pt_br", StringComparison.OrdinalIgnoreCase))
+                        language = "pt-br";
+                }
+
+                TMP_FontAsset resolved = fontData.GetFontAssetFor(language, false, false);
+                if (resolved != null) return resolved;
+            }
+            catch (Exception ex)
+            {
+                FrameworkLog.Source?.LogWarning(
+                    "GK2_LANGUAGE_FONT_RESOLVE_FAILED: " + ex.Message);
+            }
+
+            return fallback;
+        }
+
+        private static LazyFontData FindFontData(
+            LazyFontData[] fontData,
+            string capturedFontName,
+            string preferredName)
+        {
+            if (fontData == null) return null;
+
+            foreach (LazyFontData data in fontData)
+            {
+                if (data != null && string.Equals(
+                    data.name, preferredName, StringComparison.OrdinalIgnoreCase))
+                    return data;
+            }
+
+            if (!string.IsNullOrWhiteSpace(capturedFontName))
+            {
+                foreach (LazyFontData data in fontData)
+                {
+                    if (data != null && string.Equals(
+                        data.name, capturedFontName, StringComparison.OrdinalIgnoreCase))
+                        return data;
+                }
+            }
+
+            return null;
+        }
 
         internal static Sprite GetStatusSprite(ModUiSeverity severity)
         {

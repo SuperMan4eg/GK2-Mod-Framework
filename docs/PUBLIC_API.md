@@ -89,7 +89,7 @@ Use `FrameworkLocalization.Get(modId, key, englishFallback)` from dependent mods
 
 The existing two-argument `FrameworkLocalization.Get(key, englishFallback)` is reserved for Framework-owned strings. `FrameworkLocalization.Resolver`, when set, still gets first chance to resolve those Framework keys; returning null or an empty string continues into the file/fallback path.
 
-Localization is opt-in for dependent mods. The Framework does not scan or rewrite arbitrary third-party UI text. Mods decide where to call the localization API and remain responsible for refreshing any already-created UI when the game language changes.
+Localization is opt-in for dependent mods. The Framework does not scan or rewrite arbitrary third-party UI text. Mods decide where to call the localization API and remain responsible for refreshing any already-created UI when the game language changes. Starting with 0.1.9, Framework-owned runtime UI resolves its TMP font through the game's native `LazyFontData` mapping, so the game-provided Korean, Japanese, and Chinese font assets are used when those languages are active. This font behavior applies to Framework-owned UI only; a mod that draws its own UI remains responsible for selecting a font that supports its translated text.
 
 ## Not part of the public contract
 

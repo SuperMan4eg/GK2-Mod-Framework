@@ -51,9 +51,7 @@ namespace GK2.Framework
             TextMeshProUGUI text = go.AddComponent<TextMeshProUGUI>();
             if (NativeUiSkin.IsReady && NativeUiSkin.RegularFont != null)
             {
-                text.font = NativeUiSkin.RegularFont;
-                if (NativeUiSkin.RegularMaterial != null)
-                    text.fontSharedMaterial = NativeUiSkin.RegularMaterial;
+                ApplyRegularFont(text);
             }
             else if (StyleSource != null)
             {
@@ -122,27 +120,21 @@ namespace GK2.Framework
         internal static void ApplyHeaderText(TextMeshProUGUI text)
         {
             if (text == null || !NativeUiSkin.IsReady) return;
-            if (NativeUiSkin.BoldFont != null) text.font = NativeUiSkin.BoldFont;
-            if (NativeUiSkin.BoldMaterial != null)
-                text.fontSharedMaterial = NativeUiSkin.BoldMaterial;
+            ApplyBoldFont(text);
             text.color = Color.white;
         }
 
         internal static void ApplyLabelText(TextMeshProUGUI text)
         {
             if (text == null || !NativeUiSkin.IsReady) return;
-            if (NativeUiSkin.RegularFont != null) text.font = NativeUiSkin.RegularFont;
-            if (NativeUiSkin.RegularMaterial != null)
-                text.fontSharedMaterial = NativeUiSkin.RegularMaterial;
+            ApplyRegularFont(text);
             text.color = NativeUiSkin.LabelColor;
         }
 
         internal static void ApplyValueText(TextMeshProUGUI text)
         {
             if (text == null || !NativeUiSkin.IsReady) return;
-            if (NativeUiSkin.RegularFont != null) text.font = NativeUiSkin.RegularFont;
-            if (NativeUiSkin.RegularMaterial != null)
-                text.fontSharedMaterial = NativeUiSkin.RegularMaterial;
+            ApplyRegularFont(text);
             text.color = NativeUiSkin.ValueColor;
         }
 
@@ -179,12 +171,32 @@ namespace GK2.Framework
             TextMeshProUGUI label = button.GetComponentInChildren<TextMeshProUGUI>(true);
             if (label != null)
             {
-                if (NativeUiSkin.BoldFont != null) label.font = NativeUiSkin.BoldFont;
-                if (NativeUiSkin.BoldMaterial != null)
-                    label.fontSharedMaterial = NativeUiSkin.BoldMaterial;
+                ApplyBoldFont(label);
                 label.fontSize = 16f;
                 label.color = NativeUiSkin.ButtonTextColor;
             }
+        }
+
+        private static void ApplyRegularFont(TextMeshProUGUI text)
+        {
+            TMP_FontAsset resolved = NativeUiSkin.GetRegularFontForCurrentLanguage();
+            if (resolved == null) return;
+            text.font = resolved;
+            text.fontSharedMaterial = ReferenceEquals(resolved, NativeUiSkin.RegularFont)
+                && NativeUiSkin.RegularMaterial != null
+                ? NativeUiSkin.RegularMaterial
+                : resolved.material;
+        }
+
+        private static void ApplyBoldFont(TextMeshProUGUI text)
+        {
+            TMP_FontAsset resolved = NativeUiSkin.GetBoldFontForCurrentLanguage();
+            if (resolved == null) return;
+            text.font = resolved;
+            text.fontSharedMaterial = ReferenceEquals(resolved, NativeUiSkin.BoldFont)
+                && NativeUiSkin.BoldMaterial != null
+                ? NativeUiSkin.BoldMaterial
+                : resolved.material;
         }
 
         internal static void ApplyGearButton(LazyButton button)
