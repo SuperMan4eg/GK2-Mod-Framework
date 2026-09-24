@@ -7,6 +7,7 @@
 - Added public `Gk2CompatibilityInspector.Calls(source, target)` for targeted IL call-path validation without exposing Harmony internals to consumer mods.
 - Unknown builds remain fail-closed for mods that do not explicitly confirm a validated contract, and an incompatible base fingerprint cannot be overridden.
 - Existing 0.1.x mods remain binary-compatible; no existing metadata constructor or lifecycle signature changed.
+- Fixed Mods-list status badges so informational `StatusDetail` text on a `Compatible` mod no longer turns the mod into a warning. Compatible enabled mods show `OK`; pending restart remains `WARN`; actual compatibility/dependency failures keep their error state.
 - Runtime-tested the new opt-in path on Steam build `25509347`: the Framework correctly kept the global build status `Unknown`, validated consumer mods could confirm their own contracts and run, while an older strict mod without confirmation remained `UnknownBuild`.
 
 ## 0.1.10 — 2026-09-24

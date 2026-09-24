@@ -57,8 +57,6 @@ namespace GK2.Framework
                         return Warning(FrameworkUi.L(
                             "mods.issue.pending_restart",
                             "Restart required to apply the scheduled enabled state."));
-                    if (!string.IsNullOrWhiteSpace(mod.StatusDetail))
-                        return Warning(mod.StatusDetail);
                     return mod.IsEnabled ? Ok() : Off();
 
                 default:
