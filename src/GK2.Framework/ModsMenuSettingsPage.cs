@@ -164,7 +164,10 @@ namespace GK2.Framework
             {
                 string section = string.IsNullOrWhiteSpace(setting.Section)
                     ? FrameworkUi.L("settings.general", "General")
-                    : setting.Section;
+                    : selected.Metadata.Id == FrameworkPlugin.PluginGuid
+                        && string.Equals(setting.Section, "UI", StringComparison.OrdinalIgnoreCase)
+                            ? FrameworkUi.L("settings.ui", "UI")
+                            : setting.Section;
                 if (!string.Equals(currentSection, section, StringComparison.OrdinalIgnoreCase))
                 {
                     CreateSectionHeader(section, sectionIndex++, y);

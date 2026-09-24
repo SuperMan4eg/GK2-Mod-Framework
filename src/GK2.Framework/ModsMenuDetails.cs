@@ -97,7 +97,7 @@ namespace GK2.Framework
                 meta.Name
                 + "\n\n" + FrameworkUi.L("mods.version", "Version") + ": " + meta.Version
                 + "\n" + FrameworkUi.L("mods.author", "Author") + ": " + meta.Author
-                + "\n" + FrameworkUi.L("mods.compatibility", "Compatibility") + ": " + mod.Status
+                + "\n" + FrameworkUi.L("mods.compatibility", "Compatibility") + ": " + FormatCompatibilityStatus(mod.Status)
                 + issue
                 + "\n" + FrameworkUi.L("mods.dependencies", "Dependencies") + ": " + FormatDependencies(mod)
                 + enabledInfo
@@ -133,6 +133,31 @@ namespace GK2.Framework
             }
 
             settingsButton.interactable = mod.Settings.Items.Count > 0;
+        }
+
+        private static string FormatCompatibilityStatus(ModCompatibilityStatus status)
+        {
+            switch (status)
+            {
+                case ModCompatibilityStatus.Compatible:
+                    return FrameworkUi.L("mods.compatibility.compatible", "Compatible");
+                case ModCompatibilityStatus.UnknownBuild:
+                    return FrameworkUi.L("mods.compatibility.unknown_build", "Unknown build");
+                case ModCompatibilityStatus.MissingDependency:
+                    return FrameworkUi.L("mods.compatibility.missing_dependency", "Missing dependency");
+                case ModCompatibilityStatus.VersionMismatch:
+                    return FrameworkUi.L("mods.compatibility.version_mismatch", "Version mismatch");
+                case ModCompatibilityStatus.Disabled:
+                    return FrameworkUi.L("mods.compatibility.disabled", "Disabled");
+                case ModCompatibilityStatus.Faulted:
+                    return FrameworkUi.L("mods.compatibility.faulted", "Faulted");
+                case ModCompatibilityStatus.DependencyUnavailable:
+                    return FrameworkUi.L("mods.compatibility.dependency_unavailable", "Dependency unavailable");
+                case ModCompatibilityStatus.DependencyCycle:
+                    return FrameworkUi.L("mods.compatibility.dependency_cycle", "Dependency cycle");
+                default:
+                    return status.ToString();
+            }
         }
 
         private static string FormatDependencies(RegisteredMod mod)

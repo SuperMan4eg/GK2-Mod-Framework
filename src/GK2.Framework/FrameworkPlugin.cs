@@ -29,7 +29,9 @@ namespace GK2.Framework
         {
             private readonly Gk2ModMetadata metadata = new Gk2ModMetadata(
                 PluginGuid, PluginName, "SuperMan4eg", PluginVersion,
-                "Shared lifecycle, compatibility, settings and Mods menu API for GK2 BepInEx mods.");
+                FrameworkLocalization.Get(
+                    "framework.description",
+                    "Shared lifecycle, compatibility, settings and Mods menu API for GK2 BepInEx mods."));
             public override Gk2ModMetadata Metadata => metadata;
 
             public override void OnRegister(Gk2ModContext context)
@@ -40,8 +42,10 @@ namespace GK2.Framework
                     100,
                     50,
                     100,
-                    "Window scale (%)",
-                    "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area.",
+                    FrameworkLocalization.Get("settings.window_scale", "Window scale (%)"),
+                    FrameworkLocalization.Get(
+                        "settings.window_scale_description",
+                        "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area."),
                     10,
                     -100);
                 FrameworkUi.WindowScalePercent.SettingChanged += (_, __) => ModsMenuWindow.RefreshResponsiveScale();
