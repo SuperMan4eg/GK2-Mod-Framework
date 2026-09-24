@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.9
+# GK2 Mod Framework 0.1.10
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -13,7 +13,7 @@ The repository tracks current development. Use the Nexus Mods page for packaged 
 ## Requirements
 
 - Graveyard Keeper 2 for Windows x64
-- Verified full-release Steam builds: `25457344`, `25467846`
+- Verified full-release Steam builds: `25457344`, `25467846`, `25506711`
 - Demo build `25344626` remains supported
 - BepInEx `5.4.23.5` x64
 
@@ -66,14 +66,14 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 ## Compatibility and known limitations
 
-- Verified on Graveyard Keeper 2 full-release Steam builds `25457344` and `25467846`, Unity `6000.3.9f1`, Mono x64.
+- Verified on Graveyard Keeper 2 full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64.
 - Backward compatibility was also rechecked on Demo build `25344626`.
 - Mouse input is verified. The gamepad-mode Mods menu open path and directional navigation are runtime-tested, including the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
-- English is the built-in fallback language. Framework 0.1.9 ships complete English, Russian, and Korean catalogs for Framework-owned UI and can load UTF-8 JSON language files for integrated mods that explicitly use the localization API. Framework 0.1.9 also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
+- English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI and can load UTF-8 JSON language files for integrated mods that explicitly use the localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
 
 ## Troubleshooting
 

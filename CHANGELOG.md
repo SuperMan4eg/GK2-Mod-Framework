@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.10 — 2026-09-24
+
+- Added compatibility with Graveyard Keeper 2 Steam build `25506711`.
+- Reverified Framework UI, lifecycle, localization/font, resolution, and menu integration targets against the updated game assemblies.
+- Kept the public 0.1.x API and existing Framework behavior unchanged; this release only extends the verified game-build fingerprint set.
+
 ## 0.1.9 — 2026-09-24
 
 - Fixed Framework-created UI text rendering as blank spaces for Korean translations.

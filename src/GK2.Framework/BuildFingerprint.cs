@@ -13,6 +13,7 @@ namespace GK2.Framework
         public const string KnownDemoAssemblySha256 = "03E02DCDB1CE95B52B698250F99AC59F886521800DB68790F4AC6388389670BF";
         public const string KnownReleaseAssemblySha256 = "185A742AB88B13E0CA9AB26EE820DDEFCBA05FAFD76A6027939F889DE65CCD50";
         public const string KnownReleaseUpdate1AssemblySha256 = "3180591FFB3BB8B076D1BB9B1EB5C27383C8EC6B32385C4EAB57F31DB00DA0FB";
+        public const string KnownReleaseUpdate2AssemblySha256 = "E8512DE424FF4F27F6EEB9970D724816FF51B26665B0AA5D12D0B7849CA67D67";
         public string UnityVersion { get; }
         public string AssemblyCSharpPath { get; }
         public string AssemblyCSharpSha256 { get; }
@@ -37,7 +38,8 @@ namespace GK2.Framework
             bool knownDemo = string.Equals(hash, KnownDemoAssemblySha256, StringComparison.OrdinalIgnoreCase);
             bool knownRelease = string.Equals(hash, KnownReleaseAssemblySha256, StringComparison.OrdinalIgnoreCase);
             bool knownReleaseUpdate1 = string.Equals(hash, KnownReleaseUpdate1AssemblySha256, StringComparison.OrdinalIgnoreCase);
-            BuildCompatibilityStatus status = knownDemo || knownRelease || knownReleaseUpdate1
+            bool knownReleaseUpdate2 = string.Equals(hash, KnownReleaseUpdate2AssemblySha256, StringComparison.OrdinalIgnoreCase);
+            BuildCompatibilityStatus status = knownDemo || knownRelease || knownReleaseUpdate1 || knownReleaseUpdate2
                 ? BuildCompatibilityStatus.Compatible : BuildCompatibilityStatus.Unknown;
             return new BuildFingerprint(Application.unityVersion, path, hash, status);
         }
