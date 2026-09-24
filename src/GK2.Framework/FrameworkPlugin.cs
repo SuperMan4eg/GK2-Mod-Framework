@@ -8,7 +8,7 @@ namespace GK2.Framework
     {
         public const string PluginGuid = "ru.superman4eg.gk2.framework";
         public const string PluginName = "GK2 Mod Framework";
-        public const string PluginVersion = "0.1.7";
+        public const string PluginVersion = "0.1.8";
         private Harmony harmony;
 
         private void Awake()

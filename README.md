@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.7
+# GK2 Mod Framework 0.1.8
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -46,6 +46,7 @@ To uninstall, close the game and remove that DLL. Mods that require the framewor
 - Restart-required state for mods that cannot be toggled safely at runtime
 - Optional integration mode for standalone mods that should not expose a framework-owned Enable/Disable control
 - Automatically generated controls for toggles, integer and float sliders, dropdowns, keybinds, text fields, and read-only values
+- UTF-8 JSON localization files for Framework UI and opt-in localization in dependent mods
 - Settings stored through BepInEx configuration files
 
 ## Creating a framework mod

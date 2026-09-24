@@ -31,12 +31,14 @@ if (Test-Path -LiteralPath $stagingRoot) {
 }
 
 New-Item -ItemType Directory -Path (Join-Path $stagingRoot "BepInEx\plugins") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework\Localization") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $stagingRoot "docs") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $stagingRoot "Templates\GK2.Framework.ModTemplate") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $stagingRoot "Templates\GK2.Framework.OptionalIntegrationTemplate\Main") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $stagingRoot "Templates\GK2.Framework.OptionalIntegrationTemplate\FrameworkBridge") -Force | Out-Null
 
 Copy-Item -LiteralPath (Join-Path $projectRoot "src\GK2.Framework\bin\$Configuration\netstandard2.1\GK2.Framework.dll") -Destination (Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework.dll")
+Copy-Item -Path (Join-Path $projectRoot "Localization\*") -Destination (Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework\Localization") -Recurse
 Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination $stagingRoot
 Copy-Item -LiteralPath (Join-Path $projectRoot "CHANGELOG.md") -Destination $stagingRoot
 Copy-Item -LiteralPath $licensePath -Destination $stagingRoot

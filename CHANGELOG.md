@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.8 — 2026-09-24
+
+- Added UTF-8 JSON localization files under `BepInEx/plugins/GK2.Framework/Localization/<mod-id>/<language>.json`.
+- Added `FrameworkLocalization.Get(modId, key, englishFallback)` so Framework-dependent mods can opt into the same localization system.
+- Added current-language, neutral-language, English, and caller-fallback lookup, including early use of the game's persisted selected language and normalization of Korean `kr`/`kor` aliases to `ko`.
+- Added `GetLocalizationDirectory`, per-mod/all-cache `Reload` helpers, and retained the existing global `Resolver` behavior for 0.1.x compatibility.
+- Routed the main-menu Mods label through the localization system and included the Framework English key file plus the existing Russian Mods-label translation as language files.
+- Localization remains opt-in: the Framework does not scan, resize, rewrite, or translate arbitrary third-party UI automatically.
+
 ## 0.1.7 — 2026-09-23
 
 - Added a compact gear-shaped **Framework Settings** button to the Mods menu without exposing the framework as a normal mod-list entry or drawing a rectangular button background.

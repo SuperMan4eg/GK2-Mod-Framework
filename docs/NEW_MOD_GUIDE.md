@@ -98,7 +98,31 @@ This dependency model does not load DLLs. Continue using BepInEx attributes for 
 
 For optional framework integration, do not merely replace a hard dependency with `SoftDependency` while keeping direct framework references in the main assembly. Keep the main assembly framework-free and place framework-specific code in a separate bridge plugin. See `OPTIONAL_INTEGRATION.md`.
 
-## 6. Build and package
+## 6. Add localization files (optional)
+
+Framework 0.1.8 can load UTF-8 JSON translations from `BepInEx/plugins/GK2.Framework/Localization/<mod-id>/<language>.json`.
+
+For example, Korean strings for `com.yourname.gk2.mymod` go in `BepInEx/plugins/GK2.Framework/Localization/com.yourname.gk2.mymod/ko.json`:
+
+```json
+{
+  "ui.title": "My translated title",
+  "settings.feature_enabled": "My translated setting"
+}
+```
+
+Resolve text through the public API and always provide an English fallback:
+
+```csharp
+string title = FrameworkLocalization.Get(
+    PluginGuid,
+    "ui.title",
+    "My Mod");
+```
+
+Lookup falls back from the current game language to its neutral language when applicable, then `en`, then the supplied English fallback. Mods opt in explicitly; the Framework does not rewrite arbitrary third-party UI. If a mod keeps UI open while the game language changes, that mod is responsible for refreshing its existing labels.
+
+## 7. Build and package
 
 Build from the mod project folder:
 
@@ -117,7 +141,7 @@ Ship only the mod DLL and any genuine runtime dependencies. Do not include PDB f
 
 List GK2 Mod Framework and BepInEx 5 as requirements on the mod page.
 
-## 7. Test before release
+## 8. Test before release
 
 Verify all of the following:
 

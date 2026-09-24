@@ -81,7 +81,15 @@ Usage rules:
 
 ## Localization
 
-`FrameworkLocalization.Resolver` is an optional global function for resolving framework localization keys. An empty result uses the English fallback. Each mod is responsible for localizing its own metadata and setting labels.
+Framework 0.1.8 adds UTF-8 JSON language files and keeps `FrameworkLocalization.Resolver` as a legacy host override for 0.1.x compatibility.
+
+Language files live under `BepInEx/plugins/GK2.Framework/Localization/<mod-id>/<language>.json`. Files are flat JSON objects whose keys and values are strings. The selected language is read from the game's persisted `settings.language` value when available, which makes localization usable during early mod registration; `LLBase.CurrentLang` is the fallback. Language codes are normalized to lowercase, `-` becomes `_`, and Korean aliases `kr`/`kor` normalize to `ko`.
+
+Use `FrameworkLocalization.Get(modId, key, englishFallback)` from dependent mods. Lookup order is the current language, its neutral language when applicable (for example `pt_br -> pt`), `en`, then the supplied fallback. `GetLocalizationDirectory(modId)` returns the shared directory for packaging or diagnostics. `Reload(modId)` and `Reload()` clear cached language files after edits.
+
+The existing two-argument `FrameworkLocalization.Get(key, englishFallback)` is reserved for Framework-owned strings. `FrameworkLocalization.Resolver`, when set, still gets first chance to resolve those Framework keys; returning null or an empty string continues into the file/fallback path.
+
+Localization is opt-in for dependent mods. The Framework does not scan or rewrite arbitrary third-party UI text. Mods decide where to call the localization API and remain responsible for refreshing any already-created UI when the game language changes.
 
 ## Not part of the public contract
 

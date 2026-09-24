@@ -489,7 +489,7 @@ namespace GK2.Framework
 
         private void Apply()
         {
-            string text = string.Equals(LLBase.CurrentLang, "ru", StringComparison.OrdinalIgnoreCase) ? "Моды" : "Mods";
+            string text = FrameworkLocalization.Get("mods.title", "Mods");
             if (labels != null)
                 foreach (TextMeshProUGUI label in labels)
                     if (label != null)
