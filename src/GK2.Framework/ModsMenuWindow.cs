@@ -11,7 +11,7 @@ namespace GK2.Framework
     {
         private static readonly Vector2 BasePanelSize = new Vector2(760f, 500f);
         private static ModsMenuWindow instance;
-        private static UIMainMenuWindow returnWindow;
+        private static LazyWindow<LazyWidgetDataBase> returnWindow;
 
         private RectTransform panelRect;
         private Vector2 lastSafeAreaSize = new Vector2(-1f, -1f);
@@ -28,8 +28,18 @@ namespace GK2.Framework
 
         internal static void OpenFromMainMenu(UIMainMenuWindow mainMenu)
         {
-            if (mainMenu == null) return;
-            returnWindow = mainMenu;
+            OpenFromWindow(mainMenu);
+        }
+
+        internal static void OpenFromPauseMenu(UIGamePauseWindow pauseMenu)
+        {
+            OpenFromWindow(pauseMenu);
+        }
+
+        private static void OpenFromWindow(LazyWindow<LazyWidgetDataBase> sourceWindow)
+        {
+            if (sourceWindow == null) return;
+            returnWindow = sourceWindow;
             string currentLanguage = FrameworkLocalization.CurrentLanguage;
             if (instance != null
                 && !string.Equals(instance.builtLanguage, currentLanguage, StringComparison.OrdinalIgnoreCase))
@@ -46,11 +56,20 @@ namespace GK2.Framework
                 }
             }
 
-            if (instance == null) instance = CreateInstance(mainMenu);
+            if (instance == null) instance = CreateInstance(sourceWindow);
             if (instance.IsShown) return;
 
-            mainMenu.Close();
-            instance.Open(null);
+            bool preservePause = sourceWindow is UIGamePauseWindow && MainGame.IsGamePaused;
+            if (preservePause)
+            {
+                instance.Open(null);
+                sourceWindow.Close();
+            }
+            else
+            {
+                sourceWindow.Close();
+                instance.Open(null);
+            }
             FrameworkLog.Source?.LogInfo("GK2_MODS_MENU_OPENED");
         }
 
@@ -59,7 +78,7 @@ namespace GK2.Framework
             if (instance != null && instance.IsShown)
                 instance.Close();
             else if (returnWindow != null)
-                OpenFromMainMenu(returnWindow);
+                OpenFromWindow(returnWindow);
         }
 
         internal static void RefreshResponsiveScale()
@@ -67,18 +86,26 @@ namespace GK2.Framework
             instance?.ApplyResponsiveScale(force: true);
         }
 
-        private static ModsMenuWindow CreateInstance(UIMainMenuWindow mainMenu)
+        private static ModsMenuWindow CreateInstance(LazyWindow<LazyWidgetDataBase> sourceWindow)
         {
-            LazyButton template =
-                AccessTools.Field(typeof(UIMainMenuWindow), "gameSettingsButton")?.GetValue(mainMenu)
-                as LazyButton;
+            LazyButton template = null;
+            if (sourceWindow is UIMainMenuWindow mainMenu)
+            {
+                template = AccessTools.Field(typeof(UIMainMenuWindow), "gameSettingsButton")?.GetValue(mainMenu)
+                    as LazyButton;
+            }
+            else if (sourceWindow is UIGamePauseWindow pauseMenu)
+            {
+                template = AccessTools.Field(typeof(UIGamePauseWindow), "settingsBtn")?.GetValue(pauseMenu)
+                    as LazyButton;
+            }
             NativeUiSkin.TryCapture();
             FrameworkUi.StyleSource = NativeUiSkin.IsReady
                 ? null
                 : template?.GetComponentInChildren<TextMeshProUGUI>(true);
 
             GameObject root = new GameObject("GK2ModsMenuWindow", typeof(RectTransform));
-            root.transform.SetParent(FindUiRoot(mainMenu), false);
+            root.transform.SetParent(FindUiRoot(sourceWindow), false);
 
             Canvas canvas = root.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -96,7 +123,7 @@ namespace GK2.Framework
             return window;
         }
 
-        private static Transform FindUiRoot(UIMainMenuWindow mainMenu)
+        private static Transform FindUiRoot(Component sourceWindow)
         {
             GUIElements gui = GUIElements.Instance;
             UIFitter fitter = gui == null
@@ -105,7 +132,7 @@ namespace GK2.Framework
 
             if (fitter != null) return fitter.transform;
             if (gui != null && gui.Root != null) return gui.Root;
-            return mainMenu.transform.parent;
+            return sourceWindow.transform.parent;
         }
 
         private void BuildUi(LazyButton template)
@@ -308,12 +335,22 @@ namespace GK2.Framework
 
         public override void Close()
         {
-            base.Close();
-            FrameworkLog.Source?.LogInfo("GK2_MODS_MENU_CLOSED");
-
-            UIMainMenuWindow target = returnWindow;
+            LazyWindow<LazyWidgetDataBase> target = returnWindow;
             returnWindow = null;
-            if (target != null) target.Open(null);
+            bool preservePause = target is UIGamePauseWindow && MainGame.IsGamePaused;
+
+            if (preservePause && target != null)
+            {
+                target.Open(null);
+                base.Close();
+            }
+            else
+            {
+                base.Close();
+                if (target != null) target.Open(null);
+            }
+
+            FrameworkLog.Source?.LogInfo("GK2_MODS_MENU_CLOSED");
         }
 
         private void RefreshMods()
@@ -328,6 +365,7 @@ namespace GK2.Framework
             string selectedId = mod?.Metadata.Id;
             modList.SetSelected(selectedId);
             details.Show(mod);
+            details.ConfigureGamepadNavigation(modList.GetNavigationItem(selectedId));
             FrameworkLog.Source?.LogInfo("GK2_MOD_SELECTED: " + (selectedId ?? "<none>"));
         }
 

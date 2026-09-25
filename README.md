@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.11
+# GK2 Mod Framework 0.1.12
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -25,7 +25,7 @@ Mods that require a known build remain fail-closed by default after future game 
 1. Install BepInEx 5.4.23.5 x64 in the Graveyard Keeper 2 folder.
 2. Start the game once, then close it.
 3. Copy the archive contents into the game folder. The DLL must end up at `BepInEx/plugins/GK2.Framework.dll`.
-4. Start the game. The main menu should contain a **Mods** button.
+4. Start the game. The main menu should contain a **Mods** button. Starting with 0.1.12, the in-game ESC/pause menu also contains a **Mods** button.
 
 To verify loading, open `BepInEx/LogOutput.log` and look for `GK2_FRAMEWORK_READY`.
 
@@ -37,8 +37,9 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 
 ## Player features
 
-- Native-style **Mods** window in the main menu
+- Native-style **Mods** window available from both the main menu and the in-game ESC/pause menu
 - Responsive safe-area fitting for the Mods window and Framework-hosted mod Settings pages
+- Explicit gamepad navigation between the mod list and the selected mod's Enable/Disable and Settings controls
 - Dedicated **Framework Settings** gear button in the Mods menu
 - Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
@@ -70,10 +71,11 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 - Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was additionally runtime-tested on Steam build `25509347`, whose Assembly-CSharp hash changed while its decompiled C# remained identical to `25506711`.
 - Backward compatibility was also rechecked on Demo build `25344626`.
-- Mouse input is verified. The gamepad-mode Mods menu open path and directional navigation are runtime-tested, including the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
+- Mouse input is verified. Gamepad-mode navigation is runtime-tested, including the transition from a selected mod row into its right-side controls and back, plus the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
+- Starting with 0.1.12, release ZIP entries carry portable Unix metadata (`0755` directories, `0644` regular files) to avoid permission problems when extracting under Linux/Steam Proton. The archive metadata and normal-user extraction path are regression-tested; full gameplay under Proton still depends on the user's BepInEx/Proton setup.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
 - English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI and can load UTF-8 JSON language files for integrated mods that explicitly use the localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Framework 0.1.11 rebuilds its persistent Mods UI after a game-language change so translated labels and native language fonts stay synchronized when switching languages without restarting the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
 

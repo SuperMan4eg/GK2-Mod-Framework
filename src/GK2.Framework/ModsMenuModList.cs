@@ -18,6 +18,8 @@ namespace GK2.Framework
             new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, Image> statusBadges =
             new Dictionary<string, Image>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, GamepadNavigationItem> navigationItems =
+            new Dictionary<string, GamepadNavigationItem>(StringComparer.OrdinalIgnoreCase);
         private readonly Action<RegisteredMod> onSelected;
 
         internal ModsMenuModList(Image frame, Action<RegisteredMod> onSelected)
@@ -30,6 +32,7 @@ namespace GK2.Framework
         {
             selectionMarks.Clear();
             statusBadges.Clear();
+            navigationItems.Clear();
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 GameObject oldItem = content.GetChild(i).gameObject;
@@ -131,6 +134,15 @@ namespace GK2.Framework
 
                 item.onClick.AddListener(() => onSelected(captured));
                 item.SetCallbacksIntoGamepadNavigationItem();
+                GamepadNavigationItem navigation = item.GetComponent<GamepadNavigationItem>();
+                if (navigation != null)
+                {
+                    navigationItems[mod.Metadata.Id] = navigation;
+                    navigation.SetCallbacks(
+                        () => { item.ForceOnEnter(); onSelected(captured); },
+                        item.ForceOnExit,
+                        item.ForceOnClick);
+                }
                 y -= 40f;
             }
 
@@ -179,6 +191,13 @@ namespace GK2.Framework
                     core.color = Color.Lerp(state.Color, Color.white, 0.58f);
                 }
             }
+        }
+
+        internal GamepadNavigationItem GetNavigationItem(string modId)
+        {
+            if (string.IsNullOrWhiteSpace(modId)) return null;
+            navigationItems.TryGetValue(modId, out GamepadNavigationItem item);
+            return item;
         }
 
         internal void SetSelected(string selectedId)

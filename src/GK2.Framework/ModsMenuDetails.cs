@@ -139,6 +139,38 @@ namespace GK2.Framework
             settingsButton.interactable = mod.Settings.Items.Count > 0;
         }
 
+        internal void ConfigureGamepadNavigation(GamepadNavigationItem row)
+        {
+            if (row == null) return;
+
+            GamepadNavigationItem enabledNav = enabledButton.GetComponent<GamepadNavigationItem>();
+            GamepadNavigationItem settingsNav = settingsButton.GetComponent<GamepadNavigationItem>();
+            bool enabledAvailable = enabledNav != null
+                && enabledButton.gameObject.activeInHierarchy
+                && enabledButton.interactable;
+            bool settingsAvailable = settingsNav != null
+                && settingsButton.gameObject.activeInHierarchy
+                && settingsButton.interactable;
+
+            if (enabledAvailable)
+            {
+                row.SetCustomDirectionItem(GUIDirection.Right, enabledNav);
+                enabledNav.SetCustomDirectionItem(GUIDirection.Left, row);
+                if (settingsAvailable)
+                {
+                    enabledNav.SetCustomDirectionItem(GUIDirection.Right, settingsNav);
+                    settingsNav.SetCustomDirectionItem(GUIDirection.Left, enabledNav);
+                }
+                return;
+            }
+
+            if (settingsAvailable)
+            {
+                row.SetCustomDirectionItem(GUIDirection.Right, settingsNav);
+                settingsNav.SetCustomDirectionItem(GUIDirection.Left, row);
+            }
+        }
+
         private static string FormatCompatibilityStatus(ModCompatibilityStatus status)
         {
             switch (status)

@@ -16,6 +16,7 @@ namespace GK2.Framework
     internal static class MenuInjectionPatches
     {
         private static UIMainMenuWindow mainMenuOwner;
+        private static UIGamePauseWindow pauseMenuOwner;
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LazyButton), nameof(LazyButton.OnPointerClick))]
         private static void PointerClickPrefix(LazyButton __instance)
@@ -46,6 +47,24 @@ namespace GK2.Framework
         {
             mainMenuOwner = __instance;
             InjectRuntimeButton(__instance, "gameSettingsButton");
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIGamePauseWindow), nameof(UIGamePauseWindow.Init))]
+        private static void PauseMenuInitPostfix(UIGamePauseWindow __instance)
+        {
+            pauseMenuOwner = __instance;
+            InjectPauseMenuButton(__instance);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIGamePauseWindow), nameof(UIGamePauseWindow.Open))]
+        private static void PauseMenuOpenPostfix(UIGamePauseWindow __instance)
+        {
+            pauseMenuOwner = __instance;
+            GamepadNavigationController navigation = __instance.GetComponent<GamepadNavigationController>();
+            if (navigation != null && LazyInput.IsGamepadActive)
+                navigation.ReinitItems(focusOnFirstActive: true);
         }
 
         [HarmonyPostfix]
@@ -113,7 +132,50 @@ namespace GK2.Framework
         private static void RefreshContentFitterPostfix(RectTransform transform)
         { LogCloneDuringLayout("LAYOUT_DISABLE_POSTFIX", transform); }
 
-        // Pause-menu injection is deliberately suspended until the main-menu button is verified in game.
+        private static void InjectPauseMenuButton(UIGamePauseWindow window)
+        {
+            try
+            {
+                LazyButton template = AccessTools.Field(typeof(UIGamePauseWindow), "settingsBtn")?.GetValue(window)
+                    as LazyButton;
+                if (template == null)
+                {
+                    FrameworkLog.Error("Pause-menu Mods button template was not found: settingsBtn");
+                    return;
+                }
+
+                Transform existing = template.transform.parent.Find("GK2PauseModsButton");
+                if (existing != null) UnityEngine.Object.Destroy(existing.gameObject);
+
+                LazyButton button = CreateRuntimeButton(template, "GK2PauseModsButton");
+                button.onClick = new Button.ButtonClickedEvent();
+                button.onClick.AddListener(() =>
+                {
+                    FrameworkLog.Source?.LogInfo("GK2_PAUSE_MODS_BUTTON_CLICKED");
+                    ModsMenuWindow.OpenFromPauseMenu(pauseMenuOwner);
+                });
+                button.LazyUIElementId = "gk2_framework_pause_mods";
+
+                ModsButtonLocalization localization = button.gameObject.AddComponent<ModsButtonLocalization>();
+                localization.Initialize(
+                    button.GetComponentsInChildren<TextMeshProUGUI>(true),
+                    template.GetComponentInChildren<TextMeshProUGUI>(true));
+
+                button.SetCallbacksIntoGamepadNavigationItem();
+                GamepadNavigationController navigation = window.GetComponent<GamepadNavigationController>();
+                if (navigation != null)
+                    navigation.ReinitItems(focusOnFirstActive: false);
+                if (button.transform.parent is RectTransform parent)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(parent);
+
+                FrameworkLog.Source?.LogInfo("GK2_PAUSE_MODS_BUTTON_INJECTED: UIGamePauseWindow");
+            }
+            catch (Exception ex)
+            {
+                FrameworkLog.Error("Pause-menu Mods button injection failed: " + ex);
+            }
+        }
+
         private static void InjectRuntimeButton(UIMainMenuWindow window, string templateField)
         {
             try
@@ -129,7 +191,7 @@ namespace GK2.Framework
                 if (existing != null) UnityEngine.Object.Destroy(existing.gameObject);
 
                 LogButtonState("TEMPLATE_AFTER_INIT", template);
-                LazyButton button = CreateRuntimeButton(template);
+                LazyButton button = CreateRuntimeButton(template, "GK2ModsButton");
                 button.onClick = new Button.ButtonClickedEvent();
                 button.onClick.AddListener(OnModsButtonClicked);
                 button.LazyUIElementId = "gk2_framework_mods";
@@ -150,13 +212,13 @@ namespace GK2.Framework
             catch (Exception ex) { FrameworkLog.Error("Mods button injection failed: " + ex); }
         }
 
-        private static LazyButton CreateRuntimeButton(LazyButton template)
+        private static LazyButton CreateRuntimeButton(LazyButton template, string objectName)
         {
             RectTransform templateRect = (RectTransform)template.transform;
             Image templateImage = template.targetGraphic as Image;
             TextMeshProUGUI templateLabel = template.GetComponentInChildren<TextMeshProUGUI>(true);
 
-            GameObject root = new GameObject("GK2ModsButton", typeof(RectTransform));
+            GameObject root = new GameObject(objectName, typeof(RectTransform));
             RectTransform rect = (RectTransform)root.transform;
             rect.anchorMin = templateRect.anchorMin;
             rect.anchorMax = templateRect.anchorMax;
