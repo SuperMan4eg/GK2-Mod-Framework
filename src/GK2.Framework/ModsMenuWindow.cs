@@ -115,6 +115,9 @@ namespace GK2.Framework
             root.AddComponent<GraphicRaycaster>();
             GamepadNavigationController navigation = root.AddComponent<GamepadNavigationController>();
             navigation.navigationGroupSources = new System.Collections.Generic.List<GamepadNavigationController.NavigationGroupSource>();
+            // The settings rows are not lined up with the Back button, so without this the game's
+            // directional search finds nothing and focus never leaves Back.
+            navigation.useGridSkippedIfListEmpty = true;
 
             ModsMenuWindow window = root.AddComponent<ModsMenuWindow>();
             window.builtLanguage = FrameworkLocalization.CurrentLanguage;
@@ -312,6 +315,7 @@ namespace GK2.Framework
         protected override void Update()
         {
             ApplyResponsiveScale(force: false);
+            settingsPage.Tick();
             if (settingsPage.HandleUpdate()) return;
             base.Update();
         }

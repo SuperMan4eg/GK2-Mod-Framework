@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.13 — 2026-09-25
+
+- Controller navigation now works on mod Settings pages: focus moves through the rows, A flips a toggle, left/right moves a slider, and the right stick scrolls the list.
+- Added `Gk2Settings.AddButton`, a clickable row for actions such as rebinding a controller button.
+
 ## 0.1.12 — 2026-09-25
 
 - Reworked release ZIP creation for portable Unix permission metadata: archive entries are marked as Unix, directories are normalized to `0755`, regular files to `0644`, and the release script validates those modes before accepting the package. This targets the Linux/Steam Proton extraction issue where `Localization` could become inaccessible to a normal user.

@@ -65,6 +65,7 @@ Do not call this method merely because registration did not throw. A mod that do
 - `AddKeybind`
 - `AddText`
 - `AddReadOnly`
+- `AddButton(section, key, name, description, Func<string> label, Action onClick)` — in Framework 0.1.13+, a clickable row that shows the text returned by `label` and calls `onClick` when pressed with the mouse or a controller. It has no config entry and no Reset button; use it for actions such as "press a key or button to rebind".
 
 Usage rules:
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GK2.Framework
 {
-    public enum SettingKind { Toggle, IntegerSlider, FloatSlider, Dropdown, Keybind, Text, ReadOnly }
+    public enum SettingKind { Toggle, IntegerSlider, FloatSlider, Dropdown, Keybind, Text, ReadOnly, Button }
 
     public interface IGk2Setting
     {
@@ -101,6 +101,32 @@ namespace GK2.Framework
         public void ResetToDefault() { }
     }
 
+    // A clickable row: shows the text from the getter and calls onClick when pressed (mouse or controller).
+    internal sealed class ButtonSetting : IGk2Setting
+    {
+        private readonly Func<string> label;
+        internal readonly Action Click;
+        public string UniqueKey => Section + "." + Key;
+        public string Section { get; }
+        public string Key { get; }
+        public string DisplayName { get; }
+        public string Description { get; }
+        public SettingKind Kind => SettingKind.Button;
+        public Type ValueType => typeof(string);
+        public object Value { get => label(); set { } }
+        public object DefaultValue => label();
+        public object Minimum => null;
+        public object Maximum => null;
+        public double Step => 0d;
+        public IReadOnlyList<object> Choices => Array.Empty<object>();
+        public bool IsReadOnly => true;
+        public int Order { get; }
+        public event Action<IGk2Setting> ValueChanged { add { } remove { } }
+        internal ButtonSetting(string section, string key, string displayName, string description, Func<string> label, Action click, int order)
+        { Section = section; Key = key; DisplayName = displayName; Description = description ?? string.Empty; this.label = label; Click = click; Order = order; }
+        public void ResetToDefault() { }
+    }
+
     public sealed class Gk2Settings
     {
         private readonly ConfigFile config;
@@ -131,6 +157,9 @@ namespace GK2.Framework
 
         public ConfigEntry<string> AddText(string section, string key, string value, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, description); settings.Add(new ConfigSetting<string>(e, name, description, SettingKind.Text, order: order)); return e; }
+
+        public void AddButton(string section, string key, string name, string description, Func<string> label, Action onClick, int order = 0)
+        { settings.Add(new ButtonSetting(section, key, name, description, label, onClick, order)); }
 
         public void AddReadOnly(string section, string key, string name, string description, Func<string> getter, int order = 0)
         { settings.Add(new ReadOnlySetting(section, key, name, description, getter, order)); }

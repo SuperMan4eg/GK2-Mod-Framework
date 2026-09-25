@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using BepInEx.Configuration;
 using LazyBearTechnology;
+using Rewired;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,9 @@ namespace GK2.Framework
         private readonly ScrollRect scroll;
         private readonly TextMeshProUGUI title;
         private readonly Action requestClose;
+
+        private readonly List<KeyValuePair<TextMeshProUGUI, IGk2Setting>> actionLabels =
+            new List<KeyValuePair<TextMeshProUGUI, IGk2Setting>>();
 
         private RegisteredMod selected;
         private IGk2Setting capturingKeybind;
@@ -145,6 +149,7 @@ namespace GK2.Framework
 
         private void BuildControls()
         {
+            actionLabels.Clear();
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 content.GetChild(i).gameObject.SetActive(false);
@@ -319,7 +324,9 @@ namespace GK2.Framework
             FrameworkUi.SetRect(
                 control,
                 new Vector2(-326f, -13f),
-                new Vector2(setting.IsReadOnly ? -6f : -62f, 13f),
+                // Button rows have no Reset button but keep the normal column, so they line up with the
+                // other controls and controller navigation does not skip over them.
+                new Vector2(setting.IsReadOnly && setting.Kind != SettingKind.Button ? -6f : -62f, 13f),
                 new Vector2(1f, 0.5f),
                 new Vector2(1f, 0.5f));
 
@@ -340,6 +347,9 @@ namespace GK2.Framework
                     break;
                 case SettingKind.Text:
                     CreateTextInput(setting, control);
+                    break;
+                case SettingKind.Button:
+                    CreateActionButton(setting, control);
                     break;
                 default:
                     CreateValueText(setting, control);
@@ -375,6 +385,8 @@ namespace GK2.Framework
             FrameworkUi.ApplyCell(bg);
             Toggle toggle = go.AddComponent<Toggle>();
             toggle.targetGraphic = bg;
+            GamepadNavigationItem toggleNav = go.AddComponent<GamepadNavigationItem>();
+            toggleNav.SetCallbacks(null, null, () => toggle.isOn = !toggle.isOn);
 
             TextMeshProUGUI text = FrameworkUi.CreateText(
                 "Value", go.transform, 16f, TextAlignmentOptions.Center, Color.white);
@@ -416,6 +428,9 @@ namespace GK2.Framework
                 Vector2.one);
 
             Slider slider = track.gameObject.AddComponent<Slider>();
+            go.AddComponent<GamepadNavigationItem>();
+            SliderNudge nudge = go.AddComponent<SliderNudge>();
+            nudge.Slider = slider;
             Image bg = FrameworkUi.CreateImage(
                 "Background", track, new Color(0.2f, 0.1f, 0.07f, 1f));
             FrameworkUi.Stretch(bg.rectTransform);
@@ -454,6 +469,12 @@ namespace GK2.Framework
             slider.minValue = Convert.ToSingle(setting.Minimum);
             slider.maxValue = Convert.ToSingle(setting.Maximum);
             slider.wholeNumbers = setting.Kind == SettingKind.IntegerSlider;
+
+            // About 1% of the range per press, but never less than one step of the setting, because
+            // values are snapped to the step and a smaller nudge would snap straight back.
+            double step = Math.Max(setting.Step, 0.000001d);
+            double range = Convert.ToDouble(setting.Maximum) - Convert.ToDouble(setting.Minimum);
+            nudge.Amount = (float)(Math.Ceiling(range / 100d / step) * step);
 
             Image inputBackground = FrameworkUi.CreateImage(
                 "NumericInput", go.transform, new Color(0.18f, 0.09f, 0.06f, 1f));
@@ -701,6 +722,98 @@ namespace GK2.Framework
             template.SetActive(false);
         }
 
+        private void CreateActionButton(IGk2Setting setting, RectTransform parent)
+        {
+            LazyButton button = FrameworkUi.CreateButton(
+                "Action",
+                parent,
+                null,
+                Convert.ToString(setting.Value),
+                Vector2.zero,
+                Vector2.zero,
+                Vector2.zero,
+                Vector2.one);
+            TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
+            FrameworkUi.ApplyValueText(text);
+            button.onClick.AddListener(() =>
+            {
+                try { ((ButtonSetting)setting).Click?.Invoke(); }
+                catch (Exception exception)
+                {
+                    FrameworkLog.Error("GK2_MOD_SETTING_BUTTON_FAILED: " + setting.UniqueKey + ": " + exception);
+                }
+            });
+            button.SetCallbacksIntoGamepadNavigationItem();
+            actionLabels.Add(new KeyValuePair<TextMeshProUGUI, IGk2Setting>(text, setting));
+        }
+
+        // Called every frame while the page is open.
+        internal void Tick()
+        {
+            if (!IsOpen) return;
+
+            foreach (KeyValuePair<TextMeshProUGUI, IGk2Setting> pair in actionLabels)
+            {
+                string label;
+                try { label = Convert.ToString(pair.Value.Value); }
+                catch { continue; } // A mod's label callback failed; keep the last text instead of failing every frame.
+                if (pair.Key != null && pair.Key.text != label) pair.Key.text = label;
+            }
+
+            ScrollWithRightStick();
+        }
+
+        private void ScrollWithRightStick()
+        {
+            if (scroll == null || scroll.viewport == null || !ReInput.isReady) return;
+
+            float stick = 0f;
+            foreach (Joystick joystick in ReInput.controllers.Joysticks)
+            {
+                for (int i = 0; i < joystick.Axes.Count; i++)
+                {
+                    string name = joystick.Axes[i].elementIdentifier.name;
+                    if (string.IsNullOrEmpty(name)) continue;
+
+                    bool rightStickVertical = name.IndexOf("Right Stick", StringComparison.OrdinalIgnoreCase) >= 0
+                        && (name.EndsWith("Y", StringComparison.OrdinalIgnoreCase)
+                            || name.IndexOf("Vertical", StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (!rightStickVertical) continue;
+
+                    float value = joystick.GetAxis(i);
+                    if (Mathf.Abs(value) > Mathf.Abs(stick)) stick = value;
+                }
+            }
+
+            if (Mathf.Abs(stick) < 0.2f) return;
+
+            float maxY = Mathf.Max(0f, content.rect.height - scroll.viewport.rect.height);
+            Vector2 position = content.anchoredPosition;
+            position.y = Mathf.Clamp(position.y - stick * 700f * Time.unscaledDeltaTime, 0f, maxY);
+            content.anchoredPosition = position;
+        }
+
+        // Rebuilding destroys the rows, so the controller list and focus have to be restored.
+        private void RebuildKeepingFocus()
+        {
+            GamepadNavigationController controller = content.GetComponentInParent<GamepadNavigationController>();
+            bool gamepad = controller != null && LazyInput.IsGamepadActive;
+            int focusedIndex = -1;
+            if (gamepad && controller.FocusedItem != null)
+                focusedIndex = Array.IndexOf(content.GetComponentsInChildren<GamepadNavigationItem>(), controller.FocusedItem);
+            float scrollY = content.anchoredPosition.y;
+
+            BuildControls();
+
+            content.anchoredPosition = new Vector2(content.anchoredPosition.x, scrollY);
+            if (!gamepad) return;
+
+            controller.ReinitItems(false);
+            GamepadNavigationItem[] items = content.GetComponentsInChildren<GamepadNavigationItem>();
+            if (focusedIndex >= 0 && focusedIndex < items.Length) controller.SetFocusedItem(items[focusedIndex]);
+            else controller.FocusOnFirstActive();
+        }
+
         private void CreateKeybind(IGk2Setting setting, RectTransform parent)
         {
             LazyButton button = FrameworkUi.CreateButton(
@@ -885,7 +998,7 @@ namespace GK2.Framework
             setting.ResetToDefault();
             FrameworkLog.Source?.LogInfo(
                 "GK2_MOD_SETTING_RESET: " + selected.Metadata.Id + "/" + setting.UniqueKey);
-            BuildControls();
+            RebuildKeepingFocus();
         }
 
         private void ResetAllSettings()
@@ -898,7 +1011,7 @@ namespace GK2.Framework
 
             FrameworkLog.Source?.LogInfo(
                 "GK2_MOD_SETTING_RESET: " + selected.Metadata.Id + "/*");
-            BuildControls();
+            RebuildKeepingFocus();
         }
 
         private void LogChanged(IGk2Setting setting)

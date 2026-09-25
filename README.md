@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.12
+# GK2 Mod Framework 0.1.13
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -40,6 +40,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Native-style **Mods** window available from both the main menu and the in-game ESC/pause menu
 - Responsive safe-area fitting for the Mods window and Framework-hosted mod Settings pages
 - Explicit gamepad navigation between the mod list and the selected mod's Enable/Disable and Settings controls
+- Gamepad navigation inside mod Settings pages: move through the rows, press A on a toggle, use left/right on a slider, and scroll the list with the right stick
 - Dedicated **Framework Settings** gear button in the Mods menu
 - Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
@@ -73,6 +74,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 - Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was additionally runtime-tested on Steam build `25509347`, whose Assembly-CSharp hash changed while its decompiled C# remained identical to `25506711`.
 - Backward compatibility was also rechecked on Demo build `25344626`.
 - Mouse input is verified. Gamepad-mode navigation is runtime-tested, including the transition from a selected mod row into its right-side controls and back, plus the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
+- Gamepad navigation inside Settings pages was tested with an XInput pad through Steam Input on Linux (Proton). Other pads and Windows were not tested.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
