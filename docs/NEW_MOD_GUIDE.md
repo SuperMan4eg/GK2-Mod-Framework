@@ -98,7 +98,7 @@ context.Settings.AddReadOnly(
     () => "Ready");
 ```
 
-Supported controls are toggle, integer slider, float slider, dropdown, enum, `KeyboardShortcut`, editable text, and read-only text.
+Supported controls are toggle, integer slider, float slider, dropdown, enum, `KeyboardShortcut`, editable text, and read-only text. In Framework 0.1.12+, integer/float slider rows also expose a synchronized exact numeric input. The input does not bypass your declared range or step: Framework clamps to min/max and normalizes to the same step used by the slider.
 
 The first argument is the section. Settings are grouped by section and sorted by `order`, then display name. Useful section names include `General`, `Gameplay`, `Visual`, `Controls`, `Advanced`, and `Status`.
 

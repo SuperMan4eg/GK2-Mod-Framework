@@ -58,8 +58,8 @@ Do not call this method merely because registration did not throw. A mod that do
 `Gk2Settings` creates a real `ConfigEntry<T>` and a descriptor used by the Mods menu. Supported methods are:
 
 - `AddToggle`
-- `AddIntSlider`
-- `AddFloatSlider`
+- `AddIntSlider` — slider plus synchronized exact integer input in Framework 0.1.12+; min/max/step remain authoritative
+- `AddFloatSlider` — slider plus synchronized exact decimal input in Framework 0.1.12+; min/max/step remain authoritative
 - `AddDropdown` and generic `AddDropdown<T>`
 - `AddEnum<T>`
 - `AddKeybind`

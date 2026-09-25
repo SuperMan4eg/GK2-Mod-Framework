@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BepInEx.Configuration;
 using LazyBearTechnology;
@@ -404,9 +405,19 @@ namespace GK2.Framework
             go.transform.SetParent(parent, false);
             FrameworkUi.Stretch((RectTransform)go.transform);
 
-            Slider slider = go.AddComponent<Slider>();
+            RectTransform track =
+                new GameObject("Track", typeof(RectTransform)).GetComponent<RectTransform>();
+            track.SetParent(go.transform, false);
+            FrameworkUi.SetRect(
+                track,
+                Vector2.zero,
+                new Vector2(-78f, 0f),
+                Vector2.zero,
+                Vector2.one);
+
+            Slider slider = track.gameObject.AddComponent<Slider>();
             Image bg = FrameworkUi.CreateImage(
-                "Background", go.transform, new Color(0.2f, 0.1f, 0.07f, 1f));
+                "Background", track, new Color(0.2f, 0.1f, 0.07f, 1f));
             FrameworkUi.Stretch(bg.rectTransform);
             if (NativeUiSkin.IsReady && NativeUiSkin.ProgressBackgroundSprite != null)
             {
@@ -416,7 +427,7 @@ namespace GK2.Framework
             }
 
             Image fill = FrameworkUi.CreateImage(
-                "Fill", go.transform, new Color(0.75f, 0.32f, 0.12f, 1f));
+                "Fill", track, new Color(0.75f, 0.32f, 0.12f, 1f));
             FrameworkUi.Stretch(fill.rectTransform);
             if (NativeUiSkin.IsReady && NativeUiSkin.ProgressFillSprite != null)
             {
@@ -427,7 +438,7 @@ namespace GK2.Framework
             slider.fillRect = fill.rectTransform;
 
             Image handle = FrameworkUi.CreateImage(
-                "Handle", go.transform, new Color(1f, 0.75f, 0.35f, 1f));
+                "Handle", track, new Color(1f, 0.75f, 0.35f, 1f));
             handle.rectTransform.sizeDelta = new Vector2(12f, NativeUiSkin.IsReady ? 18f : 34f);
             if (NativeUiSkin.IsReady && NativeUiSkin.SliderHandleSprite != null)
             {
@@ -440,35 +451,125 @@ namespace GK2.Framework
             }
             slider.targetGraphic = handle;
             slider.handleRect = handle.rectTransform;
-
             slider.minValue = Convert.ToSingle(setting.Minimum);
             slider.maxValue = Convert.ToSingle(setting.Maximum);
             slider.wholeNumbers = setting.Kind == SettingKind.IntegerSlider;
-            slider.value = Convert.ToSingle(setting.Value);
 
-            TextMeshProUGUI valueText = FrameworkUi.CreateText(
-                "Value", go.transform, 14f, TextAlignmentOptions.Center, Color.white);
-            FrameworkUi.ApplyValueText(valueText);
-            FrameworkUi.Stretch(valueText.rectTransform);
+            Image inputBackground = FrameworkUi.CreateImage(
+                "NumericInput", go.transform, new Color(0.18f, 0.09f, 0.06f, 1f));
+            FrameworkUi.ApplyCell(inputBackground);
+            FrameworkUi.SetRect(
+                inputBackground.rectTransform,
+                new Vector2(-70f, 1f),
+                new Vector2(0f, -1f),
+                new Vector2(1f, 0f),
+                Vector2.one);
 
-            Action<float> refresh = value =>
-                valueText.text = setting.Kind == SettingKind.IntegerSlider
-                    ? ((int)value).ToString()
-                    : value.ToString("0.######");
+            TMP_InputField input = inputBackground.gameObject.AddComponent<TMP_InputField>();
+            RectTransform textViewport =
+                new GameObject("Text Area", typeof(RectTransform), typeof(RectMask2D))
+                    .GetComponent<RectTransform>();
+            textViewport.SetParent(inputBackground.transform, false);
+            FrameworkUi.SetRect(
+                textViewport,
+                new Vector2(6f, 2f),
+                new Vector2(-6f, -2f),
+                Vector2.zero,
+                Vector2.one);
 
-            refresh(slider.value);
-            slider.onValueChanged.AddListener(value =>
+            TextMeshProUGUI inputText = FrameworkUi.CreateText(
+                "Text", textViewport, NativeUiSkin.IsReady ? 15f : 14f,
+                TextAlignmentOptions.Center, Color.white);
+            FrameworkUi.ApplyValueText(inputText);
+            FrameworkUi.Stretch(inputText.rectTransform);
+            inputText.textWrappingMode = TextWrappingModes.NoWrap;
+            inputText.overflowMode = TextOverflowModes.Masking;
+            input.textViewport = textViewport;
+            input.textComponent = inputText;
+            input.lineType = TMP_InputField.LineType.SingleLine;
+            input.contentType = TMP_InputField.ContentType.Custom;
+            input.characterValidation = TMP_InputField.CharacterValidation.None;
+            input.keyboardType = TouchScreenKeyboardType.NumbersAndPunctuation;
+
+            void RefreshFromSetting()
             {
-                double step = setting.Step;
-                double snapped = step > 0 ? Math.Round(value / step) * step : value;
-                if (setting.Kind == SettingKind.IntegerSlider)
-                    setting.Value = Convert.ToInt32(snapped);
-                else
-                    setting.Value = Convert.ToSingle(snapped);
+                float current = Convert.ToSingle(setting.Value);
+                slider.SetValueWithoutNotify(current);
+                input.SetTextWithoutNotify(FormatNumericValue(setting, setting.Value));
+            }
 
-                refresh(Convert.ToSingle(setting.Value));
-                LogChanged(setting);
+            void ApplyNumericValue(double rawValue, bool logChange)
+            {
+                double normalized = NormalizeNumericValue(setting, rawValue);
+                if (setting.Kind == SettingKind.IntegerSlider)
+                    setting.Value = Convert.ToInt32(normalized);
+                else
+                    setting.Value = Convert.ToSingle(normalized);
+
+                RefreshFromSetting();
+                if (logChange) LogChanged(setting);
+            }
+
+            RefreshFromSetting();
+            slider.onValueChanged.AddListener(value => ApplyNumericValue(value, true));
+            input.onEndEdit.AddListener(value =>
+            {
+                if (TryParseNumericValue(value, out double parsed))
+                    ApplyNumericValue(parsed, true);
+                else
+                    RefreshFromSetting();
             });
+        }
+
+        private static string FormatNumericValue(IGk2Setting setting, object value)
+        {
+            if (setting.Kind == SettingKind.IntegerSlider)
+                return Convert.ToInt32(value).ToString(CultureInfo.InvariantCulture);
+
+            return Convert.ToSingle(value).ToString("0.######", CultureInfo.InvariantCulture);
+        }
+
+        private static bool TryParseNumericValue(string text, out double value)
+        {
+            if (double.TryParse(
+                text,
+                NumberStyles.Float,
+                CultureInfo.CurrentCulture,
+                out value))
+            {
+                return true;
+            }
+
+            if (double.TryParse(
+                text,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out value))
+            {
+                return true;
+            }
+
+            string normalized = (text ?? string.Empty).Trim().Replace(',', '.');
+            return double.TryParse(
+                normalized,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out value);
+        }
+
+        private static double NormalizeNumericValue(IGk2Setting setting, double value)
+        {
+            double minimum = Convert.ToDouble(setting.Minimum, CultureInfo.InvariantCulture);
+            double maximum = Convert.ToDouble(setting.Maximum, CultureInfo.InvariantCulture);
+            double clamped = Math.Max(minimum, Math.Min(maximum, value));
+            double step = setting.Step;
+            double snapped = step > 0d ? Math.Round(clamped / step) * step : clamped;
+            snapped = Math.Max(minimum, Math.Min(maximum, snapped));
+
+            if (setting.Kind == SettingKind.IntegerSlider)
+                return Convert.ToInt32(snapped);
+
+            return Convert.ToSingle(snapped);
         }
 
         private void CreateChoice(IGk2Setting setting, RectTransform parent)

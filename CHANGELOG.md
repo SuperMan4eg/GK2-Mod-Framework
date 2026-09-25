@@ -5,6 +5,7 @@
 - Reworked release ZIP creation for portable Unix permission metadata: archive entries are marked as Unix, directories are normalized to `0755`, regular files to `0644`, and the release script validates those modes before accepting the package. This targets the Linux/Steam Proton extraction issue where `Localization` could become inaccessible to a normal user.
 - Added explicit gamepad navigation between the left mod list and the right-side mod controls. Focusing a mod row now selects that mod; Right moves into Enable/Disable and Settings when available, and Left returns predictably to the selected row.
 - Added a localized native-style `Mods` button to the in-game ESC/pause menu.
+- Integer and float slider settings now include an exact numeric input field beside the slider. Manual input stays synchronized with the slider and still respects the setting's min/max/step contract; invalid text is rejected without corrupting the config, and float input accepts both dot and comma decimal separators.
 - Reused the same Mods window from both main menu and pause menu; Back returns to the source window instead of maintaining a second UI implementation.
 - Pause-menu transitions preserve the modal pause stack so opening/closing Mods from ESC does not intentionally drop `MainGame.IsGamePaused` between windows.
 - Existing public 0.1.x API remains binary-compatible.

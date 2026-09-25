@@ -49,6 +49,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Restart-required state for mods that cannot be toggled safely at runtime
 - Optional integration mode for standalone mods that should not expose a framework-owned Enable/Disable control
 - Automatically generated controls for toggles, integer and float sliders, dropdowns, keybinds, text fields, and read-only values
+- Integer and float sliders include a synchronized exact-number field for values that are difficult to hit precisely with the slider; typed values still obey each setting's min/max/step rules
 - UTF-8 JSON localization files for Framework UI and opt-in localization in dependent mods; complete Framework catalogs are included for English, Russian, and Korean
 - Settings stored through BepInEx configuration files
 
