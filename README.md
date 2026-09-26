@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.12
+# GK2 Mod Framework 0.1.13
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -14,7 +14,7 @@ The repository tracks current development. Use the Nexus Mods page for packaged 
 
 - Graveyard Keeper 2 for Windows x64
 - Known full-release Steam fingerprints: `25457344`, `25467846`, `25506711`
-- Structural unknown-build path verified on Steam build `25509347`
+- Structural unknown-build path verified on Steam builds `25509347` and `25533739`
 - Demo build `25344626` remains supported
 - BepInEx `5.4.23.5` x64
 
@@ -50,6 +50,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Optional integration mode for standalone mods that should not expose a framework-owned Enable/Disable control
 - Automatically generated controls for toggles, integer and float sliders, dropdowns, keybinds, editable text, non-persistent action buttons, and read-only values
 - Integer and float sliders include a synchronized exact-number field for values that are difficult to hit precisely with the slider; typed values still obey each setting's min/max/step rules
+- Controller text/numeric editing uses a Framework-owned on-screen keyboard with commit/cancel and focus restoration, without depending on Steam Overlay
 - Conditional settings can hide irrelevant rows or keep them visible but disabled/grayed out while preserving stored values
 - UTF-8 JSON localization files for Framework UI and dependent mods; Framework-owned Mods UI can resolve registered mod names/descriptions, section headings and setting names/descriptions from each mod's catalog at render time; complete Framework catalogs are included for English, Bulgarian, Russian, and Korean
 - Settings stored through BepInEx configuration files
@@ -73,7 +74,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 - Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was runtime-tested on Steam build `25509347` and again on build `25533739` (Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`): the global fingerprint remained `Unknown`, while current consumer mods that validate their structural contracts registered `Compatible`.
 - Backward compatibility was also rechecked on Demo build `25344626`.
-- Mouse/physical-keyboard input is verified, including visible caret/edit state for text and exact numeric fields. Gamepad-mode navigation is runtime-tested from the mod list through per-mod Settings controls, including toggles, sliders, exact numeric entry, dropdowns, keybinds, text entry, action buttons, per-row Reset paths, Reset/rebuild focus, conditional hidden/disabled rows, Settings-page return focus, and the scaled `1600x900` path. Text and numeric entry from a controller uses a Framework-owned on-screen keyboard with commit/cancel and focus restoration, so it does not depend on Steam Overlay. The controller keyboard currently provides a Latin text layout; entering text in other writing systems requires a physical keyboard. Automated probes use the game's real navigation controller/input mode; physical controller spot-checks remain useful device/mapping coverage.
+- Mouse/physical-keyboard input is verified, including visible caret/edit state for text and exact numeric fields. Gamepad-mode navigation is runtime-tested from the mod list through per-mod Settings controls, including toggles, sliders, exact numeric entry, dropdowns, keybinds, text entry, action buttons, per-row Reset paths, Reset/rebuild focus, conditional hidden/disabled rows, Settings-page return focus, and the scaled `1600x900` path. Text and numeric entry from a controller uses a Framework-owned on-screen keyboard with commit/cancel and focus restoration, so it does not depend on Steam Overlay. The controller keyboard currently provides a Latin text layout; entering text in other writing systems requires a physical keyboard. Automated probes use the game's real navigation controller/input mode, and the 0.1.13 controller keyboard/settings path also passed owner physical-controller testing; broader device/mapping coverage remains useful.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.

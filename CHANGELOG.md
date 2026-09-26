@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.13 — unreleased
+## 0.1.13 — 2026-09-26
 
 - Added render-time localization for registered mods in Framework-owned UI: mod names/descriptions, section headings, and setting names/descriptions can now come from each mod's localization catalog without changing config keys or requiring re-registration.
 - Added a complete Bulgarian Framework UI catalog.
