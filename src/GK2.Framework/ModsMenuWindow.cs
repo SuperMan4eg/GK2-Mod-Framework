@@ -24,6 +24,7 @@ namespace GK2.Framework
         private ModsMenuSettingsPage settingsPage;
         private LazyButton frameworkSettingsButton;
         private RegisteredMod selected;
+        private GamepadNavigationItem settingsReturnFocus;
         private string builtLanguage;
 
         internal static void OpenFromMainMenu(UIMainMenuWindow mainMenu)
@@ -410,6 +411,18 @@ namespace GK2.Framework
         private void OpenSettingsPage(RegisteredMod mod)
         {
             if (mod == null || mod.Settings.Items.Count == 0) return;
+
+            if (LazyInput.IsGamepadActive)
+            {
+                GamepadNavigationController navigation =
+                    GetComponent<GamepadNavigationController>();
+                settingsReturnFocus = navigation?.FocusedItem;
+            }
+            else
+            {
+                settingsReturnFocus = null;
+            }
+
             mainPage.SetActive(false);
             if (closeButton != null) closeButton.gameObject.SetActive(false);
             settingsPage.Open(mod);
@@ -421,13 +434,46 @@ namespace GK2.Framework
             settingsPage.Close();
             mainPage.SetActive(true);
             if (closeButton != null) closeButton.gameObject.SetActive(!LazyInput.IsGamepadActive);
-            RefreshGamepadNavigation();
+
+            GamepadNavigationItem preferredFocus = settingsReturnFocus;
+            settingsReturnFocus = null;
+            RefreshGamepadNavigation(preferredFocus);
         }
 
-        private void RefreshGamepadNavigation()
+        private void RefreshGamepadNavigation(
+            GamepadNavigationItem preferredFocus = null)
         {
             if (!LazyInput.IsGamepadActive) return;
-            GamepadNavigationController.ReinitItems(focusOnFirstActive: true);
+
+            GamepadNavigationController navigation =
+                GetComponent<GamepadNavigationController>();
+            if (navigation == null) return;
+
+            if (preferredFocus == null)
+            {
+                navigation.ReinitItems(focusOnFirstActive: true);
+                return;
+            }
+
+            navigation.ReinitItems(focusOnFirstActive: false);
+            if (preferredFocus.Active
+                && preferredFocus.gameObject.activeInHierarchy)
+            {
+                navigation.SetFocusedItem(preferredFocus);
+                return;
+            }
+
+            GamepadNavigationItem selectedRow =
+                modList?.GetNavigationItem(selected?.Metadata.Id);
+            if (selectedRow != null
+                && selectedRow.Active
+                && selectedRow.gameObject.activeInHierarchy)
+            {
+                navigation.SetFocusedItem(selectedRow);
+                return;
+            }
+
+            navigation.FocusOnFirstActive();
         }
 
         private void ApplyResponsiveScale(bool force)

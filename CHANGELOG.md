@@ -4,6 +4,8 @@
 
 - Fixed gamepad navigation inside mod Settings pages. Controller focus can now enter setting rows from Back/Reset All and traverse toggles, sliders, dropdowns, keybinds, text fields, action buttons and per-setting Reset controls; focused rows are kept visible while scrolling.
 - Added controller behavior for setting controls: Submit toggles toggles, Left/Right adjusts sliders and dropdowns, Submit starts keybind capture, and text fields can be activated without trapping focus.
+- Made the exact numeric field beside integer/float sliders a real controller focus target. Submit on a slider enters exact-value focus; from there the row Reset control is reachable without sacrificing Left/Right slider adjustment.
+- Preserved the originating main-page focus when leaving a mod Settings page, so returning no longer jumps to the first mod in the list.
 - Fixed `AddText` mouse editing by giving runtime TMP input fields an explicit pointer/gamepad activation path; click-to-focus, editing, commit and Back cancellation are regression-tested.
 - Removed the duplicate setting highlight by relying on the game's single global `GamepadDynamicSelector` instead of creating a second local focus frame for runtime setting controls.
 - Added conditional settings through `SetVisibilityCondition`, `SetEnabledCondition` and `RefreshConditions`. Hidden settings leave the layout/navigation while keeping their stored value; disabled settings remain visible but are grayed out and non-interactable.

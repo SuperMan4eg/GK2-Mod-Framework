@@ -33,13 +33,16 @@ namespace GK2.Framework
         private sealed class NavigationRow
         {
             internal GamepadNavigationItem Primary { get; }
+            internal GamepadNavigationItem Secondary { get; }
             internal GamepadNavigationItem Reset { get; }
 
             internal NavigationRow(
                 GamepadNavigationItem primary,
+                GamepadNavigationItem secondary,
                 GamepadNavigationItem reset)
             {
                 Primary = primary;
+                Secondary = secondary;
                 Reset = reset;
             }
         }
@@ -394,6 +397,7 @@ namespace GK2.Framework
                 new Vector2(1f, 0.5f));
 
             GamepadNavigationItem primaryNavigation = null;
+            GamepadNavigationItem secondaryNavigation = null;
             switch (setting.Kind)
             {
                 case SettingKind.Toggle:
@@ -401,7 +405,10 @@ namespace GK2.Framework
                     break;
                 case SettingKind.IntegerSlider:
                 case SettingKind.FloatSlider:
-                    primaryNavigation = CreateSlider(setting, control);
+                    primaryNavigation = CreateSlider(
+                        setting,
+                        control,
+                        out secondaryNavigation);
                     break;
                 case SettingKind.Dropdown:
                     primaryNavigation = CreateChoice(setting, control);
@@ -444,16 +451,21 @@ namespace GK2.Framework
                 ApplyDisabledPresentation(
                     row.gameObject,
                     primaryNavigation,
+                    secondaryNavigation,
                     resetNavigation);
             }
 
-            navigationRows.Add(new NavigationRow(primaryNavigation, resetNavigation));
+            navigationRows.Add(new NavigationRow(
+                primaryNavigation,
+                secondaryNavigation,
+                resetNavigation));
             return rowHeight;
         }
 
         private static void ApplyDisabledPresentation(
             GameObject row,
             GamepadNavigationItem primaryNavigation,
+            GamepadNavigationItem secondaryNavigation,
             GamepadNavigationItem resetNavigation)
         {
             if (row == null)
@@ -477,6 +489,8 @@ namespace GK2.Framework
 
             if (primaryNavigation != null)
                 primaryNavigation.Active = false;
+            if (secondaryNavigation != null)
+                secondaryNavigation.Active = false;
             if (resetNavigation != null)
                 resetNavigation.Active = false;
         }
@@ -520,8 +534,12 @@ namespace GK2.Framework
                 () => toggle.isOn = !toggle.isOn);
         }
 
-        private GamepadNavigationItem CreateSlider(IGk2Setting setting, RectTransform parent)
+        private GamepadNavigationItem CreateSlider(
+            IGk2Setting setting,
+            RectTransform parent,
+            out GamepadNavigationItem numericNavigation)
         {
+            numericNavigation = null;
             GameObject go = new GameObject("Slider", typeof(RectTransform));
             go.transform.SetParent(parent, false);
             FrameworkUi.Stretch((RectTransform)go.transform);
@@ -641,8 +659,29 @@ namespace GK2.Framework
                     RefreshFromSetting();
             });
 
+            numericNavigation = CreateControlNavigation(
+                inputBackground.gameObject,
+                () => RuntimeInputFieldActivator.Activate(input));
+            GamepadNavigationItem numericTarget = numericNavigation;
+
             GamepadNavigationItem navigation =
-                CreateControlNavigation(go, null);
+                CreateControlNavigation(
+                    go,
+                    () =>
+                    {
+                        GamepadNavigationController controller =
+                            go.GetComponentInParent<GamepadNavigationController>();
+                        if (controller != null
+                            && numericTarget != null
+                            && numericTarget.Active)
+                        {
+                            controller.SetFocusedItem(numericTarget);
+                        }
+                        else
+                        {
+                            RuntimeInputFieldActivator.Activate(input);
+                        }
+                    });
             SettingsNavigationControl navigationControl =
                 go.AddComponent<SettingsNavigationControl>();
             navigationControl.Slider = slider;
@@ -1119,17 +1158,38 @@ namespace GK2.Framework
             {
                 NavigationRow row = navigationRows[i];
                 row.Primary?.ResetCustomDirections();
+                row.Secondary?.ResetCustomDirections();
                 row.Reset?.ResetCustomDirections();
 
-                if (row.Primary != null && row.Primary.Active)
+                bool primaryActive =
+                    row.Primary != null && row.Primary.Active;
+                bool secondaryActive =
+                    row.Secondary != null && row.Secondary.Active;
+                bool resetActive =
+                    row.Reset != null && row.Reset.Active;
+
+                if (primaryActive)
                     primary.Add(row.Primary);
-                if (row.Reset != null && row.Reset.Active)
+                if (resetActive)
                     resets.Add(row.Reset);
 
-                if (row.Primary != null
-                    && row.Primary.Active
-                    && row.Reset != null
-                    && row.Reset.Active)
+                if (secondaryActive && primaryActive)
+                {
+                    row.Secondary.SetCustomDirectionItem(
+                        GUIDirection.Left,
+                        row.Primary);
+                }
+
+                if (secondaryActive && resetActive)
+                {
+                    row.Secondary.SetCustomDirectionItem(
+                        GUIDirection.Right,
+                        row.Reset);
+                    row.Reset.SetCustomDirectionItem(
+                        GUIDirection.Left,
+                        row.Secondary);
+                }
+                else if (primaryActive && resetActive)
                 {
                     row.Reset.SetCustomDirectionItem(
                         GUIDirection.Left,
@@ -1161,6 +1221,49 @@ namespace GK2.Framework
             LinkVerticalColumn(
                 resetAllNavigation,
                 resets);
+            LinkSecondaryRows(backNavigation);
+        }
+
+        private void LinkSecondaryRows(
+            GamepadNavigationItem backNavigation)
+        {
+            for (int i = 0; i < navigationRows.Count; i++)
+            {
+                GamepadNavigationItem secondary =
+                    navigationRows[i].Secondary;
+                if (secondary == null || !secondary.Active)
+                    continue;
+
+                GamepadNavigationItem up = backNavigation;
+                for (int previous = i - 1; previous >= 0; previous--)
+                {
+                    GamepadNavigationItem candidate =
+                        navigationRows[previous].Primary;
+                    if (candidate != null && candidate.Active)
+                    {
+                        up = candidate;
+                        break;
+                    }
+                }
+
+                if (up != null)
+                    secondary.SetCustomDirectionItem(
+                        GUIDirection.Up,
+                        up);
+
+                for (int next = i + 1; next < navigationRows.Count; next++)
+                {
+                    GamepadNavigationItem candidate =
+                        navigationRows[next].Primary;
+                    if (candidate == null || !candidate.Active)
+                        continue;
+
+                    secondary.SetCustomDirectionItem(
+                        GUIDirection.Down,
+                        candidate);
+                    break;
+                }
+            }
         }
 
         private static void LinkVerticalColumn(
