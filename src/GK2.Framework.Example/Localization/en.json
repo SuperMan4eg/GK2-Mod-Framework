@@ -2,6 +2,7 @@
   "mod.name": "GK2 Framework Example",
   "mod.description": "Smoke-test settings for GK2 Mod Framework. It does not modify game balance.",
   "sections.Example": "Example",
+  "sections.Conditional": "Conditional",
   "sections.Status": "Status",
   "settings.Example.ShowGreeting.name": "Test toggle",
   "settings.Example.ShowGreeting.description": "A harmless boolean example.",
@@ -15,6 +16,14 @@
   "settings.Example.SampleKeybind.description": "Captured and stored, but performs no gameplay action.",
   "settings.Example.Note.name": "Text",
   "settings.Example.Note.description": "An editable text setting.",
+  "settings.Example.Action.name": "Action button",
+  "settings.Example.Action.description": "A non-persistent action row with a dynamic label.",
+  "settings.Conditional.PartEnabled.name": "Enable conditional part",
+  "settings.Conditional.PartEnabled.description": "Controls the visibility and enabled-state examples below.",
+  "settings.Conditional.HiddenOffset.name": "Hidden when disabled",
+  "settings.Conditional.HiddenOffset.description": "This row disappears while the parent toggle is off.",
+  "settings.Conditional.DisabledOffset.name": "Disabled when parent is off",
+  "settings.Conditional.DisabledOffset.description": "This row stays visible but becomes unavailable while the parent toggle is off.",
   "settings.Status.Summary.name": "Read-only value",
   "settings.Status.Summary.description": "Live value assembled from test settings."
 }

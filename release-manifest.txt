@@ -1,5 +1,6 @@
 # Runtime archive paths, relative to the staging root.
 BepInEx/plugins/GK2.Framework.dll
+BepInEx/plugins/GK2.Framework/Localization/ru.superman4eg.gk2.framework/bg.json
 BepInEx/plugins/GK2.Framework/Localization/ru.superman4eg.gk2.framework/en.json
 BepInEx/plugins/GK2.Framework/Localization/ru.superman4eg.gk2.framework/ru.json
 BepInEx/plugins/GK2.Framework/Localization/ru.superman4eg.gk2.framework/ko.json

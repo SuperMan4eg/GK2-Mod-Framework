@@ -3,6 +3,7 @@
 ## 0.1.13 — unreleased
 
 - Added render-time localization for registered mods in Framework-owned UI: mod names/descriptions, section headings, and setting names/descriptions can now come from each mod's localization catalog without changing config keys or requiring re-registration.
+- Added a complete Bulgarian Framework UI catalog.
 - Fixed gamepad navigation inside mod Settings pages. Controller focus can now enter setting rows from Back/Reset All and traverse toggles, sliders, dropdowns, keybinds, text fields, action buttons and per-setting Reset controls; focused rows are kept visible while scrolling.
 - Added controller behavior for setting controls: Submit toggles toggles, Left/Right adjusts sliders and dropdowns, Submit starts keybind capture, and text fields can be activated without trapping focus.
 - Made the exact numeric field beside integer/float sliders a real controller focus target. Submit on a slider enters exact-value focus; from there the row Reset control is reachable without sacrificing Left/Right slider adjustment.
@@ -16,6 +17,7 @@
 - Runtime-tested the 0.1.13 candidate on Steam build `25533739` / Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`. The global fingerprint remains `Unknown`; current structurally validating consumer mods still register `Compatible`.
 - Existing 0.1.x setting registration signatures remain unchanged; the new APIs are additive.
 - Thanks to `a-solanas` for PR #1 and physical XInput/Steam Input testing that helped shape the controller navigation work.
+- Thanks to `AcTePuKc` / Shteryan Nikolaev for PR #2 (Bulgarian localization) and PR #3 (registered-mod UI localization).
 
 ## 0.1.12 — 2026-09-25
 

@@ -98,7 +98,7 @@ context.Settings.AddReadOnly(
     () => "Ready");
 ```
 
-Supported controls are toggle, integer slider, float slider, dropdown, enum, `KeyboardShortcut`, editable text, and read-only text. In Framework 0.1.12+, integer/float slider rows also expose a synchronized exact numeric input. The input does not bypass your declared range or step: Framework clamps to min/max and normalizes to the same step used by the slider.
+Supported controls are toggle, integer slider, float slider, dropdown, enum, `KeyboardShortcut`, editable text, non-persistent action button, and read-only text. In Framework 0.1.12+, integer/float slider rows also expose a synchronized exact numeric input. The input does not bypass your declared range or step: Framework clamps to min/max and normalizes to the same step used by the slider.
 
 The first argument is the section. Settings are grouped by section and sorted by `order`, then display name. Useful section names include `General`, `Gameplay`, `Visual`, `Controls`, `Advanced`, and `Status`.
 
@@ -137,7 +137,7 @@ For example, Korean strings for `com.yourname.gk2.mymod` go in `BepInEx/plugins/
 }
 ```
 
-Framework-owned UI resolves these standard metadata and setting keys when it renders the Mods list, details, and settings page. Keys for settings use the exact `Section.Key` from the BepInEx config entry, so their localization does not change config storage. Missing keys fall back to the strings supplied by the mod. This also means the labels refresh when the Mods window is rebuilt after a game-language change; mods do not need to re-register or rebind their settings.
+Framework-owned UI resolves these standard metadata and setting keys when it renders the Mods list, details, and settings page. Keys for settings use the exact `Section.Key` from the BepInEx config entry, so their localization does not change config storage. Missing keys fall back to the strings supplied by the mod. This also means the labels refresh when the Mods window is rebuilt after a game-language change; mods do not need to re-register or rebind their settings. Setting values, dropdown choices, read-only values, and dynamic `AddButton` labels are not rewritten automatically because they may be stable config values or mod-generated content; localize those explicitly in the mod when needed.
 
 For strings in mod-owned UI, resolve text through the public API and always provide an English fallback:
 
