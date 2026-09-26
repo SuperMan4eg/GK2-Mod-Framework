@@ -26,9 +26,19 @@ namespace GK2.Framework
         private TextMeshProUGUI captureLabel;
         private KeyCode pendingMainModifier = KeyCode.None;
         private bool presentationRefreshPending;
+        private SettingsVirtualKeyboard virtualKeyboard;
+        private TMP_InputField virtualKeyboardTarget;
+        private string virtualKeyboardOriginalText;
+        private GamepadNavigationItem virtualKeyboardReturnFocus;
+        private GamepadNavigationController virtualKeyboardController;
+        private bool virtualKeyboardContentWasActive;
+        private bool virtualKeyboardBackWasActive;
+        private bool virtualKeyboardResetAllWasActive;
 
         internal bool IsOpen => page.activeSelf;
         internal bool IsCapturingKeybind => capturingKeybind != null;
+        internal bool IsVirtualKeyboardOpen =>
+            virtualKeyboard != null && virtualKeyboard.IsOpen;
 
         private sealed class NavigationRow
         {
@@ -135,6 +145,7 @@ namespace GK2.Framework
         internal void Close()
         {
             CancelKeybindCapture(false);
+            CloseVirtualKeyboard(submit: false, value: null);
             TryCancelTextInputEditing();
             DetachPresentationEvents();
             page.SetActive(false);
@@ -144,6 +155,7 @@ namespace GK2.Framework
         internal void HideWithoutLog()
         {
             CancelKeybindCapture(false);
+            CloseVirtualKeyboard(submit: false, value: null);
             TryCancelTextInputEditing();
             DetachPresentationEvents();
             page.SetActive(false);
@@ -151,6 +163,12 @@ namespace GK2.Framework
 
         internal bool HandleUpdate()
         {
+            if (IsVirtualKeyboardOpen)
+            {
+                virtualKeyboard.HandleUpdate();
+                return true;
+            }
+
             if (presentationRefreshPending
                 && capturingKeybind == null)
             {
@@ -197,6 +215,12 @@ namespace GK2.Framework
 
         internal bool TryCancelTextInputEditing()
         {
+            if (IsVirtualKeyboardOpen)
+            {
+                CloseVirtualKeyboard(submit: false, value: null);
+                return true;
+            }
+
             TMP_InputField[] inputs =
                 page.GetComponentsInChildren<TMP_InputField>(false);
             for (int i = 0; i < inputs.Length; i++)
@@ -210,6 +234,139 @@ namespace GK2.Framework
             }
 
             return false;
+        }
+
+        private void OpenVirtualKeyboard(
+            TMP_InputField input,
+            IGk2Setting setting)
+        {
+            if (input == null
+                || setting == null
+                || IsVirtualKeyboardOpen)
+            {
+                return;
+            }
+
+            GamepadNavigationController controller =
+                page.GetComponentInParent<GamepadNavigationController>();
+            if (controller == null)
+            {
+                FrameworkLog.Source?.LogWarning(
+                    "GK2_SETTINGS_FALLBACK_KEYBOARD_NO_CONTROLLER: "
+                    + setting.UniqueKey);
+                return;
+            }
+
+            virtualKeyboardTarget = input;
+            virtualKeyboardOriginalText = input.text ?? string.Empty;
+            virtualKeyboardController = controller;
+            virtualKeyboardReturnFocus = controller.FocusedItem;
+
+            virtualKeyboardContentWasActive = content.gameObject.activeSelf;
+            virtualKeyboardBackWasActive = backButton.gameObject.activeSelf;
+            virtualKeyboardResetAllWasActive =
+                resetAllButton.gameObject.activeSelf;
+
+            input.DeactivateInputField();
+            content.gameObject.SetActive(false);
+            backButton.gameObject.SetActive(false);
+            resetAllButton.gameObject.SetActive(false);
+
+            bool numeric =
+                setting.Kind == SettingKind.IntegerSlider
+                || setting.Kind == SettingKind.FloatSlider;
+            bool integerOnly =
+                setting.Kind == SettingKind.IntegerSlider;
+
+            virtualKeyboard = new SettingsVirtualKeyboard(
+                (RectTransform)page.transform,
+                backButton,
+                controller,
+                setting.DisplayName,
+                virtualKeyboardOriginalText,
+                numeric,
+                integerOnly,
+                numeric ? 64 : 256,
+                value => CloseVirtualKeyboard(
+                    submit: true,
+                    value: value),
+                () => CloseVirtualKeyboard(
+                    submit: false,
+                    value: null));
+
+            FrameworkLog.Source?.LogInfo(
+                "GK2_SETTINGS_FALLBACK_KEYBOARD_OPENED: "
+                + setting.UniqueKey
+                + "; numeric=" + numeric);
+        }
+
+        private void CloseVirtualKeyboard(
+            bool submit,
+            string value)
+        {
+            if (virtualKeyboard == null)
+                return;
+
+            SettingsVirtualKeyboard keyboard = virtualKeyboard;
+            TMP_InputField target = virtualKeyboardTarget;
+            string original = virtualKeyboardOriginalText;
+            GamepadNavigationItem returnFocus =
+                virtualKeyboardReturnFocus;
+            GamepadNavigationController controller =
+                virtualKeyboardController;
+
+            virtualKeyboard = null;
+            virtualKeyboardTarget = null;
+            virtualKeyboardOriginalText = null;
+            virtualKeyboardReturnFocus = null;
+            virtualKeyboardController = null;
+
+            keyboard.Dispose();
+
+            content.gameObject.SetActive(
+                virtualKeyboardContentWasActive);
+            backButton.gameObject.SetActive(
+                virtualKeyboardBackWasActive);
+            resetAllButton.gameObject.SetActive(
+                virtualKeyboardResetAllWasActive);
+
+            if (target != null)
+            {
+                if (submit)
+                {
+                    target.SetTextWithoutNotify(value ?? string.Empty);
+                    target.onEndEdit.Invoke(target.text);
+                }
+                else
+                {
+                    target.SetTextWithoutNotify(original ?? string.Empty);
+                }
+
+                target.DeactivateInputField();
+            }
+
+            if (controller != null && LazyInput.IsGamepadActive)
+            {
+                controller.ReinitItems(
+                    focusOnFirstActive: false);
+
+                if (returnFocus != null
+                    && returnFocus.isActiveAndEnabled
+                    && returnFocus.Active
+                    && returnFocus.gameObject.activeInHierarchy)
+                {
+                    controller.SetFocusedItem(returnFocus);
+                }
+                else
+                {
+                    controller.FocusOnFirstActive();
+                }
+            }
+
+            FrameworkLog.Source?.LogInfo(
+                submit
+                    ? "GK2_SETTINGS_FALLBACK_KEYBOARD_COMMIT"
+                    : "GK2_SETTINGS_FALLBACK_KEYBOARD_CANCEL");
         }
 
         private void BuildControls()
@@ -629,8 +786,7 @@ namespace GK2.Framework
                 textViewport,
                 inputText,
                 TouchScreenKeyboardType.NumbersAndPunctuation,
-                setting.DisplayName,
-                64);
+                setting);
 
             void RefreshFromSetting()
             {
@@ -663,11 +819,7 @@ namespace GK2.Framework
 
             numericNavigation = CreateControlNavigation(
                 inputBackground.gameObject,
-                () => RuntimeInputFieldActivator.Activate(
-                    input,
-                    null,
-                    setting.DisplayName,
-                    64));
+                () => RuntimeInputFieldActivator.Activate(input));
             GamepadNavigationItem numericTarget = numericNavigation;
 
             GamepadNavigationItem navigation =
@@ -685,11 +837,7 @@ namespace GK2.Framework
                         }
                         else
                         {
-                            RuntimeInputFieldActivator.Activate(
-                                input,
-                                null,
-                                setting.DisplayName,
-                                64);
+                            RuntimeInputFieldActivator.Activate(input);
                         }
                     });
             SettingsNavigationControl navigationControl =
@@ -1055,8 +1203,7 @@ namespace GK2.Framework
                 textViewport,
                 text,
                 TouchScreenKeyboardType.Default,
-                setting.DisplayName,
-                256);
+                setting);
             input.SetTextWithoutNotify(Convert.ToString(setting.Value));
 
             input.onEndEdit.AddListener(value =>
@@ -1068,21 +1215,16 @@ namespace GK2.Framework
 
             return CreateControlNavigation(
                 bg.gameObject,
-                () => RuntimeInputFieldActivator.Activate(
-                    input,
-                    null,
-                    setting.DisplayName,
-                    256));
+                () => RuntimeInputFieldActivator.Activate(input));
         }
 
-        private static void ConfigureRuntimeInputField(
+        private void ConfigureRuntimeInputField(
             TMP_InputField input,
             Image background,
             RectTransform textViewport,
             TextMeshProUGUI text,
             TouchScreenKeyboardType keyboardType,
-            string gamepadHeaderText,
-            int gamepadMaxLength)
+            IGk2Setting setting)
         {
             if (input == null
                 || background == null
@@ -1102,6 +1244,11 @@ namespace GK2.Framework
             input.keyboardType = keyboardType;
             input.interactable = true;
             input.readOnly = false;
+            input.customCaretColor = true;
+            input.caretColor = Color.white;
+            input.caretWidth = 2;
+            input.caretBlinkRate = 0.85f;
+            input.selectionColor = new Color(1f, 1f, 1f, 0.25f);
             input.navigation = new Navigation
             {
                 mode = Navigation.Mode.None
@@ -1111,8 +1258,15 @@ namespace GK2.Framework
                 input.gameObject.GetComponent<RuntimeInputFieldActivator>()
                 ?? input.gameObject.AddComponent<RuntimeInputFieldActivator>();
             activator.Input = input;
-            activator.GamepadHeaderText = gamepadHeaderText;
-            activator.GamepadMaxLength = gamepadMaxLength;
+            activator.GamepadFallback =
+                field => OpenVirtualKeyboard(field, setting);
+
+            // TMP_InputField is added while the row is already active, so its
+            // first OnEnable runs before textComponent/textViewport are assigned.
+            // Re-enable once after full configuration so TMP can initialize its
+            // caret/selection renderer against the actual text component.
+            input.enabled = false;
+            input.enabled = true;
         }
 
         private static GamepadNavigationItem CreateControlNavigation(

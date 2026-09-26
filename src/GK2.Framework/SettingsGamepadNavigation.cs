@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using HarmonyLib;
 using LazyBearTechnology;
 using TMPro;
@@ -21,8 +23,7 @@ namespace GK2.Framework
         : MonoBehaviour, IPointerClickHandler
     {
         internal TMP_InputField Input;
-        internal string GamepadHeaderText;
-        internal int GamepadMaxLength = 256;
+        internal Action<TMP_InputField> GamepadFallback;
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -37,66 +38,31 @@ namespace GK2.Framework
 
         internal static void Activate(
             TMP_InputField input,
-            BaseEventData eventData = null,
-            string gamepadHeaderText = null,
-            int gamepadMaxLength = 256)
+            BaseEventData eventData = null)
         {
             if (!CanEdit(input))
                 return;
 
-            // Keep the normal TMP path active as a fallback for keyboard/mouse.
-            // On a physical gamepad, TMP_InputField alone does not present an
-            // editing surface, so use the game's platform keyboard abstraction.
             ActivateDesktopInput(input, eventData);
 
             if (!LazyInput.IsGamepadActive)
                 return;
 
-            try
-            {
-                string previous = input.text ?? string.Empty;
-                int maxLength = gamepadMaxLength > 0
-                    ? gamepadMaxLength
-                    : 256;
-                string header = string.IsNullOrWhiteSpace(gamepadHeaderText)
-                    ? input.name
-                    : gamepadHeaderText;
+            RuntimeInputFieldActivator activator =
+                input.GetComponent<RuntimeInputFieldActivator>();
 
+            // Do not rely on Steam's overlay keyboard here. On desktop Steam
+            // configurations both gamepad text-input APIs can report a result
+            // without presenting a usable editing surface. The Framework
+            // keyboard is deterministic and uses the game's existing
+            // GamepadNavigationController, so it also works when Steam Input
+            // or an overlay is unavailable.
+            if (activator?.GamepadFallback != null)
+            {
                 FrameworkLog.Source?.LogInfo(
-                    "GK2_SETTINGS_GAMEPAD_KEYBOARD_OPEN: "
+                    "GK2_SETTINGS_GAMEPAD_FALLBACK_KEYBOARD_OPEN: "
                     + input.name);
-
-                LazyAPI.Platform.ShowKeyboard(
-                    value =>
-                    {
-                        // LazyPlatformDefault reports an empty string both when
-                        // Steam's keyboard is cancelled/failed and when no text
-                        // is returned. Treat that as cancellation when replacing
-                        // a non-empty value so a Back press cannot erase config.
-                        if (string.IsNullOrEmpty(value)
-                            && !string.IsNullOrEmpty(previous))
-                        {
-                            input.SetTextWithoutNotify(previous);
-                            FrameworkLog.Source?.LogInfo(
-                                "GK2_SETTINGS_GAMEPAD_KEYBOARD_CANCEL: "
-                                + input.name);
-                            return;
-                        }
-
-                        input.SetTextWithoutNotify(value ?? string.Empty);
-                        input.onEndEdit.Invoke(input.text);
-                        FrameworkLog.Source?.LogInfo(
-                            "GK2_SETTINGS_GAMEPAD_KEYBOARD_COMMIT: "
-                            + input.name);
-                    },
-                    maxLength,
-                    header);
-            }
-            catch (System.Exception ex)
-            {
-                FrameworkLog.Error(
-                    "GK2_SETTINGS_GAMEPAD_KEYBOARD_FAILED: "
-                    + input.name + ": " + ex);
+                activator.GamepadFallback(input);
             }
         }
 
@@ -121,6 +87,61 @@ namespace GK2.Framework
 
             input.Select();
             input.ActivateInputField();
+
+            int end = (input.text ?? string.Empty).Length;
+            input.caretPosition = end;
+            input.selectionAnchorPosition = end;
+            input.selectionFocusPosition = end;
+
+            RuntimeInputFieldActivator activator =
+                input.GetComponent<RuntimeInputFieldActivator>();
+            if (activator != null)
+                activator.StartCoroutine(activator.LogEditStateNextFrame());
+        }
+
+        private IEnumerator LogEditStateNextFrame()
+        {
+            yield return null;
+            yield return null;
+
+            TMP_InputField input = Input;
+            if (input == null)
+                yield break;
+
+            bool selected = EventSystem.current != null
+                && EventSystem.current.currentSelectedGameObject
+                    == input.gameObject;
+
+            Graphic caret = null;
+            Graphic[] graphics = input.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                Graphic graphic = graphics[i];
+                if (graphic != null
+                    && graphic.name.IndexOf(
+                        "caret",
+                        StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    caret = graphic;
+                    break;
+                }
+            }
+
+            string caretState = caret == null
+                ? "missing"
+                : "present"
+                    + "; active=" + caret.gameObject.activeInHierarchy
+                    + "; enabled=" + caret.enabled
+                    + "; alpha=" + caret.color.a.ToString("0.###")
+                    + "; width="
+                    + caret.rectTransform.rect.width.ToString("0.###");
+
+            FrameworkLog.Source?.LogInfo(
+                "GK2_SETTINGS_INPUT_EDIT_STATE: "
+                + input.name
+                + "; focused=" + input.isFocused
+                + "; selected=" + selected
+                + "; caret=" + caretState);
         }
     }
 
