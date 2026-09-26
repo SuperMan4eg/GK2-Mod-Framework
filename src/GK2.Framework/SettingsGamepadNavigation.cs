@@ -21,6 +21,8 @@ namespace GK2.Framework
         : MonoBehaviour, IPointerClickHandler
     {
         internal TMP_InputField Input;
+        internal string GamepadHeaderText;
+        internal int GamepadMaxLength = 256;
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -30,20 +32,88 @@ namespace GK2.Framework
                 return;
             }
 
-            Activate(Input, eventData);
+            ActivateDesktopInput(Input, eventData);
         }
 
         internal static void Activate(
             TMP_InputField input,
-            BaseEventData eventData = null)
+            BaseEventData eventData = null,
+            string gamepadHeaderText = null,
+            int gamepadMaxLength = 256)
         {
-            if (input == null
-                || !input.isActiveAndEnabled
-                || !input.interactable
-                || input.readOnly)
-            {
+            if (!CanEdit(input))
                 return;
+
+            // Keep the normal TMP path active as a fallback for keyboard/mouse.
+            // On a physical gamepad, TMP_InputField alone does not present an
+            // editing surface, so use the game's platform keyboard abstraction.
+            ActivateDesktopInput(input, eventData);
+
+            if (!LazyInput.IsGamepadActive)
+                return;
+
+            try
+            {
+                string previous = input.text ?? string.Empty;
+                int maxLength = gamepadMaxLength > 0
+                    ? gamepadMaxLength
+                    : 256;
+                string header = string.IsNullOrWhiteSpace(gamepadHeaderText)
+                    ? input.name
+                    : gamepadHeaderText;
+
+                FrameworkLog.Source?.LogInfo(
+                    "GK2_SETTINGS_GAMEPAD_KEYBOARD_OPEN: "
+                    + input.name);
+
+                LazyAPI.Platform.ShowKeyboard(
+                    value =>
+                    {
+                        // LazyPlatformDefault reports an empty string both when
+                        // Steam's keyboard is cancelled/failed and when no text
+                        // is returned. Treat that as cancellation when replacing
+                        // a non-empty value so a Back press cannot erase config.
+                        if (string.IsNullOrEmpty(value)
+                            && !string.IsNullOrEmpty(previous))
+                        {
+                            input.SetTextWithoutNotify(previous);
+                            FrameworkLog.Source?.LogInfo(
+                                "GK2_SETTINGS_GAMEPAD_KEYBOARD_CANCEL: "
+                                + input.name);
+                            return;
+                        }
+
+                        input.SetTextWithoutNotify(value ?? string.Empty);
+                        input.onEndEdit.Invoke(input.text);
+                        FrameworkLog.Source?.LogInfo(
+                            "GK2_SETTINGS_GAMEPAD_KEYBOARD_COMMIT: "
+                            + input.name);
+                    },
+                    maxLength,
+                    header);
             }
+            catch (System.Exception ex)
+            {
+                FrameworkLog.Error(
+                    "GK2_SETTINGS_GAMEPAD_KEYBOARD_FAILED: "
+                    + input.name + ": " + ex);
+            }
+        }
+
+        private static bool CanEdit(TMP_InputField input)
+        {
+            return input != null
+                && input.isActiveAndEnabled
+                && input.interactable
+                && !input.readOnly;
+        }
+
+        private static void ActivateDesktopInput(
+            TMP_InputField input,
+            BaseEventData eventData)
+        {
+            if (!CanEdit(input))
+                return;
 
             EventSystem current = EventSystem.current;
             if (current != null)

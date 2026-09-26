@@ -628,7 +628,9 @@ namespace GK2.Framework
                 inputBackground,
                 textViewport,
                 inputText,
-                TouchScreenKeyboardType.NumbersAndPunctuation);
+                TouchScreenKeyboardType.NumbersAndPunctuation,
+                setting.DisplayName,
+                64);
 
             void RefreshFromSetting()
             {
@@ -661,7 +663,11 @@ namespace GK2.Framework
 
             numericNavigation = CreateControlNavigation(
                 inputBackground.gameObject,
-                () => RuntimeInputFieldActivator.Activate(input));
+                () => RuntimeInputFieldActivator.Activate(
+                    input,
+                    null,
+                    setting.DisplayName,
+                    64));
             GamepadNavigationItem numericTarget = numericNavigation;
 
             GamepadNavigationItem navigation =
@@ -679,7 +685,11 @@ namespace GK2.Framework
                         }
                         else
                         {
-                            RuntimeInputFieldActivator.Activate(input);
+                            RuntimeInputFieldActivator.Activate(
+                                input,
+                                null,
+                                setting.DisplayName,
+                                64);
                         }
                     });
             SettingsNavigationControl navigationControl =
@@ -1044,7 +1054,9 @@ namespace GK2.Framework
                 bg,
                 textViewport,
                 text,
-                TouchScreenKeyboardType.Default);
+                TouchScreenKeyboardType.Default,
+                setting.DisplayName,
+                256);
             input.SetTextWithoutNotify(Convert.ToString(setting.Value));
 
             input.onEndEdit.AddListener(value =>
@@ -1056,7 +1068,11 @@ namespace GK2.Framework
 
             return CreateControlNavigation(
                 bg.gameObject,
-                () => RuntimeInputFieldActivator.Activate(input));
+                () => RuntimeInputFieldActivator.Activate(
+                    input,
+                    null,
+                    setting.DisplayName,
+                    256));
         }
 
         private static void ConfigureRuntimeInputField(
@@ -1064,7 +1080,9 @@ namespace GK2.Framework
             Image background,
             RectTransform textViewport,
             TextMeshProUGUI text,
-            TouchScreenKeyboardType keyboardType)
+            TouchScreenKeyboardType keyboardType,
+            string gamepadHeaderText,
+            int gamepadMaxLength)
         {
             if (input == null
                 || background == null
@@ -1093,6 +1111,8 @@ namespace GK2.Framework
                 input.gameObject.GetComponent<RuntimeInputFieldActivator>()
                 ?? input.gameObject.AddComponent<RuntimeInputFieldActivator>();
             activator.Input = input;
+            activator.GamepadHeaderText = gamepadHeaderText;
+            activator.GamepadMaxLength = gamepadMaxLength;
         }
 
         private static GamepadNavigationItem CreateControlNavigation(
