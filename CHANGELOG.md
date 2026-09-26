@@ -3,7 +3,7 @@
 ## 0.1.14 — 2026-09-26
 
 - Fixed the in-game pause-menu Mods button losing the native text outline/material styling. The runtime button now reapplies the exact font, shared material and text color from the native Settings button after localization and on every pause-menu open, matching the already-correct main-menu behavior across languages.
-- Added a complete Simplified Chinese (`zh_cn`) Framework UI catalog.
+- Added complete French (`fr`) and Simplified Chinese (`zh_cn`) Framework UI catalogs. The French translation was supplied by the community; four 0.1.13 controller-keyboard labels missing from the submitted file were completed for current 52-key parity.
 
 ## 0.1.13 — 2026-09-26
 
