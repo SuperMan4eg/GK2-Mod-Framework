@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.14 — 2026-09-26
+
+- Fixed the in-game pause-menu Mods button losing the native text outline/material styling. The runtime button now reapplies the exact font, shared material and text color from the native Settings button after localization and on every pause-menu open, matching the already-correct main-menu behavior across languages.
+- Added a complete Simplified Chinese (`zh_cn`) Framework UI catalog.
+
 ## 0.1.13 — 2026-09-26
 
 - Added render-time localization for registered mods in Framework-owned UI: mod names/descriptions, section headings, and setting names/descriptions can now come from each mod's localization catalog without changing config keys or requiring re-registration.

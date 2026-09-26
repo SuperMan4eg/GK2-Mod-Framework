@@ -62,6 +62,14 @@ namespace GK2.Framework
         private static void PauseMenuOpenPostfix(UIGamePauseWindow __instance)
         {
             pauseMenuOwner = __instance;
+
+            LazyButton template = AccessTools.Field(typeof(UIGamePauseWindow), "settingsBtn")
+                ?.GetValue(__instance) as LazyButton;
+            LazyButton clone = template?.transform.parent.Find("GK2PauseModsButton")
+                ?.GetComponent<LazyButton>();
+            if (template != null && clone != null)
+                SynchronizeFinalVisuals(template, clone);
+
             GamepadNavigationController navigation = __instance.GetComponent<GamepadNavigationController>();
             if (navigation != null && LazyInput.IsGamepadActive)
                 navigation.ReinitItems(focusOnFirstActive: true);
@@ -160,6 +168,13 @@ namespace GK2.Framework
                 localization.Initialize(
                     button.GetComponentsInChildren<TextMeshProUGUI>(true),
                     template.GetComponentInChildren<TextMeshProUGUI>(true));
+
+                // Pause-menu localization resolves the correct language font, but
+                // that can replace the native button material with the font asset's
+                // default material and lose the game's outline/face styling.
+                // Reapply the exact visual font/material/color from the native
+                // Settings button, just like the main-menu path already does.
+                SynchronizeFinalVisuals(template, button);
 
                 button.SetCallbacksIntoGamepadNavigationItem();
                 GamepadNavigationController navigation = window.GetComponent<GamepadNavigationController>();

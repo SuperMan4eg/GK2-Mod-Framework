@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.13
+# GK2 Mod Framework 0.1.14
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -52,7 +52,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Integer and float sliders include a synchronized exact-number field for values that are difficult to hit precisely with the slider; typed values still obey each setting's min/max/step rules
 - Controller text/numeric editing uses a Framework-owned on-screen keyboard with commit/cancel and focus restoration, without depending on Steam Overlay
 - Conditional settings can hide irrelevant rows or keep them visible but disabled/grayed out while preserving stored values
-- UTF-8 JSON localization files for Framework UI and dependent mods; Framework-owned Mods UI can resolve registered mod names/descriptions, section headings and setting names/descriptions from each mod's catalog at render time; complete Framework catalogs are included for English, Bulgarian, Russian, and Korean
+- UTF-8 JSON localization files for Framework UI and dependent mods; Framework-owned Mods UI can resolve registered mod names/descriptions, section headings and setting names/descriptions from each mod's catalog at render time; complete Framework catalogs are included for English, Bulgarian, Russian, Korean, and Simplified Chinese
 - Settings stored through BepInEx configuration files
 
 ## Creating a framework mod
@@ -80,7 +80,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - Starting with 0.1.12, release ZIP entries carry portable Unix metadata (`0755` directories, `0644` regular files) to avoid permission problems when extracting under Linux/Steam Proton. The archive metadata and normal-user extraction path are regression-tested; full gameplay under Proton still depends on the user's BepInEx/Proton setup.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
-- English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI; 0.1.13 adds Bulgarian and automatic render-time localization of registered mod metadata, section headings, and setting names/descriptions when the mod supplies standard catalog keys. Framework can also load UTF-8 JSON language files for integrated mods through the public localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Framework 0.1.11 rebuilds its persistent Mods UI after a game-language change so translated labels and native language fonts stay synchronized when switching languages without restarting the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
+- English is the built-in fallback language. Framework 0.1.9+ ships complete English, Russian, and Korean catalogs for Framework-owned UI; 0.1.13 adds Bulgarian and automatic render-time localization of registered mod metadata, section headings, and setting names/descriptions when the mod supplies standard catalog keys. Framework 0.1.14 adds a complete Simplified Chinese (`zh_cn`) catalog. Framework can also load UTF-8 JSON language files for integrated mods through the public localization API. Framework 0.1.9+ also resolves the game's native Korean, Japanese, and Chinese TMP font assets for Framework-created UI so CJK translations render with the glyph atlases shipped by the game. Framework 0.1.11 rebuilds its persistent Mods UI after a game-language change so translated labels and native language fonts stay synchronized when switching languages without restarting the game. Individual mods remain responsible for choosing which of their own strings are localized and for rendering text in mod-owned UI.
 
 ## Troubleshooting
 
