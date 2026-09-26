@@ -13,6 +13,7 @@
 - Conditional UI rebuilds preserve scroll/focus where possible, skip hidden/disabled rows in gamepad navigation, and fail open if a consumer condition throws.
 - Runtime-tested the 0.1.13 candidate on Steam build `25533739` / Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`. The global fingerprint remains `Unknown`; current structurally validating consumer mods still register `Compatible`.
 - Existing 0.1.x setting registration signatures remain unchanged; the new APIs are additive.
+- Thanks to `a-solanas` for PR #1 and physical XInput/Steam Input testing that helped shape the controller navigation work.
 
 ## 0.1.12 — 2026-09-25
 
