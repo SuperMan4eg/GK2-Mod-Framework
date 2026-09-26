@@ -2,6 +2,7 @@
 
 ## 0.1.13 — unreleased
 
+- Added render-time localization for registered mods in Framework-owned UI: mod names/descriptions, section headings, and setting names/descriptions can now come from each mod's localization catalog without changing config keys or requiring re-registration.
 - Fixed gamepad navigation inside mod Settings pages. Controller focus can now enter setting rows from Back/Reset All and traverse toggles, sliders, dropdowns, keybinds, text fields, action buttons and per-setting Reset controls; focused rows are kept visible while scrolling.
 - Added controller behavior for setting controls: Submit toggles toggles, Left/Right adjusts sliders and dropdowns, Submit starts keybind capture, and text fields can be activated without trapping focus.
 - Made the exact numeric field beside integer/float sliders a real controller focus target. Submit on a slider enters exact-value focus; from there the row Reset control is reachable without sacrificing Left/Right slider adjustment.
