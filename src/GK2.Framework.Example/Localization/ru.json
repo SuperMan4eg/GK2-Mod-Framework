@@ -1,0 +1,20 @@
+{
+  "mod.name": "Пример GK2 Mod Framework",
+  "mod.description": "Проверочные настройки GK2 Mod Framework. Не влияет на игровой баланс.",
+  "sections.Example": "Пример",
+  "sections.Status": "Состояние",
+  "settings.Example.ShowGreeting.name": "Тестовый переключатель",
+  "settings.Example.ShowGreeting.description": "Пример безопасной настройки-переключателя.",
+  "settings.Example.SampleCount.name": "Целочисленный ползунок",
+  "settings.Example.SampleCount.description": "Безопасный пример настройки с целым числом.",
+  "settings.Example.SampleScale.name": "Ползунок с дробным числом",
+  "settings.Example.SampleScale.description": "Безопасный пример настройки с дробным числом.",
+  "settings.Example.SampleMode.name": "Выпадающий список",
+  "settings.Example.SampleMode.description": "Безопасный пример настройки с выбором варианта.",
+  "settings.Example.SampleKeybind.name": "Сочетание клавиш",
+  "settings.Example.SampleKeybind.description": "Сочетание сохраняется, но не выполняет никаких игровых действий.",
+  "settings.Example.Note.name": "Текст",
+  "settings.Example.Note.description": "Редактируемый текст настройки.",
+  "settings.Status.Summary.name": "Только для чтения",
+  "settings.Status.Summary.description": "Текущее значение, сформированное из тестовых настроек."
+}
