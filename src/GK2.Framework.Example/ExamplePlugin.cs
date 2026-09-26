@@ -34,6 +34,10 @@ namespace GK2.Framework.Example
         private ConfigEntry<string> sampleMode;
         private ConfigEntry<KeyboardShortcut> menuShortcut;
         private ConfigEntry<string> note;
+        private ConfigEntry<bool> conditionalPartEnabled;
+        private ConfigEntry<int> conditionalHiddenOffset;
+        private ConfigEntry<int> conditionalDisabledOffset;
+        private int actionClickCount;
 
         public override Gk2ModMetadata Metadata => metadata;
         public override IReadOnlyList<Gk2ModDependency> Dependencies => dependencies;
@@ -47,9 +51,44 @@ namespace GK2.Framework.Example
             sampleMode = context.Settings.AddDropdown("Example", "SampleMode", "Normal", new[] { "Quiet", "Normal", "Verbose" }, "Dropdown", "A harmless choice example.");
             menuShortcut = context.Settings.AddKeybind("Example", "SampleKeybind", new KeyboardShortcut(KeyCode.F9), "Keybind", "Captured and stored, but performs no gameplay action.");
             note = context.Settings.AddText("Example", "Note", "Framework smoke test", "Text", "An editable text setting.");
+            context.Settings.AddButton(
+                "Example",
+                "Action",
+                "Action button",
+                "A non-persistent action row with a dynamic label.",
+                () => "Run (" + actionClickCount + ")",
+                () => actionClickCount++);
+
+            conditionalPartEnabled = context.Settings.AddToggle(
+                "Conditional", "PartEnabled", true,
+                "Enable conditional part",
+                "Controls the visibility/enabled examples below.",
+                order: 0);
+            conditionalHiddenOffset = context.Settings.AddIntSlider(
+                "Conditional", "HiddenOffset", 25, 0, 100,
+                "Hidden when disabled",
+                "This row disappears while the parent toggle is off.",
+                step: 5,
+                order: 1);
+            conditionalDisabledOffset = context.Settings.AddIntSlider(
+                "Conditional", "DisabledOffset", 50, 0, 100,
+                "Disabled when parent is off",
+                "This row stays visible but becomes unavailable while the parent toggle is off.",
+                step: 5,
+                order: 2);
+
+            context.Settings.SetVisibilityCondition(
+                "Conditional",
+                "HiddenOffset",
+                () => conditionalPartEnabled.Value);
+            context.Settings.SetEnabledCondition(
+                "Conditional",
+                "DisabledOffset",
+                () => conditionalPartEnabled.Value);
+
             context.Settings.AddReadOnly("Status", "Summary", "Read-only value", "Live value assembled from test settings.",
-                () => $"toggle={showGreeting.Value}, count={sampleCount.Value}, scale={sampleScale.Value:0.00}, mode={sampleMode.Value}, key={menuShortcut.Value}, note={note.Value}");
-            log.Info($"GK2_EXAMPLE_SETTINGS_LOADED: toggle={showGreeting.Value}; count={sampleCount.Value}; scale={sampleScale.Value:R}; mode={sampleMode.Value}; key={menuShortcut.Value}; note={note.Value}");
+                () => $"toggle={showGreeting.Value}, count={sampleCount.Value}, scale={sampleScale.Value:0.00}, mode={sampleMode.Value}, key={menuShortcut.Value}, note={note.Value}, conditional={conditionalPartEnabled.Value}, hiddenOffset={conditionalHiddenOffset.Value}, disabledOffset={conditionalDisabledOffset.Value}");
+            log.Info($"GK2_EXAMPLE_SETTINGS_LOADED: toggle={showGreeting.Value}; count={sampleCount.Value}; scale={sampleScale.Value:R}; mode={sampleMode.Value}; key={menuShortcut.Value}; note={note.Value}; conditional={conditionalPartEnabled.Value}; hiddenOffset={conditionalHiddenOffset.Value}; disabledOffset={conditionalDisabledOffset.Value}");
             log.Info("GK2_EXAMPLE_REGISTERED");
         }
 

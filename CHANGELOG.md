@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.13 — unreleased
+
+- Fixed gamepad navigation inside mod Settings pages. Controller focus can now enter setting rows from Back/Reset All and traverse toggles, sliders, dropdowns, keybinds, text fields, action buttons and per-setting Reset controls; focused rows are kept visible while scrolling.
+- Added controller behavior for setting controls: Submit toggles toggles, Left/Right adjusts sliders and dropdowns, Submit starts keybind capture, and text fields can be activated without trapping focus.
+- Fixed `AddText` mouse editing by giving runtime TMP input fields an explicit pointer/gamepad activation path; click-to-focus, editing, commit and Back cancellation are regression-tested.
+- Removed the duplicate setting highlight by relying on the game's single global `GamepadDynamicSelector` instead of creating a second local focus frame for runtime setting controls.
+- Added conditional settings through `SetVisibilityCondition`, `SetEnabledCondition` and `RefreshConditions`. Hidden settings leave the layout/navigation while keeping their stored value; disabled settings remain visible but are grayed out and non-interactable.
+- Added `AddButton` for non-persistent mod actions with a dynamic label and normal mouse/gamepad activation. Action rows intentionally have no Reset button.
+- Conditional UI rebuilds preserve scroll/focus where possible, skip hidden/disabled rows in gamepad navigation, and fail open if a consumer condition throws.
+- Runtime-tested the 0.1.13 candidate on Steam build `25533739` / Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`. The global fingerprint remains `Unknown`; current structurally validating consumer mods still register `Compatible`.
+- Existing 0.1.x setting registration signatures remain unchanged; the new APIs are additive.
+
 ## 0.1.12 — 2026-09-25
 
 - Reworked release ZIP creation for portable Unix permission metadata: archive entries are marked as Unix, directories are normalized to `0755`, regular files to `0644`, and the release script validates those modes before accepting the package. This targets the Linux/Steam Proton extraction issue where `Localization` could become inaccessible to a normal user.

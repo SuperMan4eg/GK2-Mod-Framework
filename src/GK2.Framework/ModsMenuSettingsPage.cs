@@ -17,14 +17,32 @@ namespace GK2.Framework
         private readonly ScrollRect scroll;
         private readonly TextMeshProUGUI title;
         private readonly Action requestClose;
+        private readonly LazyButton backButton;
+        private readonly LazyButton resetAllButton;
+        private readonly List<NavigationRow> navigationRows = new List<NavigationRow>();
 
         private RegisteredMod selected;
         private IGk2Setting capturingKeybind;
         private TextMeshProUGUI captureLabel;
         private KeyCode pendingMainModifier = KeyCode.None;
+        private bool presentationRefreshPending;
 
         internal bool IsOpen => page.activeSelf;
         internal bool IsCapturingKeybind => capturingKeybind != null;
+
+        private sealed class NavigationRow
+        {
+            internal GamepadNavigationItem Primary { get; }
+            internal GamepadNavigationItem Reset { get; }
+
+            internal NavigationRow(
+                GamepadNavigationItem primary,
+                GamepadNavigationItem reset)
+            {
+                Primary = primary;
+                Reset = reset;
+            }
+        }
 
         internal ModsMenuSettingsPage(RectTransform parent, LazyButton template, Action requestClose)
         {
@@ -56,7 +74,7 @@ namespace GK2.Framework
                 new Vector2(0f, 1f),
                 Vector2.one);
 
-            LazyButton back = FrameworkUi.CreateButton(
+            backButton = FrameworkUi.CreateButton(
                 "Back",
                 settings.rectTransform,
                 NativeUiSkin.IsReady ? null : template,
@@ -65,11 +83,11 @@ namespace GK2.Framework
                 new Vector2(-112f, -14f),
                 Vector2.one,
                 Vector2.one);
-            FrameworkUi.ApplyDialogButton(back);
-            back.onClick.AddListener(() => this.requestClose());
-            back.SetCallbacksIntoGamepadNavigationItem();
+            FrameworkUi.ApplyDialogButton(backButton);
+            backButton.onClick.AddListener(() => this.requestClose());
+            backButton.SetCallbacksIntoGamepadNavigationItem();
 
-            LazyButton resetAll = FrameworkUi.CreateButton(
+            resetAllButton = FrameworkUi.CreateButton(
                 "ResetAll",
                 settings.rectTransform,
                 NativeUiSkin.IsReady ? null : template,
@@ -78,9 +96,9 @@ namespace GK2.Framework
                 new Vector2(-12f, -14f),
                 Vector2.one,
                 Vector2.one);
-            FrameworkUi.ApplyDialogButton(resetAll);
-            resetAll.onClick.AddListener(ResetAllSettings);
-            resetAll.SetCallbacksIntoGamepadNavigationItem();
+            FrameworkUi.ApplyDialogButton(resetAllButton);
+            resetAllButton.onClick.AddListener(ResetAllSettings);
+            resetAllButton.SetCallbacksIntoGamepadNavigationItem();
 
             Image contentFrame = FrameworkUi.CreateImage(
                 "SettingsContent", settings.rectTransform,
@@ -100,7 +118,12 @@ namespace GK2.Framework
         internal void Open(RegisteredMod mod)
         {
             if (mod == null || mod.Settings.Items.Count == 0) return;
+
+            DetachPresentationEvents();
             selected = mod;
+            selected.Settings.PresentationChanged += OnPresentationChanged;
+            selected.Settings.RefreshConditions();
+
             page.SetActive(true);
             BuildControls();
             FrameworkLog.Source?.LogInfo("GK2_MOD_SETTINGS_OPENED: " + selected.Metadata.Id);
@@ -109,6 +132,8 @@ namespace GK2.Framework
         internal void Close()
         {
             CancelKeybindCapture(false);
+            TryCancelTextInputEditing();
+            DetachPresentationEvents();
             page.SetActive(false);
             FrameworkLog.Source?.LogInfo("GK2_MOD_SETTINGS_CLOSED: " + selected?.Metadata.Id);
         }
@@ -116,14 +141,38 @@ namespace GK2.Framework
         internal void HideWithoutLog()
         {
             CancelKeybindCapture(false);
+            TryCancelTextInputEditing();
+            DetachPresentationEvents();
             page.SetActive(false);
         }
 
         internal bool HandleUpdate()
         {
+            if (presentationRefreshPending
+                && capturingKeybind == null)
+            {
+                presentationRefreshPending = false;
+                RebuildKeepingFocus();
+                return true;
+            }
+
             if (capturingKeybind == null) return false;
             CaptureKeybind();
             return true;
+        }
+
+        private void OnPresentationChanged()
+        {
+            if (page.activeSelf)
+                presentationRefreshPending = true;
+        }
+
+        private void DetachPresentationEvents()
+        {
+            if (selected != null)
+                selected.Settings.PresentationChanged -= OnPresentationChanged;
+
+            presentationRefreshPending = false;
         }
 
         internal void CancelKeybindCapture(bool userCancelled)
@@ -143,8 +192,27 @@ namespace GK2.Framework
             pendingMainModifier = KeyCode.None;
         }
 
+        internal bool TryCancelTextInputEditing()
+        {
+            TMP_InputField[] inputs =
+                page.GetComponentsInChildren<TMP_InputField>(false);
+            for (int i = 0; i < inputs.Length; i++)
+            {
+                TMP_InputField input = inputs[i];
+                if (input == null || !input.isFocused)
+                    continue;
+
+                input.DeactivateInputField();
+                return true;
+            }
+
+            return false;
+        }
+
         private void BuildControls()
         {
+            presentationRefreshPending = false;
+            navigationRows.Clear();
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 content.GetChild(i).gameObject.SetActive(false);
@@ -153,6 +221,7 @@ namespace GK2.Framework
 
             title.text = selected.Metadata.Name + " — " + FrameworkUi.L("mods.settings", "Settings");
             List<IGk2Setting> settings = selected.Settings.Items
+                .Where(s => selected.Settings.GetPresentation(s).Visible)
                 .OrderBy(s => s.Section)
                 .ThenBy(s => s.Order)
                 .ThenBy(s => s.DisplayName)
@@ -181,6 +250,7 @@ namespace GK2.Framework
             }
 
             FrameworkUi.SetContentHeight(content, Mathf.Max(0f, -y + 10f));
+            ConfigureGamepadNavigation();
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
         }
 
@@ -323,29 +393,34 @@ namespace GK2.Framework
                 new Vector2(1f, 0.5f),
                 new Vector2(1f, 0.5f));
 
+            GamepadNavigationItem primaryNavigation = null;
             switch (setting.Kind)
             {
                 case SettingKind.Toggle:
-                    CreateToggle(setting, control);
+                    primaryNavigation = CreateToggle(setting, control);
                     break;
                 case SettingKind.IntegerSlider:
                 case SettingKind.FloatSlider:
-                    CreateSlider(setting, control);
+                    primaryNavigation = CreateSlider(setting, control);
                     break;
                 case SettingKind.Dropdown:
-                    CreateChoice(setting, control);
+                    primaryNavigation = CreateChoice(setting, control);
                     break;
                 case SettingKind.Keybind:
-                    CreateKeybind(setting, control);
+                    primaryNavigation = CreateKeybind(setting, control);
                     break;
                 case SettingKind.Text:
-                    CreateTextInput(setting, control);
+                    primaryNavigation = CreateTextInput(setting, control);
+                    break;
+                case SettingKind.Button:
+                    primaryNavigation = CreateActionButton(setting, control);
                     break;
                 default:
                     CreateValueText(setting, control);
                     break;
             }
 
+            GamepadNavigationItem resetNavigation = null;
             if (!setting.IsReadOnly)
             {
                 LazyButton reset = FrameworkUi.CreateButton(
@@ -359,12 +434,54 @@ namespace GK2.Framework
                     new Vector2(1f, 0.5f));
                 reset.onClick.AddListener(() => ResetSetting(setting));
                 reset.SetCallbacksIntoGamepadNavigationItem();
+                resetNavigation = reset.GetComponent<GamepadNavigationItem>();
             }
 
+            SettingPresentationState presentation =
+                selected.Settings.GetPresentation(setting);
+            if (!presentation.Enabled)
+            {
+                ApplyDisabledPresentation(
+                    row.gameObject,
+                    primaryNavigation,
+                    resetNavigation);
+            }
+
+            navigationRows.Add(new NavigationRow(primaryNavigation, resetNavigation));
             return rowHeight;
         }
 
-        private void CreateToggle(IGk2Setting setting, RectTransform parent)
+        private static void ApplyDisabledPresentation(
+            GameObject row,
+            GamepadNavigationItem primaryNavigation,
+            GamepadNavigationItem resetNavigation)
+        {
+            if (row == null)
+                return;
+
+            CanvasGroup group =
+                row.GetComponent<CanvasGroup>()
+                ?? row.AddComponent<CanvasGroup>();
+            group.alpha = 0.5f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+
+            Selectable[] selectables =
+                row.GetComponentsInChildren<Selectable>(
+                    includeInactive: true);
+            for (int i = 0; i < selectables.Length; i++)
+            {
+                if (selectables[i] != null)
+                    selectables[i].interactable = false;
+            }
+
+            if (primaryNavigation != null)
+                primaryNavigation.Active = false;
+            if (resetNavigation != null)
+                resetNavigation.Active = false;
+        }
+
+        private GamepadNavigationItem CreateToggle(IGk2Setting setting, RectTransform parent)
         {
             GameObject go = new GameObject("Toggle", typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -397,9 +514,13 @@ namespace GK2.Framework
                 Refresh(value);
                 LogChanged(setting);
             });
+
+            return CreateControlNavigation(
+                go,
+                () => toggle.isOn = !toggle.isOn);
         }
 
-        private void CreateSlider(IGk2Setting setting, RectTransform parent)
+        private GamepadNavigationItem CreateSlider(IGk2Setting setting, RectTransform parent)
         {
             GameObject go = new GameObject("Slider", typeof(RectTransform));
             go.transform.SetParent(parent, false);
@@ -484,12 +605,12 @@ namespace GK2.Framework
             FrameworkUi.Stretch(inputText.rectTransform);
             inputText.textWrappingMode = TextWrappingModes.NoWrap;
             inputText.overflowMode = TextOverflowModes.Masking;
-            input.textViewport = textViewport;
-            input.textComponent = inputText;
-            input.lineType = TMP_InputField.LineType.SingleLine;
-            input.contentType = TMP_InputField.ContentType.Custom;
-            input.characterValidation = TMP_InputField.CharacterValidation.None;
-            input.keyboardType = TouchScreenKeyboardType.NumbersAndPunctuation;
+            ConfigureRuntimeInputField(
+                input,
+                inputBackground,
+                textViewport,
+                inputText,
+                TouchScreenKeyboardType.NumbersAndPunctuation);
 
             void RefreshFromSetting()
             {
@@ -519,6 +640,22 @@ namespace GK2.Framework
                 else
                     RefreshFromSetting();
             });
+
+            GamepadNavigationItem navigation =
+                CreateControlNavigation(go, null);
+            SettingsNavigationControl navigationControl =
+                go.AddComponent<SettingsNavigationControl>();
+            navigationControl.Slider = slider;
+
+            double step = Math.Max(setting.Step, 0.000001d);
+            double range = Convert.ToDouble(setting.Maximum)
+                - Convert.ToDouble(setting.Minimum);
+            navigationControl.SliderAmount = (float)(
+                Math.Ceiling(range / 100d / step) * step);
+            if (navigationControl.SliderAmount <= 0f)
+                navigationControl.SliderAmount = (float)step;
+
+            return navigation;
         }
 
         private static string FormatNumericValue(IGk2Setting setting, object value)
@@ -572,7 +709,7 @@ namespace GK2.Framework
             return Convert.ToSingle(snapped);
         }
 
-        private void CreateChoice(IGk2Setting setting, RectTransform parent)
+        private GamepadNavigationItem CreateChoice(IGk2Setting setting, RectTransform parent)
         {
             Image background = FrameworkUi.CreateImage(
                 "Dropdown", parent, new Color(0.18f, 0.09f, 0.06f, 1f));
@@ -699,9 +836,18 @@ namespace GK2.Framework
                 LogChanged(setting);
             });
             template.SetActive(false);
+
+            GamepadNavigationItem navigation =
+                CreateControlNavigation(
+                    background.gameObject,
+                    () => CycleDropdown(dropdown, 1));
+            SettingsNavigationControl navigationControl =
+                background.gameObject.AddComponent<SettingsNavigationControl>();
+            navigationControl.Dropdown = dropdown;
+            return navigation;
         }
 
-        private void CreateKeybind(IGk2Setting setting, RectTransform parent)
+        private GamepadNavigationItem CreateKeybind(IGk2Setting setting, RectTransform parent)
         {
             LazyButton button = FrameworkUi.CreateButton(
                 "Keybind",
@@ -722,6 +868,7 @@ namespace GK2.Framework
                 text.text = FrameworkUi.L("settings.press_key", "Press a key (Esc cancels)");
             });
             button.SetCallbacksIntoGamepadNavigationItem();
+            return button.GetComponent<GamepadNavigationItem>();
         }
 
         private void CaptureKeybind()
@@ -825,7 +972,7 @@ namespace GK2.Framework
             || key == KeyCode.LeftAlt
             || key == KeyCode.RightAlt;
 
-        private void CreateTextInput(IGk2Setting setting, RectTransform parent)
+        private GamepadNavigationItem CreateTextInput(IGk2Setting setting, RectTransform parent)
         {
             Image bg = FrameworkUi.CreateImage(
                 "TextInput", parent, new Color(0.18f, 0.09f, 0.06f, 1f));
@@ -850,17 +997,296 @@ namespace GK2.Framework
                 TextAlignmentOptions.Left, Color.white);
             FrameworkUi.ApplyValueText(text);
             FrameworkUi.Stretch(text.rectTransform);
-            input.textViewport = textViewport;
-            input.textComponent = text;
-            input.lineType = TMP_InputField.LineType.SingleLine;
-            input.text = Convert.ToString(setting.Value);
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.overflowMode = TextOverflowModes.Masking;
+
+            ConfigureRuntimeInputField(
+                input,
+                bg,
+                textViewport,
+                text,
+                TouchScreenKeyboardType.Default);
+            input.SetTextWithoutNotify(Convert.ToString(setting.Value));
+
             input.onEndEdit.AddListener(value =>
             {
                 setting.Value = value;
+                input.SetTextWithoutNotify(Convert.ToString(setting.Value));
                 LogChanged(setting);
             });
+
+            return CreateControlNavigation(
+                bg.gameObject,
+                () => RuntimeInputFieldActivator.Activate(input));
+        }
+
+        private static void ConfigureRuntimeInputField(
+            TMP_InputField input,
+            Image background,
+            RectTransform textViewport,
+            TextMeshProUGUI text,
+            TouchScreenKeyboardType keyboardType)
+        {
+            if (input == null
+                || background == null
+                || textViewport == null
+                || text == null)
+            {
+                return;
+            }
+
+            background.raycastTarget = true;
+            input.targetGraphic = background;
+            input.textViewport = textViewport;
+            input.textComponent = text;
+            input.lineType = TMP_InputField.LineType.SingleLine;
+            input.contentType = TMP_InputField.ContentType.Custom;
+            input.characterValidation = TMP_InputField.CharacterValidation.None;
+            input.keyboardType = keyboardType;
+            input.interactable = true;
+            input.readOnly = false;
+            input.navigation = new Navigation
+            {
+                mode = Navigation.Mode.None
+            };
+
+            RuntimeInputFieldActivator activator =
+                input.gameObject.GetComponent<RuntimeInputFieldActivator>()
+                ?? input.gameObject.AddComponent<RuntimeInputFieldActivator>();
+            activator.Input = input;
+        }
+
+        private static GamepadNavigationItem CreateControlNavigation(
+            GameObject target,
+            UnityEngine.Events.UnityAction onSelect)
+        {
+            if (target == null)
+                return null;
+
+            GamepadNavigationItem navigation =
+                target.GetComponent<GamepadNavigationItem>()
+                ?? target.AddComponent<GamepadNavigationItem>();
+
+            // Runtime settings should use the game's single global
+            // GamepadDynamicSelector. A local focusFrame would be rendered
+            // in addition to that selector and produces the duplicate
+            // highlight reported by users.
+            navigation.focusFrame = null;
+            navigation.FocusRectTransform =
+                target.transform as RectTransform;
+
+            navigation.SetCallbacks(
+                null,
+                null,
+                onSelect);
+            return navigation;
+        }
+
+        private static void CycleDropdown(
+            TMP_Dropdown dropdown,
+            int delta)
+        {
+            if (dropdown == null
+                || !dropdown.IsInteractable()
+                || dropdown.options == null
+                || dropdown.options.Count == 0)
+            {
+                return;
+            }
+
+            int next = Mathf.Clamp(
+                dropdown.value + delta,
+                0,
+                dropdown.options.Count - 1);
+            if (next != dropdown.value)
+                dropdown.value = next;
+        }
+
+        private void ConfigureGamepadNavigation()
+        {
+            GamepadNavigationItem backNavigation =
+                backButton?.GetComponent<GamepadNavigationItem>();
+            GamepadNavigationItem resetAllNavigation =
+                resetAllButton?.GetComponent<GamepadNavigationItem>();
+
+            backNavigation?.ResetCustomDirections();
+            resetAllNavigation?.ResetCustomDirections();
+
+            var primary = new List<GamepadNavigationItem>();
+            var resets = new List<GamepadNavigationItem>();
+
+            for (int i = 0; i < navigationRows.Count; i++)
+            {
+                NavigationRow row = navigationRows[i];
+                row.Primary?.ResetCustomDirections();
+                row.Reset?.ResetCustomDirections();
+
+                if (row.Primary != null && row.Primary.Active)
+                    primary.Add(row.Primary);
+                if (row.Reset != null && row.Reset.Active)
+                    resets.Add(row.Reset);
+
+                if (row.Primary != null
+                    && row.Primary.Active
+                    && row.Reset != null
+                    && row.Reset.Active)
+                {
+                    row.Reset.SetCustomDirectionItem(
+                        GUIDirection.Left,
+                        row.Primary);
+
+                    SettingsNavigationControl control =
+                        row.Primary.GetComponent<SettingsNavigationControl>();
+                    if (control == null
+                        || !control.UsesHorizontalAdjustment)
+                    {
+                        row.Primary.SetCustomDirectionItem(
+                            GUIDirection.Right,
+                            row.Reset);
+                    }
+                }
+            }
+
+            if (backNavigation != null && resetAllNavigation != null)
+            {
+                backNavigation.SetCustomDirectionItem(
+                    GUIDirection.Right,
+                    resetAllNavigation,
+                    setAlsoBackwardsCustomDirection: true);
+            }
+
+            LinkVerticalColumn(
+                backNavigation,
+                primary);
+            LinkVerticalColumn(
+                resetAllNavigation,
+                resets);
+        }
+
+        private static void LinkVerticalColumn(
+            GamepadNavigationItem header,
+            List<GamepadNavigationItem> items)
+        {
+            if (items == null || items.Count == 0)
+                return;
+
+            if (header != null)
+            {
+                header.SetCustomDirectionItem(
+                    GUIDirection.Down,
+                    items[0]);
+                items[0].SetCustomDirectionItem(
+                    GUIDirection.Up,
+                    header);
+            }
+
+            for (int i = 1; i < items.Count; i++)
+            {
+                items[i - 1].SetCustomDirectionItem(
+                    GUIDirection.Down,
+                    items[i]);
+                items[i].SetCustomDirectionItem(
+                    GUIDirection.Up,
+                    items[i - 1]);
+            }
+        }
+
+        private void RebuildKeepingFocus()
+        {
+            GamepadNavigationController controller =
+                content.GetComponentInParent<GamepadNavigationController>();
+
+            bool restoreGamepadFocus =
+                controller != null && LazyInput.IsGamepadActive;
+            int focusedIndex = -1;
+
+            if (restoreGamepadFocus
+                && controller.FocusedItem != null)
+            {
+                GamepadNavigationItem[] oldItems =
+                    content.GetComponentsInChildren<GamepadNavigationItem>(
+                        includeInactive: false)
+                    .Where(item => item != null && item.Active)
+                    .ToArray();
+                focusedIndex = Array.IndexOf(
+                    oldItems,
+                    controller.FocusedItem);
+            }
+
+            float scrollY = content.anchoredPosition.y;
+            BuildControls();
+            content.anchoredPosition = new Vector2(
+                content.anchoredPosition.x,
+                scrollY);
+
+            if (!restoreGamepadFocus)
+                return;
+
+            controller.ReinitItems(
+                focusOnFirstActive: false);
+
+            GamepadNavigationItem[] newItems =
+                content.GetComponentsInChildren<GamepadNavigationItem>(
+                    includeInactive: false)
+                    .Where(item => item != null && item.Active)
+                    .ToArray();
+
+            if (focusedIndex >= 0 && newItems.Length > 0)
+            {
+                int targetIndex = Mathf.Clamp(
+                    focusedIndex,
+                    0,
+                    newItems.Length - 1);
+                controller.SetFocusedItem(
+                    newItems[targetIndex]);
+            }
+            else if (!controller.FocusOnFirstActive())
+            {
+                FrameworkLog.Source?.LogWarning(
+                    "GK2_SETTINGS_GAMEPAD_FOCUS_RESTORE_FAILED");
+            }
+        }
+
+        private GamepadNavigationItem CreateActionButton(
+            IGk2Setting setting,
+            RectTransform parent)
+        {
+            LazyButton button = FrameworkUi.CreateButton(
+                "Action",
+                parent,
+                null,
+                Convert.ToString(setting.Value),
+                Vector2.zero,
+                Vector2.zero,
+                Vector2.zero,
+                Vector2.one);
+
+            TextMeshProUGUI text =
+                button.GetComponentInChildren<TextMeshProUGUI>();
+            FrameworkUi.ApplyValueText(text);
+
+            button.onClick.AddListener(() =>
+            {
+                try
+                {
+                    ((ButtonSetting)setting).Click?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    FrameworkLog.Error(
+                        "GK2_MOD_SETTING_BUTTON_FAILED: "
+                        + selected?.Metadata.Id + "/"
+                        + setting.UniqueKey + ": " + ex);
+                }
+
+                if (text != null)
+                    text.text = Convert.ToString(setting.Value);
+
+                selected?.Settings.RefreshConditions();
+            });
+
+            button.SetCallbacksIntoGamepadNavigationItem();
+            return button.GetComponent<GamepadNavigationItem>();
         }
 
         private void CreateValueText(IGk2Setting setting, RectTransform parent)
@@ -885,7 +1311,7 @@ namespace GK2.Framework
             setting.ResetToDefault();
             FrameworkLog.Source?.LogInfo(
                 "GK2_MOD_SETTING_RESET: " + selected.Metadata.Id + "/" + setting.UniqueKey);
-            BuildControls();
+            RebuildKeepingFocus();
         }
 
         private void ResetAllSettings()
@@ -898,7 +1324,7 @@ namespace GK2.Framework
 
             FrameworkLog.Source?.LogInfo(
                 "GK2_MOD_SETTING_RESET: " + selected.Metadata.Id + "/*");
-            BuildControls();
+            RebuildKeepingFocus();
         }
 
         private void LogChanged(IGk2Setting setting)

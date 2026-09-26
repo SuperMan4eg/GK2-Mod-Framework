@@ -39,7 +39,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 
 - Native-style **Mods** window available from both the main menu and the in-game ESC/pause menu
 - Responsive safe-area fitting for the Mods window and Framework-hosted mod Settings pages
-- Explicit gamepad navigation between the mod list and the selected mod's Enable/Disable and Settings controls
+- Explicit gamepad navigation between the mod list and the selected mod's Enable/Disable and Settings controls, including full navigation inside mod Settings pages
 - Dedicated **Framework Settings** gear button in the Mods menu
 - Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
@@ -48,8 +48,9 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Runtime enable/disable for mods that explicitly support it
 - Restart-required state for mods that cannot be toggled safely at runtime
 - Optional integration mode for standalone mods that should not expose a framework-owned Enable/Disable control
-- Automatically generated controls for toggles, integer and float sliders, dropdowns, keybinds, text fields, and read-only values
+- Automatically generated controls for toggles, integer and float sliders, dropdowns, keybinds, editable text, non-persistent action buttons, and read-only values
 - Integer and float sliders include a synchronized exact-number field for values that are difficult to hit precisely with the slider; typed values still obey each setting's min/max/step rules
+- Conditional settings can hide irrelevant rows or keep them visible but disabled/grayed out while preserving stored values
 - UTF-8 JSON localization files for Framework UI and opt-in localization in dependent mods; complete Framework catalogs are included for English, Russian, and Korean
 - Settings stored through BepInEx configuration files
 
@@ -70,9 +71,9 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 ## Compatibility and known limitations
 
-- Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was additionally runtime-tested on Steam build `25509347`, whose Assembly-CSharp hash changed while its decompiled C# remained identical to `25506711`.
+- Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was runtime-tested on Steam build `25509347` and again on build `25533739` (Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`): the global fingerprint remained `Unknown`, while current consumer mods that validate their structural contracts registered `Compatible`.
 - Backward compatibility was also rechecked on Demo build `25344626`.
-- Mouse input is verified. Gamepad-mode navigation is runtime-tested, including the transition from a selected mod row into its right-side controls and back, plus the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
+- Mouse input is verified. Gamepad-mode navigation is runtime-tested from the mod list through per-mod Settings controls, including toggles, sliders, dropdowns, keybinds, text activation, action buttons, Reset/rebuild focus, conditional hidden/disabled rows, and the scaled `1600x900` path. Physical controller hardware is not part of the automated test.
 - Responsive fitting is runtime-tested at `1600x900`; fit calculations are also regression-tested for `1366x768`, `1280x720`, `1920x1080`, and `3840x2160`.
 - Runtime disabling is only safe when a mod completely reverses its own patches, subscriptions, and changes.
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.

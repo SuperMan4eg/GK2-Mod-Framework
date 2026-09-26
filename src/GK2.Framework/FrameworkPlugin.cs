@@ -8,7 +8,7 @@ namespace GK2.Framework
     {
         public const string PluginGuid = "ru.superman4eg.gk2.framework";
         public const string PluginName = "GK2 Mod Framework";
-        public const string PluginVersion = "0.1.12";
+        public const string PluginVersion = "0.1.13";
         private Harmony harmony;
 
         private void Awake()
@@ -20,6 +20,7 @@ namespace GK2.Framework
             Gk2GameEvents.Bind(Logger);
             harmony = new Harmony(PluginGuid);
             harmony.PatchAll(typeof(MenuInjectionPatches));
+            harmony.PatchAll(typeof(SettingsGamepadNavigation));
             Logger.LogInfo("GK2_FRAMEWORK_READY: " + FrameworkApi.CurrentBuild);
         }
 

@@ -115,6 +115,7 @@ namespace GK2.Framework
             root.AddComponent<GraphicRaycaster>();
             GamepadNavigationController navigation = root.AddComponent<GamepadNavigationController>();
             navigation.navigationGroupSources = new System.Collections.Generic.List<GamepadNavigationController.NavigationGroupSource>();
+            navigation.useGridSkippedIfListEmpty = true;
 
             ModsMenuWindow window = root.AddComponent<ModsMenuWindow>();
             window.builtLanguage = FrameworkLocalization.CurrentLanguage;
@@ -323,6 +324,9 @@ namespace GK2.Framework
                 settingsPage.CancelKeybindCapture(true);
                 return true;
             }
+
+            if (settingsPage.TryCancelTextInputEditing())
+                return true;
 
             if (settingsPage.IsOpen)
             {

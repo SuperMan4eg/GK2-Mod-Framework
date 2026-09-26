@@ -64,7 +64,28 @@ Do not call this method merely because registration did not throw. A mod that do
 - `AddEnum<T>`
 - `AddKeybind`
 - `AddText`
+- `AddButton` — a non-persistent action row. The label getter is evaluated when the row is built and immediately after the action runs; the row has no Reset button.
 - `AddReadOnly`
+
+Conditional presentation can be attached after the target setting has been registered:
+
+```csharp
+ConfigEntry<bool> partEnabled = context.Settings.AddToggle(
+    "Part A", "Enabled", true,
+    "Enable Part A", "Enable this feature.");
+
+context.Settings.AddIntSlider(
+    "Part A", "Offset", 0, -100, 100,
+    "Offset", "Move Part A.", step: 1);
+
+context.Settings.SetVisibilityCondition(
+    "Part A", "Offset",
+    () => partEnabled.Value);
+```
+
+Use `SetVisibilityCondition(section, key, predicate)` to remove a row from the Settings layout while the predicate is false. Use `SetEnabledCondition(section, key, predicate)` to keep the row visible but gray it out and remove it from mouse/gamepad interaction. Hidden or disabled settings keep their stored values and remain part of Reset All.
+
+Conditions are reevaluated automatically when any Framework setting in the same registration changes and when the Settings page opens. If a condition depends on external state instead of a Framework setting, call `RefreshConditions()` after that state changes. Passing `null` as a predicate clears that condition. Predicate exceptions fail open (the setting remains visible/enabled) and are logged instead of making a setting inaccessible.
 
 Usage rules:
 
