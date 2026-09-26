@@ -10,6 +10,11 @@
     <BepInExDir Condition="'$(BepInExDir)' == ''">$(GameDir)\BepInEx</BepInExDir>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Localization\*.json"
+          Link="GK2.Framework\Localization\ru.superman4eg.gk2.framework.example\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\GK2.Framework\GK2.Framework.csproj" />
     <Reference Include="BepInEx"><HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine"><HintPath>$(GameDataDir)\Managed\UnityEngine.dll</HintPath><Private>false</Private></Reference>

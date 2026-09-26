@@ -151,11 +151,11 @@ namespace GK2.Framework
                 UnityEngine.Object.Destroy(content.GetChild(i).gameObject);
             }
 
-            title.text = selected.Metadata.Name + " — " + FrameworkUi.L("mods.settings", "Settings");
+            title.text = FrameworkModLocalization.ModName(selected) + " — " + FrameworkUi.L("mods.settings", "Settings");
             List<IGk2Setting> settings = selected.Settings.Items
                 .OrderBy(s => s.Section)
                 .ThenBy(s => s.Order)
-                .ThenBy(s => s.DisplayName)
+                .ThenBy(s => FrameworkModLocalization.SettingName(selected, s))
                 .ToList();
 
             float y = -6f;
@@ -163,12 +163,7 @@ namespace GK2.Framework
             int sectionIndex = 0;
             foreach (IGk2Setting setting in settings)
             {
-                string section = string.IsNullOrWhiteSpace(setting.Section)
-                    ? FrameworkUi.L("settings.general", "General")
-                    : selected.Metadata.Id == FrameworkPlugin.PluginGuid
-                        && string.Equals(setting.Section, "UI", StringComparison.OrdinalIgnoreCase)
-                            ? FrameworkUi.L("settings.ui", "UI")
-                            : setting.Section;
+                string section = FrameworkModLocalization.SectionName(selected, setting.Section);
                 if (!string.Equals(currentSection, section, StringComparison.OrdinalIgnoreCase))
                 {
                     CreateSectionHeader(section, sectionIndex++, y);
@@ -186,24 +181,12 @@ namespace GK2.Framework
 
         private string GetDisplayName(IGk2Setting setting)
         {
-            if (selected?.Metadata.Id == FrameworkPlugin.PluginGuid
-                && string.Equals(setting.UniqueKey, "UI.WindowScalePercent", StringComparison.OrdinalIgnoreCase))
-            {
-                return FrameworkUi.L("settings.window_scale", setting.DisplayName);
-            }
-
-            return setting.DisplayName;
+            return FrameworkModLocalization.SettingName(selected, setting);
         }
 
         private string GetDescription(IGk2Setting setting)
         {
-            if (selected?.Metadata.Id == FrameworkPlugin.PluginGuid
-                && string.Equals(setting.UniqueKey, "UI.WindowScalePercent", StringComparison.OrdinalIgnoreCase))
-            {
-                return FrameworkUi.L("settings.window_scale_description", setting.Description ?? string.Empty);
-            }
-
-            return setting.Description ?? string.Empty;
+            return FrameworkModLocalization.SettingDescription(selected, setting);
         }
 
         private void CreateSectionHeader(string section, int index, float y)

@@ -93,12 +93,11 @@ namespace GK2.Framework
                     + "\n" + FrameworkUi.L("mods.runtime", "Runtime") + ": " + ModUiStateResolver.RuntimeLabel(mod);
             }
 
-            string description = meta.Id == FrameworkPlugin.PluginGuid
-                ? FrameworkUi.L("framework.description", meta.Description)
-                : meta.Description;
+            string localizedName = FrameworkModLocalization.ModName(mod);
+            string description = FrameworkModLocalization.ModDescription(mod);
 
             metadataText.text =
-                meta.Name
+                localizedName
                 + "\n\n" + FrameworkUi.L("mods.version", "Version") + ": " + meta.Version
                 + "\n" + FrameworkUi.L("mods.author", "Author") + ": " + meta.Author
                 + "\n" + FrameworkUi.L("mods.compatibility", "Compatibility") + ": " + FormatCompatibilityStatus(mod.Status)

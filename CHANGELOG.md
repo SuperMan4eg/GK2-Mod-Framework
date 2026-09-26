@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Resolve registered mods' localized names, descriptions, setting labels/descriptions, and section headings at render time so rebuilt Mods UI reflects the current game language without re-registering mods or changing config keys.
+
 ## 0.1.12 — 2026-09-25
 
 - Reworked release ZIP creation for portable Unix permission metadata: archive entries are marked as Unix, directories are normalized to `0755`, regular files to `0644`, and the release script validates those modes before accepting the package. This targets the Linux/Steam Proton extraction issue where `Localization` could become inaccessible to a normal user.

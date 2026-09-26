@@ -1,0 +1,20 @@
+{
+  "mod.name": "GK2 Framework Example",
+  "mod.description": "Smoke-test settings for GK2 Mod Framework. It does not modify game balance.",
+  "sections.Example": "Example",
+  "sections.Status": "Status",
+  "settings.Example.ShowGreeting.name": "Test toggle",
+  "settings.Example.ShowGreeting.description": "A harmless boolean example.",
+  "settings.Example.SampleCount.name": "Integer slider",
+  "settings.Example.SampleCount.description": "A harmless integer example.",
+  "settings.Example.SampleScale.name": "Float slider",
+  "settings.Example.SampleScale.description": "A harmless float example.",
+  "settings.Example.SampleMode.name": "Dropdown",
+  "settings.Example.SampleMode.description": "A harmless choice example.",
+  "settings.Example.SampleKeybind.name": "Keybind",
+  "settings.Example.SampleKeybind.description": "Captured and stored, but performs no gameplay action.",
+  "settings.Example.Note.name": "Text",
+  "settings.Example.Note.description": "An editable text setting.",
+  "settings.Status.Summary.name": "Read-only value",
+  "settings.Status.Summary.description": "Live value assembled from test settings."
+}

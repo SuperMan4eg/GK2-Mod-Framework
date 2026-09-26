@@ -129,12 +129,17 @@ For example, Korean strings for `com.yourname.gk2.mymod` go in `BepInEx/plugins/
 
 ```json
 {
-  "ui.title": "My translated title",
-  "settings.feature_enabled": "My translated setting"
+  "mod.name": "My translated mod name",
+  "mod.description": "A translated mod description.",
+  "sections.General": "General settings",
+  "settings.General.FeatureEnabled.name": "Enable the feature",
+  "settings.General.FeatureEnabled.description": "A translated setting description."
 }
 ```
 
-Resolve text through the public API and always provide an English fallback:
+Framework-owned UI resolves these standard metadata and setting keys when it renders the Mods list, details, and settings page. Keys for settings use the exact `Section.Key` from the BepInEx config entry, so their localization does not change config storage. Missing keys fall back to the strings supplied by the mod. This also means the labels refresh when the Mods window is rebuilt after a game-language change; mods do not need to re-register or rebind their settings.
+
+For strings in mod-owned UI, resolve text through the public API and always provide an English fallback:
 
 ```csharp
 string title = FrameworkLocalization.Get(
@@ -143,7 +148,7 @@ string title = FrameworkLocalization.Get(
     "My Mod");
 ```
 
-Lookup falls back from the current game language to its neutral language when applicable, then `en`, then the supplied English fallback. Mods opt in explicitly; the Framework does not rewrite arbitrary third-party UI. If a mod keeps UI open while the game language changes, that mod is responsible for refreshing its existing labels.
+Lookup falls back from the current game language to its neutral language when applicable, then `en`, then the supplied English fallback. Mods remain responsible for refreshing any mod-owned UI that stays open while the game language changes.
 
 ## 7. Build and package
 

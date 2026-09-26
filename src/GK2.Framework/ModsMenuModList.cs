@@ -42,7 +42,7 @@ namespace GK2.Framework
 
             List<RegisteredMod> mods = FrameworkApi.Mods
                 .Where(m => !string.Equals(m.Metadata.Id, FrameworkPlugin.PluginGuid, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(m => m.Metadata.Name, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(FrameworkModLocalization.ModName, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(m => m.Metadata.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
@@ -83,7 +83,7 @@ namespace GK2.Framework
                     "Mod_" + mod.Metadata.Id,
                     content,
                     null,
-                    mod.Metadata.Name + "  " + mod.Metadata.Version,
+                    FrameworkModLocalization.ModName(mod) + "  " + mod.Metadata.Version,
                     new Vector2(10f, y - 34f),
                     new Vector2(-10f, y),
                     new Vector2(0f, 1f),
