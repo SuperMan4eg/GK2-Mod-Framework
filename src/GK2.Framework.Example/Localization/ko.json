@@ -1,0 +1,20 @@
+{
+  "mod.name": "GK2 모드 프레임워크 예제",
+  "mod.description": "GK2 모드 프레임워크의 설정 테스트용 예제입니다. 게임 밸런스에는 영향을 주지 않습니다.",
+  "sections.Example": "예제",
+  "sections.Status": "상태",
+  "settings.Example.ShowGreeting.name": "테스트 토글",
+  "settings.Example.ShowGreeting.description": "게임에 영향을 주지 않는 토글 설정 예제입니다.",
+  "settings.Example.SampleCount.name": "정수 슬라이더",
+  "settings.Example.SampleCount.description": "게임에 영향을 주지 않는 정수 설정 예제입니다.",
+  "settings.Example.SampleScale.name": "실수 슬라이더",
+  "settings.Example.SampleScale.description": "게임에 영향을 주지 않는 실수 설정 예제입니다.",
+  "settings.Example.SampleMode.name": "드롭다운",
+  "settings.Example.SampleMode.description": "게임에 영향을 주지 않는 선택 설정 예제입니다.",
+  "settings.Example.SampleKeybind.name": "키 바인딩",
+  "settings.Example.SampleKeybind.description": "키 입력을 저장하지만 게임 내 동작을 실행하지는 않습니다.",
+  "settings.Example.Note.name": "텍스트",
+  "settings.Example.Note.description": "편집할 수 있는 텍스트 설정입니다.",
+  "settings.Status.Summary.name": "읽기 전용 값",
+  "settings.Status.Summary.description": "테스트 설정을 바탕으로 표시되는 현재 값입니다."
+}
