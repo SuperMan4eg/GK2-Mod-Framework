@@ -10,7 +10,7 @@ Source code: https://github.com/SuperMan4eg/GK2-Mod-Framework
 
 The repository tracks current development. Use the Nexus Mods page for packaged release builds.
 
-This is the **0.1.19** release line. The latest confirmed published release is **0.1.18**; use the Nexus file version to identify the available download.
+The latest confirmed published release is **0.1.19**; use the Nexus file version to identify the available download.
 
 ## Requirements
 
