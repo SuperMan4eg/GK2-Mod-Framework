@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.18
+# GK2 Mod Framework 0.1.19
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -10,7 +10,7 @@ Source code: https://github.com/SuperMan4eg/GK2-Mod-Framework
 
 The repository tracks current development. Use the Nexus Mods page for packaged release builds.
 
-The published release is **0.1.18**. Existing-entry settings adoption and version-suffix support listed under **Unreleased** are source changes for a future release; they are not included in the published 0.1.18 download.
+This is the **0.1.19** release line. The latest confirmed published release is **0.1.18**; use the Nexus file version to identify the available download.
 
 ## Requirements
 
@@ -74,6 +74,10 @@ private void Awake()
 ```
 
 Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settings that appear automatically in the Mods menu. See `docs/NEW_MOD_GUIDE.md` for the normal hard-dependency workflow, `docs/OPTIONAL_INTEGRATION.md` for the tested standalone + optional bridge pattern, and `docs/PUBLIC_API.md` for the supported API.
+
+Starting with 0.1.19, an integration can pass existing BepInEx configuration entries to the supported settings controls. Their current values, defaults, validation, change notifications and original configuration file are retained. The entries must belong to the configuration file used for registration. This is explicit integration by the mod author; standalone mods are not automatically added to the menu.
+
+Metadata and dependency versions accept common prerelease and build suffixes such as `1.2.3-beta.1+build.4`. Dependency comparisons use the numeric version core; prerelease ordering is not implemented. Empty or malformed suffixes are rejected.
 
 ## Compatibility and known limitations
 

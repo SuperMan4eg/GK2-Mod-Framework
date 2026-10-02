@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.19 — 2026-10-02
 
 - Added public `Gk2Settings` overloads that adopt an existing BepInEx `ConfigEntry<T>` for supported native controls. Optional bridges can now expose a standalone mod's original configuration in the Mods menu without binding a duplicate entry.
 - Added validation for adopted entries: they must belong to the `ConfigFile` registered for that mod and cannot register the same `Section.Key` twice.
 - Accepted common SemVer prerelease and build suffixes in Framework metadata and dependency version inputs; Framework comparisons continue to use the numeric `System.Version` core.
+- Rejected empty and malformed version suffixes, including empty identifiers and repeated build separators.
 
 ## 0.1.18 — 2026-10-01
 
