@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.16
+# GK2 Mod Framework 0.1.17
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -43,6 +43,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Dedicated **Framework Settings** gear button in the Mods menu
 - Framework window scale from 50% to 100% available directly in the Framework Settings UI
 - Installed framework mod list and detailed metadata
+- Fixed search fields above the mod list and settings: filter while typing, clear with ×, and use the on-screen keyboard with a controller. Mod search includes names and IDs; settings search includes names, descriptions, categories and keys. Search ignores letter case and does not change saved settings. Returning from settings preserves the mod search; opening settings starts a fresh settings search.
 - Compatibility and dependency status
 - **Copy report** on a selected mod copies its version, current compatibility status, game and Unity versions, and game assembly fingerprint for support requests. Review the clipboard text before sharing it.
 - Opt-in structural compatibility checks so validated mods can survive unrelated game updates without waiting for a new whole-assembly fingerprint
@@ -53,7 +54,7 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Integer and float sliders include a synchronized exact-number field for values that are difficult to hit precisely with the slider; typed values still obey each setting's min/max/step rules
 - Controller text/numeric editing uses a Framework-owned on-screen keyboard with commit/cancel and focus restoration, without depending on Steam Overlay
 - Conditional settings can hide irrelevant rows or keep them visible but disabled/grayed out while preserving stored values
-- UTF-8 JSON localization files for Framework UI and dependent mods; Framework-owned Mods UI can resolve registered mod names/descriptions, section headings and setting names/descriptions from each mod's catalog at render time; complete Framework catalogs are included for English, Bulgarian, German, French, Russian, Korean, and Simplified Chinese
+- UTF-8 JSON localization files for Framework UI and dependent mods; Framework-owned Mods UI can resolve registered mod names/descriptions, section headings and setting names/descriptions from each mod's catalog at render time; complete Framework catalogs are included for English, Bulgarian, German, Spanish, French, Russian, Korean, and Simplified Chinese
 - A confirmation-protected **Quit to apply** action for pending changes that require a restart, available from both the main menu and the in-game pause menu
 - Settings stored through BepInEx configuration files
 
@@ -74,6 +75,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 
 ## Compatibility and known limitations
 
+- Framework 0.1.18 mod/settings search passed runtime checks on Steam build `25601286` and owner acceptance. The release startup was checked with published GK2 Tweak Pack 0.1.6 and GK2 Ultrawide Fix 0.1.6. This does not certify every mod or controller configuration.
 - Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was runtime-tested on Steam build `25509347` and again on build `25533739` (Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`): the global fingerprint remained `Unknown`, while current consumer mods that validate their structural contracts registered `Compatible`.
 - Framework 0.1.16 menu startup and Copy report were tested on Steam build `25601286` (Assembly-CSharp SHA-256 `37A17C02B53F9BF62ABE76398CED3BCB847774EB5AC12353CF32D8B6044E1134`). The global build fingerprint remains `Unknown`; this focused check does not establish full compatibility for every mod on that build.
 - Backward compatibility was also rechecked on Demo build `25344626`.
@@ -83,7 +85,7 @@ Use `Gk2ModContext.Settings` during `OnRegister` to create BepInEx-backed settin
 - The framework does not resolve or load BepInEx plugin DLLs. BepInEx remains responsible for plugin loading.
 - Starting with 0.1.12, release ZIP entries carry portable Unix metadata (`0755` directories, `0644` regular files) to avoid permission problems when extracting under Linux/Steam Proton. The archive metadata and normal-user extraction path are regression-tested; full gameplay under Proton still depends on the user's BepInEx/Proton setup.
 - There is no mod downloader, automatic updater, DLL hot reload, or file manager.
-- English is the built-in fallback language. Framework ships complete English, Russian, Korean, Bulgarian, French, Simplified Chinese, and German (`de`) catalogs for Framework-owned UI. Registered mod metadata, section headings, and setting names/descriptions can also be localized when a mod supplies standard catalog keys. Framework can load UTF-8 JSON language files for integrated mods through the public localization API. Framework-created UI uses the game's native Korean, Japanese, and Chinese TMP font assets when those languages are active. Reopening Mods after a language change rebuilds the window with the current text and font. Individual mods remain responsible for localizing and refreshing their own UI.
+- English is the built-in fallback language. Framework ships complete English, Russian, Korean, Bulgarian, French, Simplified Chinese, German (`de`), and Spanish (`es`) catalogs for Framework-owned UI. Registered mod metadata, section headings, and setting names/descriptions can also be localized when a mod supplies standard catalog keys. Framework can load UTF-8 JSON language files for integrated mods through the public localization API. Framework-created UI uses the game's native Korean, Japanese, and Chinese TMP font assets when those languages are active. Reopening Mods after a language change rebuilds the window with the current text and font. Individual mods remain responsible for localizing and refreshing their own UI.
 
 ## Troubleshooting
 
@@ -102,3 +104,5 @@ Do not install development outputs such as PDB files, `bin`/`obj` folders, diagn
 ## License
 
 GK2 Mod Framework is distributed under the MIT License. See `LICENSE`.
+
+Spanish Framework UI translation was contributed by a community member. The contributor name was not supplied.

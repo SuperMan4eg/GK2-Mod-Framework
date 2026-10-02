@@ -58,5 +58,8 @@
   "settings.reset_all": "Reset all",
   "settings.ui": "UI",
   "settings.window_scale": "Window scale (%)",
-  "settings.window_scale_description": "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area."
+  "settings.window_scale_description": "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area.",
+  "search.mods": "Search mods...",
+  "search.settings": "Search settings...",
+  "search.no_results": "No matches found."
 }

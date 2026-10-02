@@ -58,5 +58,8 @@
   "settings.reset_all": "全部重置",
   "settings.ui": "界面",
   "settings.window_scale": "窗口缩放 (%)",
-  "settings.window_scale_description": "Framework 窗口的最大尺寸。如有需要，窗口仍会自动缩小以适应当前安全区域。"
+  "settings.window_scale_description": "Framework 窗口的最大尺寸。如有需要，窗口仍会自动缩小以适应当前安全区域。",
+  "search.mods": "搜索模组...",
+  "search.settings": "搜索设置...",
+  "search.no_results": "未找到匹配项。"
 }

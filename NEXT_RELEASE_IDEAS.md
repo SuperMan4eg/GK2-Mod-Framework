@@ -1,3 +1,5 @@
+Historical brainstorming only (archived context). This file is not the task queue. Before selecting any idea, validate relevance and duplicates under Workflows/TASK_TRACKING.md; actionable work belongs to GitHub Modding-Hub issues / Project #2.
+
 # GK2 Mod Framework — варианты следующего обновления
 
 Дата: 2026-09-29. Историческая запись идей. Владелец выбрал объединение пунктов 1 и 3: они реализованы в тестовом кандидате 0.1.16 и проходят проверку перед релизом. Опубликованная версия остаётся 0.1.15. Пункты 2 и 4 остаются предложениями.

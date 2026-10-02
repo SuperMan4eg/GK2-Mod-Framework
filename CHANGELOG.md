@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.18 — 2026-10-01
+
+- Added fixed search fields above the mod list and mod settings. Results update while typing; clear the field to restore the list. Searches include translated names and original identifiers, and support the Framework controller keyboard.
+- Settings search also matches descriptions and categories. Hidden settings stay hidden, and categories with no matches are omitted.
+- The mod search is kept when returning from settings. Opening a settings page starts a fresh settings search. Searching does not change saved setting values.
+- Added search labels and the no-results message to all eight Framework language catalogs.
+
+## 0.1.17 — 2026-09-30
+
+- Added a complete community-contributed Spanish (`es`) translation for the Framework Mods menu and settings, including Copy report and Quit to apply.
+- Framework UI now includes eight language catalogs. Gameplay and the public API are unchanged.
+
+
 ## 0.1.16 — 2026-09-29
 
 - Fixed a harmless Unity startup error when the main-menu Mods button was injected before its window became active. The button behavior is unchanged.

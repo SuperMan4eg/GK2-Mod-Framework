@@ -15,6 +15,7 @@ namespace GK2.Framework
         private readonly GameObject page;
         private readonly RectTransform content;
         private readonly ScrollRect scroll;
+        private readonly ModsMenuSearch search;
         private readonly TextMeshProUGUI title;
         private readonly Action requestClose;
         private readonly LazyButton backButton;
@@ -120,10 +121,13 @@ namespace GK2.Framework
             FrameworkUi.SetRect(
                 contentFrame.rectTransform,
                 new Vector2(12f, 12f),
-                new Vector2(-12f, -50f),
+                new Vector2(-12f, -90f),
                 Vector2.zero,
                 Vector2.one);
             content = FrameworkUi.CreateVerticalScrollContent(contentFrame, out scroll);
+            search = new ModsMenuSearch(settings.rectTransform, settings.rectTransform,
+                FrameworkUi.L("search.settings", "Search settings..."), -50f,
+                value => { if (selected != null) { CancelKeybindCapture(false); BuildControls(); RefreshSearchNavigation(); } });
 
             page.SetActive(false);
         }
@@ -134,6 +138,7 @@ namespace GK2.Framework
 
             DetachPresentationEvents();
             selected = mod;
+            search.Input.SetTextWithoutNotify(string.Empty);
             selected.Settings.PresentationChanged += OnPresentationChanged;
             selected.Settings.RefreshConditions();
 
@@ -163,6 +168,7 @@ namespace GK2.Framework
 
         internal bool HandleUpdate()
         {
+            if (search.HandleUpdate()) return true;
             if (IsVirtualKeyboardOpen)
             {
                 virtualKeyboard.HandleUpdate();
@@ -215,6 +221,7 @@ namespace GK2.Framework
 
         internal bool TryCancelTextInputEditing()
         {
+            if (search.CancelEditing()) return true;
             if (IsVirtualKeyboardOpen)
             {
                 CloseVirtualKeyboard(submit: false, value: null);
@@ -382,6 +389,9 @@ namespace GK2.Framework
             title.text = FrameworkModLocalization.ModName(selected) + " — " + FrameworkUi.L("mods.settings", "Settings");
             List<IGk2Setting> settings = selected.Settings.Items
                 .Where(s => selected.Settings.GetPresentation(s).Visible)
+                .Where(s => ModsMenuSearch.Matches(search.Input.text,
+                    GetDisplayName(s), GetDescription(s), FrameworkModLocalization.SectionName(selected, s.Section),
+                    s.DisplayName, s.Description, s.Section, s.UniqueKey))
                 .OrderBy(s => s.Section)
                 .ThenBy(s => s.Order)
                 .ThenBy(s => FrameworkModLocalization.SettingName(selected, s))
@@ -390,6 +400,11 @@ namespace GK2.Framework
             float y = -6f;
             string currentSectionIdentity = null;
             int sectionIndex = 0;
+            if (settings.Count == 0)
+            {
+                CreateSectionHeader(FrameworkUi.L("search.no_results", "No matches found."), 0, y);
+                y -= 32f;
+            }
             foreach (IGk2Setting setting in settings)
             {
                 string sectionIdentity = setting.Section ?? string.Empty;
@@ -418,6 +433,16 @@ namespace GK2.Framework
         private string GetDisplayName(IGk2Setting setting)
         {
             return FrameworkModLocalization.SettingName(selected, setting);
+        }
+
+        private void RefreshSearchNavigation()
+        {
+            GamepadNavigationController controller = page.GetComponentInParent<GamepadNavigationController>();
+            if (controller != null && LazyInput.IsGamepadActive)
+            {
+                controller.ReinitItems(focusOnFirstActive: false);
+                controller.SetFocusedItem(search.Navigation);
+            }
         }
 
         private string GetDescription(IGk2Setting setting)
@@ -1313,6 +1338,9 @@ namespace GK2.Framework
 
             backNavigation?.ResetCustomDirections();
             resetAllNavigation?.ResetCustomDirections();
+            backNavigation?.SetCustomDirectionItem(GUIDirection.Down, search.Navigation);
+            search.Navigation.SetCustomDirectionItem(GUIDirection.Up, backNavigation);
+            search.Navigation.SetCustomDirectionItem(GUIDirection.Down, null);
 
             var primary = new List<GamepadNavigationItem>();
             var resets = new List<GamepadNavigationItem>();
@@ -1379,7 +1407,7 @@ namespace GK2.Framework
             }
 
             LinkVerticalColumn(
-                backNavigation,
+                search.Navigation,
                 primary);
             LinkVerticalColumn(
                 resetAllNavigation,

@@ -58,5 +58,8 @@
   "settings.reset_all": "Alles zurücksetzen",
   "settings.ui": "Benutzeroberfläche",
   "settings.window_scale": "Fenstergröße (%)",
-  "settings.window_scale_description": "Maximale Größe der vom Framework bereitgestellten Fenster. Die Fenster werden bei Bedarf weiterhin automatisch verkleinert, damit sie in den verfügbaren Bildschirmbereich passen."
+  "settings.window_scale_description": "Maximale Größe der vom Framework bereitgestellten Fenster. Die Fenster werden bei Bedarf weiterhin automatisch verkleinert, damit sie in den verfügbaren Bildschirmbereich passen.",
+  "search.mods": "Mods suchen...",
+  "search.settings": "Einstellungen suchen...",
+  "search.no_results": "Keine Treffer gefunden."
 }

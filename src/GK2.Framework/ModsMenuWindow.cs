@@ -334,6 +334,7 @@ namespace GK2.Framework
         protected override void Update()
         {
             ApplyResponsiveScale(force: false);
+            if (modList.HandleSearchUpdate()) return;
             if (settingsPage.HandleUpdate()) return;
             base.Update();
         }
@@ -355,6 +356,8 @@ namespace GK2.Framework
             if (settingsPage.TryCancelTextInputEditing())
                 return true;
 
+            if (modList.CancelSearchEditing()) return true;
+
             if (settingsPage.IsOpen)
             {
                 CloseSettingsPage();
@@ -366,6 +369,8 @@ namespace GK2.Framework
 
         public override void Close()
         {
+            modList.CancelSearchEditing();
+            settingsPage.TryCancelTextInputEditing();
             if (restartConfirmation != null) restartConfirmation.SetActive(false);
             restartReturnFocus = null;
             LazyWindow<LazyWidgetDataBase> target = returnWindow;

@@ -1,5 +1,6 @@
 param(
-    [string]$Configuration = "Release"
+    [string]$Configuration = "Release",
+    [ValidatePattern('^([a-z0-9-]+)?$')][string]$ArtifactSuffix = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -10,8 +11,9 @@ $releaseVersion = [string]$buildProps.Project.PropertyGroup.Version
 if ([string]::IsNullOrWhiteSpace($releaseVersion)) {
     throw "Release blocked: Directory.Build.props does not define Version."
 }
-$stagingRoot = Join-Path $artifactsRoot "GK2-Mod-Framework-$releaseVersion"
-$archivePath = Join-Path $artifactsRoot "GK2-Mod-Framework-$releaseVersion.zip"
+$artifactName = "GK2-Mod-Framework-$releaseVersion" + $(if ($ArtifactSuffix) { "-$ArtifactSuffix" })
+$stagingRoot = Join-Path $artifactsRoot $artifactName
+$archivePath = Join-Path $artifactsRoot "$artifactName.zip"
 $licensePath = Join-Path $projectRoot "LICENSE"
 
 function Get-ZipCentralDirectoryInfo {
@@ -127,6 +129,11 @@ New-Item -ItemType Directory -Path (Join-Path $stagingRoot "Templates\GK2.Framew
 Copy-Item -LiteralPath (Join-Path $projectRoot "src\GK2.Framework\bin\$Configuration\netstandard2.1\GK2.Framework.dll") -Destination (Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework.dll")
 Copy-Item -Path (Join-Path $projectRoot "Localization\*") -Destination (Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework\Localization") -Recurse
 Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination $stagingRoot
+if ($ArtifactSuffix) {
+    $testReadmePath = Join-Path $stagingRoot "README.md"
+    $testReadme = "# Test candidate $releaseVersion ($ArtifactSuffix)`r`n`r`nFor owner testing; not a published release.`r`n`r`n" + [IO.File]::ReadAllText($testReadmePath)
+    [IO.File]::WriteAllText($testReadmePath, $testReadme, [Text.UTF8Encoding]::new($false))
+}
 Copy-Item -LiteralPath (Join-Path $projectRoot "CHANGELOG.md") -Destination $stagingRoot
 Copy-Item -LiteralPath $licensePath -Destination $stagingRoot
 Copy-Item -LiteralPath (Join-Path $projectRoot "docs\NEW_MOD_GUIDE.md") -Destination (Join-Path $stagingRoot "docs")
@@ -153,6 +160,20 @@ if ($difference) {
     throw "Release staging does not match release-manifest.txt:`n$($difference | Out-String)"
 }
 
+$catalogRoot = Join-Path $stagingRoot "BepInEx\plugins\GK2.Framework\Localization\ru.superman4eg.gk2.framework"
+$englishCatalog = Get-Content -Raw -LiteralPath (Join-Path $catalogRoot "en.json") | ConvertFrom-Json
+$englishKeys = @($englishCatalog.PSObject.Properties.Name | Sort-Object)
+foreach ($language in @("bg", "de", "en", "es", "fr", "ko", "ru", "zh_cn")) {
+    $catalog = Get-Content -Raw -LiteralPath (Join-Path $catalogRoot "$language.json") | ConvertFrom-Json
+    $keys = @($catalog.PSObject.Properties.Name | Sort-Object)
+    if (Compare-Object $englishKeys $keys) { throw "Release blocked: localization keys differ for $language." }
+    foreach ($property in $catalog.PSObject.Properties) {
+        if ($property.Value -isnot [string] -or [string]::IsNullOrWhiteSpace($property.Value)) {
+            throw "Release blocked: invalid localization value $language/$($property.Name)."
+        }
+    }
+}
+Write-Output "LOCALIZATION_PARITY_PASS: eight catalogs; $($englishKeys.Count) nonempty keys"
 $publicTextFiles = Get-ChildItem -LiteralPath $stagingRoot -Recurse -File |
     Where-Object { $_.Extension -in ".md", ".txt", ".cs", ".csproj" }
 foreach ($publicTextFile in $publicTextFiles) {

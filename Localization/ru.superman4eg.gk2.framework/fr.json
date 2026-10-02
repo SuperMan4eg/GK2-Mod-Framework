@@ -58,5 +58,8 @@
   "settings.reset_all": "Tout réinitialiser",
   "settings.ui": "Interface",
   "settings.window_scale": "Échelle de la fenêtre (%)",
-  "settings.window_scale_description": "Taille maximale des fenêtres gérées par le Framework. Les fenêtres se réduisent automatiquement pour s'adapter à la zone d'affichage disponible."
+  "settings.window_scale_description": "Taille maximale des fenêtres gérées par le Framework. Les fenêtres se réduisent automatiquement pour s'adapter à la zone d'affichage disponible.",
+  "search.mods": "Rechercher des mods...",
+  "search.settings": "Rechercher des paramètres...",
+  "search.no_results": "Aucun résultat."
 }

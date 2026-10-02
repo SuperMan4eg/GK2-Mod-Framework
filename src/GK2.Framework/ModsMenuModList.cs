@@ -14,6 +14,8 @@ namespace GK2.Framework
     {
         private readonly RectTransform content;
         private readonly ScrollRect scroll;
+        private readonly ModsMenuSearch search;
+        private string selectedId;
         private readonly Dictionary<string, GameObject> selectionMarks =
             new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, Image> statusBadges =
@@ -26,6 +28,23 @@ namespace GK2.Framework
         {
             content = FrameworkUi.CreateVerticalScrollContent(frame, out scroll);
             this.onSelected = onSelected ?? throw new ArgumentNullException(nameof(onSelected));
+            FrameworkUi.SetRect(scroll.viewport, Vector2.zero, new Vector2(0f, -46f), Vector2.zero, Vector2.one);
+            search = new ModsMenuSearch(frame.rectTransform, (RectTransform)frame.transform.parent.parent,
+                FrameworkUi.L("search.mods", "Search mods..."), -8f,
+                value => { this.onSelected(Refresh(this.selectedId)); RefreshNavigation(); });
+        }
+
+        internal bool HandleSearchUpdate() => search.HandleUpdate();
+        internal bool CancelSearchEditing() => search.CancelEditing();
+
+        private void RefreshNavigation()
+        {
+            GamepadNavigationController controller = content.GetComponentInParent<GamepadNavigationController>();
+            if (LazyInput.IsGamepadActive && controller != null)
+            {
+                controller.ReinitItems(focusOnFirstActive: false);
+                controller.SetFocusedItem(search.Navigation);
+            }
         }
 
         internal RegisteredMod Refresh(string selectedId)
@@ -42,6 +61,8 @@ namespace GK2.Framework
 
             List<RegisteredMod> mods = FrameworkApi.Mods
                 .Where(m => !string.Equals(m.Metadata.Id, FrameworkPlugin.PluginGuid, StringComparison.OrdinalIgnoreCase))
+                .Where(m => ModsMenuSearch.Matches(search.Input.text,
+                    FrameworkModLocalization.ModName(m), m.Metadata.Name, m.Metadata.Id))
                 .OrderBy(FrameworkModLocalization.ModName, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(m => m.Metadata.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
@@ -51,7 +72,7 @@ namespace GK2.Framework
                 + ";visible=" + mods.Count
                 + ";ids=" + string.Join(",", FrameworkApi.Mods.Select(m => m.Metadata.Id)));
 
-            if (mods.Count == 0)
+            if (mods.Count == 0 && string.IsNullOrWhiteSpace(search.Input.text))
             {
                 string pluginIds = string.Join(",", Chainloader.PluginInfos.Keys
                     .Where(id => !string.Equals(id, FrameworkPlugin.PluginGuid, StringComparison.OrdinalIgnoreCase))
@@ -76,6 +97,16 @@ namespace GK2.Framework
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
 
             float y = -10f;
+            if (mods.Count == 0)
+            {
+                TextMeshProUGUI empty = FrameworkUi.CreateText("NoResults", content, 15f,
+                    TextAlignmentOptions.TopLeft, Color.white);
+                FrameworkUi.ApplyLabelText(empty);
+                empty.text = FrameworkUi.L("search.no_results", "No matches found.");
+                FrameworkUi.SetRect(empty.rectTransform, new Vector2(10f, -64f), new Vector2(-10f, -10f),
+                    new Vector2(0f, 1f), Vector2.one);
+                FrameworkUi.SetContentHeight(content, 74f);
+            }
             foreach (RegisteredMod mod in mods)
             {
                 RegisteredMod captured = mod;
@@ -146,6 +177,11 @@ namespace GK2.Framework
                 y -= 40f;
             }
 
+            if (mods.Count > 0 && navigationItems.TryGetValue(mods[0].Metadata.Id, out GamepadNavigationItem first))
+                search.Navigation.SetCustomDirectionItem(GUIDirection.Down, first, setAlsoBackwardsCustomDirection: true);
+            else
+                search.Navigation.SetCustomDirectionItem(GUIDirection.Down, null);
+
             return selectedId == null
                 ? mods.FirstOrDefault()
                 : mods.FirstOrDefault(m =>
@@ -202,6 +238,7 @@ namespace GK2.Framework
 
         internal void SetSelected(string selectedId)
         {
+            this.selectedId = selectedId;
             foreach (KeyValuePair<string, GameObject> pair in selectionMarks)
             {
                 if (pair.Value != null)
