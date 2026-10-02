@@ -27,11 +27,35 @@ namespace GK2.Framework
             Id = id.Trim().ToLowerInvariant();
             Name = string.IsNullOrWhiteSpace(name) ? Id : name.Trim();
             Author = string.IsNullOrWhiteSpace(author) ? "Unknown" : author.Trim();
-            Version = Version.Parse(version);
+            Version = ParseVersion(version, nameof(version));
             Description = description ?? string.Empty;
             SupportsRuntimeToggle = supportsRuntimeToggle;
             RequiresKnownBuild = requiresKnownBuild;
             FrameworkManagesEnabledState = frameworkManagesEnabledState;
+        }
+
+        internal static Version ParseVersion(string value, string parameterName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Mod version is required.", parameterName);
+
+            string normalized = value.Trim();
+            int qualifierIndex = normalized.IndexOfAny(new[] { '-', '+' });
+            if (qualifierIndex == 0)
+                throw new ArgumentException("Invalid mod version: " + value, parameterName);
+            if (qualifierIndex > 0)
+            {
+                string qualifier = normalized.Substring(qualifierIndex);
+                if (!System.Text.RegularExpressions.Regex.IsMatch(qualifier,
+                    @"\A(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z"))
+                    throw new ArgumentException("Invalid mod version: " + value, parameterName);
+                normalized = normalized.Substring(0, qualifierIndex);
+            }
+
+            if (!Version.TryParse(normalized, out Version parsed))
+                throw new ArgumentException("Invalid mod version: " + value, parameterName);
+
+            return parsed;
         }
     }
 
@@ -45,8 +69,8 @@ namespace GK2.Framework
         public Gk2ModDependency(string id, string minimumVersion = null, string maximumVersionExclusive = null, bool optional = false)
         {
             Id = (id ?? throw new ArgumentNullException(nameof(id))).Trim().ToLowerInvariant();
-            MinimumVersion = string.IsNullOrWhiteSpace(minimumVersion) ? null : Version.Parse(minimumVersion);
-            MaximumVersionExclusive = string.IsNullOrWhiteSpace(maximumVersionExclusive) ? null : Version.Parse(maximumVersionExclusive);
+            MinimumVersion = string.IsNullOrWhiteSpace(minimumVersion) ? null : Gk2ModMetadata.ParseVersion(minimumVersion, nameof(minimumVersion));
+            MaximumVersionExclusive = string.IsNullOrWhiteSpace(maximumVersionExclusive) ? null : Gk2ModMetadata.ParseVersion(maximumVersionExclusive, nameof(maximumVersionExclusive));
             Optional = optional;
         }
     }

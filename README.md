@@ -10,6 +10,8 @@ Source code: https://github.com/SuperMan4eg/GK2-Mod-Framework
 
 The repository tracks current development. Use the Nexus Mods page for packaged release builds.
 
+The published release is **0.1.18**. Existing-entry settings adoption and version-suffix support listed under **Unreleased** are source changes for a future release; they are not included in the published 0.1.18 download.
+
 ## Requirements
 
 - Graveyard Keeper 2 for Windows x64

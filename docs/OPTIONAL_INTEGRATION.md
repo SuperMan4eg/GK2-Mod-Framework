@@ -70,21 +70,25 @@ public sealed class FrameworkBridgePlugin : BaseUnityPlugin
 }
 ```
 
-Using the main mod's `ConfigFile` is intentional. If the bridge registers the same Section/Key/type through `Gk2Settings`, BepInEx returns the existing `ConfigEntry<T>`, so the Mods menu edits the same value used by the standalone mod.
+Using the main mod's `ConfigFile` is intentional. Framework builds that include existing-entry adoption can use the original `ConfigEntry<T>` directly, so the Mods menu edits the same value used by the standalone mod without binding it again.
 
 Example:
 
 ```csharp
 public override void OnRegister(Gk2ModContext context)
 {
-    context.Settings.AddToggle(
-        "General",
-        "FeatureEnabled",
-        true,
-        "Feature enabled",
-        "Enable the feature.");
+    context.Settings.AddToggle(main.FeatureEnabled);
 }
 ```
+
+For ranges and choices, keep the bridge explicit about its UI contract:
+
+```csharp
+context.Settings.AddIntSlider(main.MaxWorkers, 0, 50);
+context.Settings.AddDropdown(main.Mode, new[] { "Safe", "Fast" });
+```
+
+Do not build a Framework-wide scanner for every standalone BepInEx plugin. A bridge owns type mapping, ordering, hidden/read-only decisions, and any optional reflection over ConfigurationManager-specific tags. The Framework remains responsible only for safely adopting the entry and rendering supported native controls.
 
 ## Packaging choices
 

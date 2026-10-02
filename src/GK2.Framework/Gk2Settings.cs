@@ -246,11 +246,44 @@ namespace GK2.Framework
         public ConfigEntry<bool> AddToggle(string section, string key, bool value, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, description); RegisterSetting(new ConfigSetting<bool>(e, name, description, SettingKind.Toggle, order: order)); return e; }
 
+        /// <summary>
+        /// Adds an already-bound BepInEx toggle to this mod's Framework settings.
+        /// The returned entry is the original entry; no duplicate config storage is created.
+        /// </summary>
+        public ConfigEntry<bool> AddToggle(ConfigEntry<bool> entry, string name = null, string description = null, int order = 0)
+        {
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<bool>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.Toggle, order: order));
+            return entry;
+        }
+
         public ConfigEntry<int> AddIntSlider(string section, string key, int value, int min, int max, string name, string description, int step = 1, int order = 0)
         { var e = config.Bind(section, key, value, new ConfigDescription(description, new AcceptableValueRange<int>(min, max))); RegisterSetting(new ConfigSetting<int>(e, name, description, SettingKind.IntegerSlider, min, max, Math.Max(1, step), order: order)); return e; }
 
+        /// <summary>
+        /// Adds an already-bound integer entry as a slider. The caller supplies the UI range;
+        /// an optional bridge can read it from the entry's ConfigDescription when appropriate.
+        /// </summary>
+        public ConfigEntry<int> AddIntSlider(ConfigEntry<int> entry, int min, int max, string name = null, string description = null, int step = 1, int order = 0)
+        {
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<int>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.IntegerSlider, min, max, Math.Max(1, step), order: order));
+            return entry;
+        }
+
         public ConfigEntry<float> AddFloatSlider(string section, string key, float value, float min, float max, string name, string description, float step = 0.01f, int order = 0)
         { var e = config.Bind(section, key, value, new ConfigDescription(description, new AcceptableValueRange<float>(min, max))); RegisterSetting(new ConfigSetting<float>(e, name, description, SettingKind.FloatSlider, min, max, Math.Max(0.000001f, step), order: order)); return e; }
+
+        /// <summary>
+        /// Adds an already-bound float entry as a slider. The caller supplies the UI range;
+        /// an optional bridge can read it from the entry's ConfigDescription when appropriate.
+        /// </summary>
+        public ConfigEntry<float> AddFloatSlider(ConfigEntry<float> entry, float min, float max, string name = null, string description = null, float step = 0.01f, int order = 0)
+        {
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<float>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.FloatSlider, min, max, Math.Max(0.000001f, step), order: order));
+            return entry;
+        }
 
         public ConfigEntry<string> AddDropdown(string section, string key, string value, string[] choices, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, new ConfigDescription(description, new AcceptableValueList<string>(choices))); RegisterSetting(new ConfigSetting<string>(e, name, description, SettingKind.Dropdown, values: choices, order: order)); return e; }
@@ -258,14 +291,43 @@ namespace GK2.Framework
         public ConfigEntry<T> AddDropdown<T>(string section, string key, T value, T[] choices, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, description); RegisterSetting(new ConfigSetting<T>(e, name, description, SettingKind.Dropdown, values: choices, order: order)); return e; }
 
+        /// <summary>
+        /// Adds an already-bound entry as a dropdown. Choices remain explicit so callers do not
+        /// accidentally expose an unconstrained setting as a finite list.
+        /// </summary>
+        public ConfigEntry<T> AddDropdown<T>(ConfigEntry<T> entry, IEnumerable<T> choices, string name = null, string description = null, int order = 0)
+        {
+            if (choices == null) throw new ArgumentNullException(nameof(choices));
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<T>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.Dropdown, values: choices, order: order));
+            return entry;
+        }
+
         public ConfigEntry<T> AddEnum<T>(string section, string key, T value, string name, string description, int order = 0) where T : struct, Enum
         { T[] choices = (T[])Enum.GetValues(typeof(T)); return AddDropdown(section, key, value, choices, name, description, order); }
+
+        public ConfigEntry<T> AddEnum<T>(ConfigEntry<T> entry, string name = null, string description = null, int order = 0) where T : struct, Enum
+        { return AddDropdown(entry, (T[])Enum.GetValues(typeof(T)), name, description, order); }
 
         public ConfigEntry<KeyboardShortcut> AddKeybind(string section, string key, KeyboardShortcut value, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, description); RegisterSetting(new ConfigSetting<KeyboardShortcut>(e, name, description, SettingKind.Keybind, order: order)); return e; }
 
+        public ConfigEntry<KeyboardShortcut> AddKeybind(ConfigEntry<KeyboardShortcut> entry, string name = null, string description = null, int order = 0)
+        {
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<KeyboardShortcut>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.Keybind, order: order));
+            return entry;
+        }
+
         public ConfigEntry<string> AddText(string section, string key, string value, string name, string description, int order = 0)
         { var e = config.Bind(section, key, value, description); RegisterSetting(new ConfigSetting<string>(e, name, description, SettingKind.Text, order: order)); return e; }
+
+        public ConfigEntry<string> AddText(ConfigEntry<string> entry, string name = null, string description = null, int order = 0)
+        {
+            ValidateExistingEntry(entry);
+            RegisterSetting(new ConfigSetting<string>(entry, GetDisplayName(entry, name), GetDescription(entry, description), SettingKind.Text, order: order));
+            return entry;
+        }
 
         public void AddButton(
             string section,
@@ -297,6 +359,12 @@ namespace GK2.Framework
 
         private void RegisterSetting(IGk2Setting setting)
         {
+            if (setting == null) throw new ArgumentNullException(nameof(setting));
+            if (ContainsSetting(setting.UniqueKey))
+            {
+                throw new InvalidOperationException(
+                    "Duplicate Framework setting registration: " + setting.UniqueKey);
+            }
             settings.Add(setting);
             presentation[setting.UniqueKey] =
                 new SettingPresentationState(true, true);
@@ -438,5 +506,28 @@ namespace GK2.Framework
             string section,
             string key) =>
             (section ?? string.Empty) + "." + (key ?? string.Empty);
+
+        private void ValidateExistingEntry<T>(ConfigEntry<T> entry)
+        {
+            if (entry == null) throw new ArgumentNullException(nameof(entry));
+            if (!ReferenceEquals(entry.ConfigFile, config))
+            {
+                throw new ArgumentException(
+                    "The existing ConfigEntry belongs to a different ConfigFile.",
+                    nameof(entry));
+            }
+            if (ContainsSetting(BuildUniqueKey(entry.Definition.Section, entry.Definition.Key)))
+            {
+                throw new InvalidOperationException(
+                    "Duplicate Framework setting registration: "
+                    + BuildUniqueKey(entry.Definition.Section, entry.Definition.Key));
+            }
+        }
+
+        private static string GetDisplayName<T>(ConfigEntry<T> entry, string name) =>
+            string.IsNullOrWhiteSpace(name) ? entry.Definition.Key : name;
+
+        private static string GetDescription<T>(ConfigEntry<T> entry, string description) =>
+            description ?? entry.Description?.Description ?? string.Empty;
     }
 }

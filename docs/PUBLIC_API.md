@@ -23,7 +23,7 @@ RegisteredMod registration = FrameworkApi.RegisterMod(mod, Config);
 
 ## Metadata and dependencies
 
-`Gk2ModMetadata` contains the stable mod ID, name, author, semantic version, description, runtime-toggle support, known-build requirement, and whether the framework manages that registration's enabled state. IDs are normalized to lowercase and must not change after publication.
+`Gk2ModMetadata` contains the stable mod ID, name, author, semantic version, description, runtime-toggle support, known-build requirement, and whether the framework manages that registration's enabled state. IDs are normalized to lowercase and must not change after publication. Metadata versions accept a normal `System.Version` value and common SemVer prerelease/build suffixes (for example `1.2.3-beta.4` or `1.2.3+build.7`); the suffix is retained by the plugin itself but omitted from Framework's `Version` comparisons.
 
 The original constructor signature remains supported for binary compatibility and defaults `FrameworkManagesEnabledState` to `true`. Optional integration bridges can use the extended constructor with `frameworkManagesEnabledState: false`; those registrations do not get a framework-owned Enabled config entry or Enable/Disable control.
 
@@ -66,6 +66,21 @@ Do not call this method merely because registration did not throw. A mod that do
 - `AddText`
 - `AddButton` — a non-persistent action row. The label getter is evaluated when the row is built and immediately after the action runs; the row has no Reset button.
 - `AddReadOnly`
+
+For optional integration bridges, the same UI methods can adopt an existing entry from the registered mod's own `ConfigFile` instead of binding a second copy:
+
+```csharp
+context.Settings.AddToggle(main.FeatureEnabled);
+context.Settings.AddIntSlider(main.MaxWorkers, 0, 50);
+context.Settings.AddDropdown(main.Mode, new[] { "Safe", "Fast" });
+context.Settings.AddEnum(main.SortOrder);
+context.Settings.AddKeybind(main.OpenMenu);
+context.Settings.AddText(main.Note);
+```
+
+The adopted entry must belong to the `ConfigFile` passed to `FrameworkApi.RegisterMod`; Framework rejects a foreign entry or duplicate `Section.Key` registration. The UI edits the original entry, so its original section, key, default, acceptable-value validation, `SettingChanged` event and save behavior are preserved. Existing-entry slider and dropdown overloads require their range/choices explicitly. This is intentional: Framework does not infer UI semantics from arbitrary `ConfigDescription.Tags` or ConfigurationManager-specific metadata.
+
+Framework currently has native controls only for `bool`, `int`, `float`, `string`, enum, and `KeyboardShortcut`. A bridge should expose unsupported entries (for example `double`, `long`, unsigned numeric types, nullable values, custom types, `Color`, or `Vector2`) as read-only or omit them until it provides a safe, purpose-built representation. Do not send arbitrary types through text conversion or `Convert.ChangeType`.
 
 Conditional presentation can be attached after the target setting has been registered:
 

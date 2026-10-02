@@ -43,12 +43,7 @@ namespace GK2.OptionalIntegrationTemplate.FrameworkBridge
 
             public override void OnRegister(Gk2ModContext context)
             {
-                context.Settings.AddToggle(
-                    "General",
-                    "FeatureEnabled",
-                    true,
-                    "Feature enabled",
-                    "Enable the feature.");
+                context.Settings.AddToggle(main.FeatureEnabled);
 
                 context.Settings.AddReadOnly(
                     "Status",
