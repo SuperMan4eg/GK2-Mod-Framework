@@ -21,6 +21,11 @@ namespace GK2.Framework
             report.AppendLine("Selected mod: " + OneLine(mod.Metadata.Id));
             report.AppendLine("Mod version: " + OneLine(mod.Metadata.Version.ToString()));
             report.AppendLine("Mod status: " + mod.Status);
+            if (mod.Instance is ImportedSettingsMod imported)
+            {
+                report.AppendLine("Registration scope: imported settings only; gameplay compatibility not verified.");
+                report.AppendLine("Source plugin: " + OneLine(imported.SourceId));
+            }
             report.AppendLine("Status detail: " + OneLine(mod.StatusDetail));
             report.Append("Log: BepInEx/LogOutput.log");
             return report.ToString();

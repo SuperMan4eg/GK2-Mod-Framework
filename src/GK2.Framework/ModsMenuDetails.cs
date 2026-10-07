@@ -79,8 +79,8 @@ namespace GK2.Framework
             {
                 metadataText.text = FrameworkUi.L(
                     "mods.none",
-                    "No Framework-integrated mods are registered.\n\n"
-                    + "Standalone BepInEx mods can still run, but they appear here only when they register directly with the Framework or include a Framework bridge.");
+                    "No registered or imported mods are available.\n\n"
+                    + "Standalone settings import is available under Framework settings. Only loaded plugins with accessible configuration can be imported.");
                 enabledButton.gameObject.SetActive(false);
                 enabledButton.interactable = false;
                 settingsButton.gameObject.SetActive(false);
@@ -118,8 +118,10 @@ namespace GK2.Framework
             metadataText.text =
                 localizedName
                 + "\n\n" + FrameworkUi.L("mods.version", "Version") + ": " + meta.Version
+                + "\nID: " + (mod.Instance is ImportedSettingsMod imported ? imported.SourceId : meta.Id)
                 + "\n" + FrameworkUi.L("mods.author", "Author") + ": " + meta.Author
-                + "\n" + FrameworkUi.L("mods.compatibility", "Compatibility") + ": " + FormatCompatibilityStatus(mod.Status)
+                + "\n" + FrameworkUi.L("mods.compatibility", "Compatibility") + ": "
+                    + (mod.Instance is ImportedSettingsMod ? FrameworkUi.L("import.scope", "Settings only; gameplay not verified") : FormatCompatibilityStatus(mod.Status))
                 + issue
                 + "\n" + FrameworkUi.L("mods.dependencies", "Dependencies") + ": " + FormatDependencies(mod)
                 + enabledInfo

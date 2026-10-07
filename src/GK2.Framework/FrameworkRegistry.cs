@@ -48,6 +48,10 @@ namespace GK2.Framework
         {
             if (mod == null) throw new ArgumentNullException(nameof(mod));
             Gk2ModMetadata metadata = mod.Metadata ?? throw new InvalidOperationException("Mod metadata is null.");
+            if (!(mod is ImportedSettingsMod))
+                foreach (RegisteredMod imported in ordered.FindAll(r => r.Instance is ImportedSettingsMod source
+                    && (ImportedSettings.SameConfig(source.Config, config) || string.Equals(source.SourceId, metadata.Id, StringComparison.OrdinalIgnoreCase))))
+                    RemoveImported(imported);
             if (byId.ContainsKey(metadata.Id)) throw new InvalidOperationException("Duplicate GK2 mod id: " + metadata.Id);
             ConfigEntry<bool> enabled = metadata.FrameworkManagesEnabledState
                 ? BindEnabledEntry(config, metadata.Id)
@@ -77,6 +81,14 @@ namespace GK2.Framework
             string key = "Enabled." + modId;
             return config.Bind("Framework", key, true,
                 "Enable framework mod '" + modId + "' on game startup.");
+        }
+
+        internal void RemoveImported(RegisteredMod record)
+        {
+            if (!(record.Instance is ImportedSettingsMod imported)) throw new InvalidOperationException("Only imported settings can be removed here.");
+            imported.Dispose();
+            ordered.Remove(record);
+            byId.Remove(record.Metadata.Id);
         }
 
         internal bool SetRuntimeEnabled(string id, bool enabled)

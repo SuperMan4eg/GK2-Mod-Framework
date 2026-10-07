@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "Restart required to apply the scheduled enabled state.",
   "mods.issue.warning": "Attention required.",
   "mods.next_start": "Next start",
-  "mods.none": "No Framework-integrated mods are registered.\n\nStandalone BepInEx mods can still run, but they appear here only when they register directly with the Framework or include a Framework bridge.",
+  "mods.none": "No registered or imported mods are available. Standalone settings import is available under Framework settings. Only loaded plugins with accessible configuration can be imported.",
   "mods.optional": "optional",
   "mods.report.copy": "Copy report",
   "mods.report.copied": "Copied",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Maximum size of Framework-hosted windows. Windows still shrink automatically to fit the current safe area.",
   "search.mods": "Search mods...",
   "search.settings": "Search settings...",
-  "search.no_results": "No matches found."
+  "search.no_results": "No matches found.",
+  "import.enabled": "Import standalone mod settings",
+  "import.enabled_description": "Show supported settings from loaded BepInEx plugins. Reopen the Mods list after changing this option.",
+  "import.excluded": "Excluded plugin IDs",
+  "import.excluded_description": "Find the original plugin ID on the ID line in its Mods details. Copy report also includes it under Source plugin. Separate multiple IDs with commas; return to the Mods list after changing this value.",
+  "import.badge": "CONFIG",
+  "import.scope": "Settings only; gameplay not verified",
+  "import.label": "Imported settings",
+  "import.description": "Edits the original plugin configuration. When changes take effect depends on the plugin; restart if unsure. Framework does not manage this plugin or verify its gameplay compatibility.",
+  "import.readonly": "This setting type or editor is not supported; shown read-only.",
+  "sections.Import": "Settings import"
 }

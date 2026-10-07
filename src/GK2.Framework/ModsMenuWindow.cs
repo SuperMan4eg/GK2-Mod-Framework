@@ -30,6 +30,8 @@ namespace GK2.Framework
         private RegisteredMod selected;
         private GamepadNavigationItem settingsReturnFocus;
         private string builtLanguage;
+        private TMP_FontAsset builtRegularFont;
+        private TMP_FontAsset builtBoldFont;
 
         internal static void OpenFromMainMenu(UIMainMenuWindow mainMenu)
         {
@@ -46,8 +48,13 @@ namespace GK2.Framework
             if (sourceWindow == null) return;
             returnWindow = sourceWindow;
             string currentLanguage = FrameworkLocalization.CurrentLanguage;
+            NativeUiSkin.TryCapture();
+            TMP_FontAsset currentRegularFont = NativeUiSkin.GetRegularFontForCurrentLanguage();
+            TMP_FontAsset currentBoldFont = NativeUiSkin.GetBoldFontForCurrentLanguage();
             if (instance != null
-                && !string.Equals(instance.builtLanguage, currentLanguage, StringComparison.OrdinalIgnoreCase))
+                && (!string.Equals(instance.builtLanguage, currentLanguage, StringComparison.OrdinalIgnoreCase)
+                    || instance.builtRegularFont != currentRegularFont
+                    || instance.builtBoldFont != currentBoldFont))
             {
                 FrameworkLog.Source?.LogInfo(
                     "GK2_MODS_UI_LANGUAGE_REBUILD: from=" + instance.builtLanguage
@@ -124,6 +131,8 @@ namespace GK2.Framework
 
             ModsMenuWindow window = root.AddComponent<ModsMenuWindow>();
             window.builtLanguage = FrameworkLocalization.CurrentLanguage;
+            window.builtRegularFont = NativeUiSkin.GetRegularFontForCurrentLanguage();
+            window.builtBoldFont = NativeUiSkin.GetBoldFontForCurrentLanguage();
             window.BuildUi(template);
             window.Init();
             return window;
@@ -393,6 +402,7 @@ namespace GK2.Framework
 
         private void RefreshMods()
         {
+            ImportedSettings.Refresh();
             string selectedId = selected?.Metadata.Id;
             Select(modList.Refresh(selectedId));
         }
@@ -592,6 +602,7 @@ namespace GK2.Framework
         {
             settingsPage.Close();
             mainPage.SetActive(true);
+            RefreshMods();
             if (closeButton != null) closeButton.gameObject.SetActive(!LazyInput.IsGamepadActive);
 
             GamepadNavigationItem preferredFocus = settingsReturnFocus;

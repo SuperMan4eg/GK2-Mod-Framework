@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "Un redémarrage est nécessaire pour appliquer le nouvel état d'activation.",
   "mods.issue.warning": "Attention requise.",
   "mods.next_start": "Prochain démarrage",
-  "mods.none": "Aucun mod intégré au Framework n'est enregistré.\n\nLes mods BepInEx autonomes peuvent toujours fonctionner, mais ils n'apparaissent ici que s'ils s'enregistrent directement auprès du Framework ou incluent un pont de compatibilité avec le Framework.",
+  "mods.none": "Aucun mod enregistré ou importé disponible. Configurez les réglages importés dans les paramètres de Framework. Seuls les plugins chargés avec une configuration accessible sont importés.",
   "mods.optional": "facultatif",
   "mods.report.copy": "Copier le rapport",
   "mods.report.copied": "Copié",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Taille maximale des fenêtres gérées par le Framework. Les fenêtres se réduisent automatiquement pour s'adapter à la zone d'affichage disponible.",
   "search.mods": "Rechercher des mods...",
   "search.settings": "Rechercher des paramètres...",
-  "search.no_results": "Aucun résultat."
+  "search.no_results": "Aucun résultat.",
+  "import.enabled": "Importer les réglages des mods autonomes",
+  "import.enabled_description": "Afficher les réglages pris en charge des plugins BepInEx chargés. Revenir à la liste des mods après modification.",
+  "import.excluded": "Identifiants des plugins exclus",
+  "import.excluded_description": "L’identifiant original figure sur la ligne ID des détails du mod et sous Source plugin dans le rapport copié. Séparez plusieurs identifiants par des virgules, puis revenez à la liste des mods.",
+  "import.badge": "CONFIG",
+  "import.scope": "Réglages seuls ; fonctionnement non vérifié",
+  "import.label": "Réglages importés",
+  "import.description": "Modifie la configuration originale du plugin. Chaque plugin décide quand appliquer les modifications ; redémarrer le jeu en cas de doute. Framework ne contrôle pas ce plugin et ne vérifie pas son fonctionnement en jeu.",
+  "import.readonly": "Ce type de réglage ou cet éditeur ne sont pas pris en charge ; lecture seule.",
+  "sections.Import": "Importation des réglages"
 }

@@ -110,6 +110,14 @@ if (-not (Test-Path -LiteralPath $licensePath -PathType Leaf)) {
 dotnet build (Join-Path $projectRoot "src\GK2.Framework\GK2.Framework.csproj") -c $Configuration
 if ($LASTEXITCODE -ne 0) { throw "Framework build failed." }
 
+$versionCheckProject = Join-Path $projectRoot 'BuildTools\VersionMetadataCheck\VersionMetadataCheck.csproj'
+dotnet build $versionCheckProject -c Release
+if ($LASTEXITCODE -ne 0) { throw 'Version metadata checker build failed.' }
+$versionCheckDll = Join-Path $projectRoot 'BuildTools\VersionMetadataCheck\bin\Release\net10.0\VersionMetadataCheck.dll'
+$builtDll = Join-Path $projectRoot "src\GK2.Framework\bin\$Configuration\netstandard2.1\GK2.Framework.dll"
+dotnet $versionCheckDll $builtDll $releaseVersion
+if ($LASTEXITCODE -ne 0) { throw 'Release blocked: Framework version metadata mismatch.' }
+
 if (Test-Path -LiteralPath $stagingRoot) {
     $resolvedArtifacts = [System.IO.Path]::GetFullPath($artifactsRoot)
     $resolvedStaging = [System.IO.Path]::GetFullPath($stagingRoot)
@@ -204,5 +212,7 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $archivePath -PathType 
 }
 
 Set-And-Test-PortableZipPermissions -Path $archivePath
+dotnet $versionCheckDll $archivePath $releaseVersion
+if ($LASTEXITCODE -ne 0) { throw 'Release blocked: packaged Framework version metadata mismatch.' }
 Write-Output "PORTABLE_ZIP_PERMISSIONS_PASS: unix directories=0755; files=0644"
 Write-Output $archivePath

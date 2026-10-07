@@ -11,6 +11,8 @@ namespace GK2.Framework
         internal static string ModName(RegisteredMod mod)
         {
             Gk2ModMetadata metadata = mod.Metadata;
+            if (mod.Instance is ImportedSettingsMod)
+                return metadata.Name + " — " + FrameworkUi.L("import.label", "Imported settings");
             return IsFramework(mod)
                 ? metadata.Name
                 : FrameworkLocalization.Get(
@@ -21,6 +23,8 @@ namespace GK2.Framework
 
         internal static string ModDescription(RegisteredMod mod)
         {
+            if (mod.Instance is ImportedSettingsMod)
+                return FrameworkUi.L("import.description", "Edits the original plugin configuration. When changes take effect depends on the plugin; restart if unsure. Framework does not manage this plugin or verify its gameplay compatibility.");
             Gk2ModMetadata metadata = mod.Metadata;
             return IsFramework(mod)
                 ? FrameworkLocalization.Get(
@@ -61,6 +65,10 @@ namespace GK2.Framework
             RegisteredMod mod,
             IGk2Setting setting)
         {
+            if (IsFramework(mod) && setting.UniqueKey == "Import.Enabled")
+                return FrameworkUi.L("import.enabled", setting.DisplayName);
+            if (IsFramework(mod) && setting.UniqueKey == "Import.ExcludedIds")
+                return FrameworkUi.L("import.excluded", setting.DisplayName);
             if (IsFrameworkWindowScale(mod, setting))
             {
                 return FrameworkUi.L(
@@ -81,6 +89,13 @@ namespace GK2.Framework
             RegisteredMod mod,
             IGk2Setting setting)
         {
+            if (IsFramework(mod) && setting.UniqueKey == "Import.Enabled")
+                return FrameworkUi.L("import.enabled_description", setting.Description);
+            if (IsFramework(mod) && setting.UniqueKey == "Import.ExcludedIds")
+                return FrameworkUi.L("import.excluded_description", setting.Description);
+            if (setting is ImportedSetting && setting.IsReadOnly)
+                return setting.Description + "\n" + FrameworkUi.L("import.readonly", "This setting type or editor is not supported; shown read-only.");
+            if (mod.Instance is ImportedSettingsMod) return setting.Description;
             if (IsFrameworkWindowScale(mod, setting))
             {
                 return FrameworkUi.L(

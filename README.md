@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.19
+# GK2 Mod Framework 0.1.22
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -10,7 +10,7 @@ Source code: https://github.com/SuperMan4eg/GK2-Mod-Framework
 
 The repository tracks current development. Use the Nexus Mods page for packaged release builds.
 
-The latest confirmed published release is **0.1.19**; use the Nexus file version to identify the available download.
+Use the Nexus file version to identify the available download.
 
 ## Requirements
 
@@ -81,6 +81,9 @@ Metadata and dependency versions accept common prerelease and build suffixes suc
 
 ## Compatibility and known limitations
 
+- Framework 0.1.21 custom font handling and Vietnamese characters passed focused runtime checks on Windows Steam build `25676698`, alongside the built-in English, Russian, Korean, Japanese and Chinese fonts. The owner accepted the update. This does not certify every community language pack; each pack must supply a font containing its translated characters.
+
+- Framework 0.1.20 configuration import and clean startup were checked on Windows Steam build `25676698`, with released Tweak Pack 0.1.10 and Ultrawide Fix 0.1.6. The owner accepted the import UI, including the source ID display. This is focused coverage, not universal mod compatibility.
 - Framework 0.1.18 mod/settings search passed runtime checks on Steam build `25601286` and owner acceptance. The release startup was checked with published GK2 Tweak Pack 0.1.6 and GK2 Ultrawide Fix 0.1.6. This does not certify every mod or controller configuration.
 - Whole-assembly fingerprints are verified for full-release Steam builds `25457344`, `25467846`, and `25506711`, Unity `6000.3.9f1`, Mono x64. Framework 0.1.11's targeted unknown-build path was runtime-tested on Steam build `25509347` and again on build `25533739` (Assembly-CSharp SHA-256 `7ACB243A08897D8CC7B67EF17AED50EEA17857494AEF4278F4F3B00D324823E5`): the global fingerprint remained `Unknown`, while current consumer mods that validate their structural contracts registered `Compatible`.
 - Framework 0.1.16 menu startup and Copy report were tested on Steam build `25601286` (Assembly-CSharp SHA-256 `37A17C02B53F9BF62ABE76398CED3BCB847774EB5AC12353CF32D8B6044E1134`). The global build fingerprint remains `Unknown`; this focused check does not establish full compatibility for every mod on that build.
@@ -97,7 +100,7 @@ Metadata and dependency versions accept common prerelease and build suffixes suc
 
 **The Mods button is missing:** confirm that BepInEx loaded and that `GK2_FRAMEWORK_READY` appears in `BepInEx/LogOutput.log`.
 
-**A mod does not appear:** the Mods list only contains mods that register with GK2 Mod Framework. A standalone BepInEx mod can still run normally but will not appear unless you installed its Framework-compatible build or an optional Framework bridge. Check `BepInEx/LogOutput.log` for `Registered GK2 mod [<id>]`; if that line is missing, the loaded plugin is not integrated with the Framework.
+**A mod does not appear:** standalone settings import shows loaded BepInEx plugins with supported configuration entries. Check Framework settings: import must be enabled and the plugin ID must not be excluded. Plugins with no accessible live configuration, only hidden entries, or custom configuration formats are not imported. Registered Framework mods and bridges keep their normal menu entries.
 
 **A mod shows Unknown Build or Incompatible:** open its details in the Mods menu. Mods that implement the Framework 0.1.11 structural compatibility contract may continue running on an unknown whole-assembly fingerprint after validating the exact game API they use. Mods without that opt-in check remain blocked; do not force-enable them.
 
@@ -112,3 +115,13 @@ Do not install development outputs such as PDB files, `bin`/`obj` folders, diagn
 GK2 Mod Framework is distributed under the MIT License. See `LICENSE`.
 
 Spanish Framework UI translation was contributed by a community member. The contributor name was not supplied.
+
+## Standalone settings import
+
+The Mods list can show the original configuration of loaded standalone BepInEx plugins. Imported entries are marked as settings only: this does not verify gameplay compatibility, add Framework lifecycle support, or allow Framework to enable or disable the plugin.
+
+Import is enabled by default. Select an imported mod in the Mods list to find its original plugin ID on the **ID** line in its details. **Copy report** also includes that ID under **Source plugin**. Open Framework settings using the gear button to turn import off or exclude comma-separated plugin IDs. Return to the Mods list to refresh it. Existing integrated mods and bridges are not duplicated when they use the same plugin ID or configuration file.
+
+Boolean, string, ordinary enum, keyboard shortcut, integer and floating-point settings use the available editors. Numeric settings with a declared range use sliders; numeric settings without a range use text entry. Standard acceptable-value lists use dropdowns. Invalid numeric input leaves the original value unchanged. Unsupported types or custom editors are shown read-only; settings marked hidden or password fields are omitted. Custom ConfigurationManager editors are not recreated.
+
+Changes edit the plugin's live configuration entries, retaining its validation, change events, save behavior and defaults. When a change takes effect depends on the plugin; restart the game if unsure. Import does not scan arbitrary cfg files or convert saved games.

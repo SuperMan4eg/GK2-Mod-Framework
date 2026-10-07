@@ -9,6 +9,14 @@
     <GameDataDir Condition="'$(GameDataDir)' == ''">$(GameDir)\GraveyardKeeper2_Data</GameDataDir>
     <BepInExDir Condition="'$(BepInExDir)' == ''">$(GameDir)\BepInEx</BepInExDir>
   </PropertyGroup>
+  <Target Name="GenerateFrameworkBuildVersion" BeforeTargets="CoreCompile">
+    <WriteLinesToFile File="$(IntermediateOutputPath)FrameworkBuildVersion.g.cs"
+                      Lines="namespace GK2.Framework { internal static class FrameworkBuildVersion { public const string Value = &quot;$(Version)&quot;%3B } }"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)FrameworkBuildVersion.g.cs" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <Reference Include="BepInEx"><HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="0Harmony"><HintPath>$(BepInExDir)\core\0Harmony.dll</HintPath><Private>false</Private></Reference>

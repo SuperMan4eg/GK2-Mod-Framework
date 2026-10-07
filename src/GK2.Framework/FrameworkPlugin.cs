@@ -8,7 +8,7 @@ namespace GK2.Framework
     {
         public const string PluginGuid = "ru.superman4eg.gk2.framework";
         public const string PluginName = "GK2 Mod Framework";
-        public const string PluginVersion = "0.1.19";
+        public const string PluginVersion = FrameworkBuildVersion.Value;
         private Harmony harmony;
 
         private void Awake()
@@ -25,6 +25,7 @@ namespace GK2.Framework
         }
 
         private void OnDestroy() { harmony?.UnpatchSelf(); }
+        private void Start() => ImportedSettings.Refresh();
 
         private sealed class FrameworkSelfMod : Gk2ModBase
         {
@@ -37,6 +38,12 @@ namespace GK2.Framework
 
             public override void OnRegister(Gk2ModContext context)
             {
+                ImportedSettings.Enabled = context.Settings.AddToggle("Import", "Enabled", true,
+                    FrameworkLocalization.Get("import.enabled", "Import standalone mod settings"),
+                    FrameworkLocalization.Get("import.enabled_description", "Show supported settings from loaded BepInEx plugins. Reopen the Mods list after changing this option."));
+                ImportedSettings.ExcludedIds = context.Settings.AddText("Import", "ExcludedIds", string.Empty,
+                    FrameworkLocalization.Get("import.excluded", "Excluded plugin IDs"),
+                    FrameworkLocalization.Get("import.excluded_description", "Comma-separated plugin IDs to omit from settings import. Reopen the Mods list after changing this value."));
                 FrameworkUi.WindowScalePercent = context.Settings.AddIntSlider(
                     "UI",
                     "WindowScalePercent",

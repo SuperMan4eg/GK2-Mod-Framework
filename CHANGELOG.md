@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.22 — 2026-10-06
+
+- Corrected the reported Framework version so update checkers and the Mods menu identify the installed release correctly.
+
+## 0.1.21 — 2026-10-06
+
+- Use the active game language pack's font in the Mods menu and settings, including packs replacing an existing language.
+- Refresh the Mods menu on reopening when the active font changes without a language change.
+- Keep using the current font when a language pack replaces a previously loaded font asset.
+
+## 0.1.20 — 2026-10-04
+
+- Added optional import of live settings from loaded standalone BepInEx plugins, with supported editors and read-only fallback.
+- Added controls to disable import or exclude plugin IDs and labels distinguishing settings import from gameplay compatibility.
+- Show the original plugin ID in mod details and explain where to find it when adding exclusions.
+- Added import labels and exclusion help in all eight languages.
+
 ## 0.1.19 — 2026-10-02
 
 - Added public `Gk2Settings` overloads that adopt an existing BepInEx `ConfigEntry<T>` for supported native controls. Optional bridges can now expose a standalone mod's original configuration in the Mods menu without binding a duplicate entry.

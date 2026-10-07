@@ -203,6 +203,12 @@ namespace GK2.Framework
         internal event Action PresentationChanged;
 
         internal Gk2Settings(ConfigFile config) { this.config = config; }
+        internal ConfigFile Config => config;
+        internal void AddImported(ImportedSetting setting)
+        {
+            if (!ReferenceEquals(setting.Entry.ConfigFile, config)) throw new ArgumentException("Foreign imported configuration entry.");
+            RegisterSetting(setting);
+        }
 
         public void SetVisibilityCondition(
             string section,

@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "Neustart erforderlich, um die geplante Änderung anzuwenden.",
   "mods.issue.warning": "Aktion erforderlich.",
   "mods.next_start": "Beim nächsten Start",
-  "mods.none": "Keine im Framework registrierten Mods vorhanden.\n\nEigenständige BepInEx-Mods können weiterhin funktionieren, erscheinen hier aber nur, wenn sie sich direkt beim Framework registrieren oder eine Framework-Anbindung enthalten.",
+  "mods.none": "Keine registrierten oder importierten Mods verfügbar. Der Einstellungsimport ist in den Framework-Einstellungen verfügbar. Nur geladene Plugins mit zugänglicher Konfiguration werden importiert.",
   "mods.optional": "optional",
   "mods.report.copy": "Bericht kopieren",
   "mods.report.copied": "Kopiert",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Maximale Größe der vom Framework bereitgestellten Fenster. Die Fenster werden bei Bedarf weiterhin automatisch verkleinert, damit sie in den verfügbaren Bildschirmbereich passen.",
   "search.mods": "Mods suchen...",
   "search.settings": "Einstellungen suchen...",
-  "search.no_results": "Keine Treffer gefunden."
+  "search.no_results": "Keine Treffer gefunden.",
+  "import.enabled": "Einstellungen eigenständiger Mods importieren",
+  "import.enabled_description": "Unterstützte Einstellungen geladener BepInEx-Plugins anzeigen. Nach Änderungen zur Modliste zurückkehren.",
+  "import.excluded": "Ausgeschlossene Plugin-IDs",
+  "import.excluded_description": "Die ursprüngliche Plugin-ID steht in der ID-Zeile der Moddetails. Der kopierte Bericht enthält sie unter Source plugin. Mehrere IDs durch Kommas trennen; danach zur Modliste zurückkehren.",
+  "import.badge": "KONFIG",
+  "import.scope": "Nur Einstellungen; Modfunktion ungeprüft",
+  "import.label": "Importierte Einstellungen",
+  "import.description": "Bearbeitet die ursprüngliche Plugin-Konfiguration. Der Zeitpunkt der Anwendung hängt vom Plugin ab; im Zweifel das Spiel neu starten. Framework steuert dieses Plugin nicht und prüft seine Spielfunktionen nicht.",
+  "import.readonly": "Dieser Einstellungstyp oder Editor wird nicht unterstützt; nur lesbar.",
+  "sections.Import": "Einstellungsimport"
 }

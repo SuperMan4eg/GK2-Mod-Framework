@@ -49,7 +49,7 @@ namespace GK2.Framework
             GameObject go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             TextMeshProUGUI text = go.AddComponent<TextMeshProUGUI>();
-            if (NativeUiSkin.IsReady && NativeUiSkin.RegularFont != null)
+            if (NativeUiSkin.IsReady)
             {
                 ApplyRegularFont(text);
             }

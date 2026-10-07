@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "예약된 활성화 상태를 적용하려면 재시작이 필요합니다.",
   "mods.issue.warning": "확인이 필요합니다.",
   "mods.next_start": "다음 시작",
-  "mods.none": "Framework와 통합된 모드가 등록되어 있지 않습니다.\n\n독립형 BepInEx 모드는 계속 실행될 수 있지만 Framework에 직접 등록하거나 Framework 브리지를 포함한 경우에만 여기에 표시됩니다.",
+  "mods.none": "등록되거나 설정을 가져온 모드가 없습니다. Framework 설정에서 설정 가져오기를 사용할 수 있습니다. 접근 가능한 설정이 있는 로드된 플러그인만 가져옵니다.",
   "mods.optional": "선택 사항",
   "mods.report.copy": "보고서 복사",
   "mods.report.copied": "복사됨",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Framework 창의 최대 크기입니다. 필요한 경우 현재 화면의 안전 영역에 맞도록 창이 자동으로 축소됩니다.",
   "search.mods": "모드 검색...",
   "search.settings": "설정 검색...",
-  "search.no_results": "검색 결과가 없습니다."
+  "search.no_results": "검색 결과가 없습니다.",
+  "import.enabled": "독립 모드 설정 가져오기",
+  "import.enabled_description": "로드된 BepInEx 플러그인의 지원되는 설정을 표시합니다. 변경 후 모드 목록으로 돌아가세요.",
+  "import.excluded": "제외할 플러그인 ID",
+  "import.excluded_description": "모드 상세 정보의 ID 항목에서 원래 플러그인 ID를 확인하세요. 복사한 보고서의 Source plugin에도 표시됩니다. 여러 ID는 쉼표로 구분하고 변경 후 모드 목록으로 돌아가세요.",
+  "import.badge": "설정",
+  "import.scope": "설정만 표시; 게임 기능 미검증",
+  "import.label": "가져온 설정",
+  "import.description": "플러그인의 원래 설정을 편집합니다. 적용 시점은 플러그인에 따라 다르므로 확실하지 않으면 게임을 다시 시작하세요. Framework는 이 플러그인을 제어하거나 게임 기능을 검증하지 않습니다.",
+  "import.readonly": "이 설정 유형이나 편집기는 지원되지 않으며 읽기만 가능합니다.",
+  "sections.Import": "설정 가져오기"
 }

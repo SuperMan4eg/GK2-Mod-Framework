@@ -85,8 +85,10 @@ namespace GK2.Framework
                 BoldFont = headerText?.font;
                 BoldMaterial = headerText?.fontSharedMaterial;
                 LazyFontData[] loadedFontData = Resources.FindObjectsOfTypeAll<LazyFontData>();
-                regularFontData = FindFontData(loadedFontData, RegularFont?.name, "small_font");
-                boldFontData = FindFontData(loadedFontData, BoldFont?.name, "small_font_bold");
+                regularFontData = labelText?.GetComponent<TextStyleComponent>()?.CurrentTextStyle?.Font
+                    ?? FindFontData(loadedFontData, RegularFont?.name, "small_font");
+                boldFontData = headerText?.GetComponent<TextStyleComponent>()?.CurrentTextStyle?.Font
+                    ?? FindFontData(loadedFontData, BoldFont?.name, "small_font_bold");
                 LabelColor = labelText != null ? labelText.color : new Color(0.59f, 0.55f, 0.53f, 1f);
                 ValueColor = valueText != null ? valueText.color : new Color(1f, 0.74f, 0f, 1f);
                 HintColor = hintText != null ? hintText.color : LabelColor;
@@ -205,7 +207,8 @@ namespace GK2.Framework
                         language = "pt-br";
                 }
 
-                TMP_FontAsset resolved = fontData.GetFontAssetFor(language, false, false);
+                // Match native TextStyle: custom packs may replace even the English slot.
+                TMP_FontAsset resolved = fontData.GetFontAssetFor(language, false, true);
                 if (resolved != null) return resolved;
             }
             catch (Exception ex)

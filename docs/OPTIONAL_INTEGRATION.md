@@ -88,7 +88,7 @@ context.Settings.AddIntSlider(main.MaxWorkers, 0, 50);
 context.Settings.AddDropdown(main.Mode, new[] { "Safe", "Fast" });
 ```
 
-Do not build a Framework-wide scanner for every standalone BepInEx plugin. A bridge owns type mapping, ordering, hidden/read-only decisions, and any optional reflection over ConfigurationManager-specific tags. The Framework remains responsible only for safely adopting the entry and rendering supported native controls.
+Starting with Framework 0.1.20, optional automatic import exposes supported live settings of loaded BepInEx plugins. It does not scan arbitrary configuration files or certify gameplay compatibility. Imported settings use their original entries; unsupported editors are read-only, and declared hidden/password entries are omitted. A registered bridge sharing the source plugin ID or configuration file replaces the imported view. Use a bridge for explicit presentation, custom ordering, localization, dependencies and lifecycle integration. The automatic adapter does not manage the standalone plugin lifecycle.
 
 ## Packaging choices
 

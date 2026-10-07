@@ -281,9 +281,10 @@ namespace GK2.Framework
 
             bool numeric =
                 setting.Kind == SettingKind.IntegerSlider
-                || setting.Kind == SettingKind.FloatSlider;
+                || setting.Kind == SettingKind.FloatSlider
+                || (setting is ImportedSetting && (setting.ValueType == typeof(int) || setting.ValueType == typeof(float)));
             bool integerOnly =
-                setting.Kind == SettingKind.IntegerSlider;
+                setting.Kind == SettingKind.IntegerSlider || (setting is ImportedSetting && setting.ValueType == typeof(int));
 
             virtualKeyboard = new SettingsVirtualKeyboard(
                 (RectTransform)page.transform,

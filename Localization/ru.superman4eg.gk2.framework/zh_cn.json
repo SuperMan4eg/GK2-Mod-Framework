@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "需要重启以应用计划的启用状态。",
   "mods.issue.warning": "需要注意。",
   "mods.next_start": "下次启动",
-  "mods.none": "没有已注册并集成 Framework 的模组。\n\n独立的 BepInEx 模组仍可正常运行，但只有直接注册到 Framework 或包含 Framework 桥接组件时才会显示在这里。",
+  "mods.none": "没有已注册或已导入的模组。可以在 Framework 设置中启用设置导入。仅导入已加载且具有可访问配置的插件。",
   "mods.optional": "可选",
   "mods.report.copy": "复制报告",
   "mods.report.copied": "已复制",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Framework 窗口的最大尺寸。如有需要，窗口仍会自动缩小以适应当前安全区域。",
   "search.mods": "搜索模组...",
   "search.settings": "搜索设置...",
-  "search.no_results": "未找到匹配项。"
+  "search.no_results": "未找到匹配项。",
+  "import.enabled": "导入独立模组设置",
+  "import.enabled_description": "显示已加载 BepInEx 插件的受支持设置。更改后请返回模组列表。",
+  "import.excluded": "排除的插件 ID",
+  "import.excluded_description": "原始插件 ID 位于模组详情的 ID 行，也会显示在复制的报告的 Source plugin 项中。多个 ID 请用逗号分隔，修改后返回模组列表。",
+  "import.badge": "设置",
+  "import.scope": "仅显示设置；游戏功能未经验证",
+  "import.label": "导入的设置",
+  "import.description": "编辑插件的原始配置。设置何时生效由插件决定；不确定时请重启游戏。Framework 不控制该插件，也不验证其游戏功能。",
+  "import.readonly": "不支持此设置类型或编辑器；仅供查看。",
+  "sections.Import": "设置导入"
 }

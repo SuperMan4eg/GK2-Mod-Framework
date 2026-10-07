@@ -28,7 +28,7 @@
   "mods.issue.pending_restart": "Se requiere reiniciar para aplicar el estado programado.",
   "mods.issue.warning": "Requiere atención.",
   "mods.next_start": "Próximo inicio",
-  "mods.none": "No hay mods registrados integrados en el Framework.\n\nLos mods independientes de BepInEx aún pueden ejecutarse, pero aparecerán aquí solo si se registran directamente con el Framework o incluyen un puente del Framework.",
+  "mods.none": "No hay mods registrados ni importados. La importación está disponible en los ajustes de Framework. Solo se importan plugins cargados con una configuración accesible.",
   "mods.optional": "opcional",
   "mods.report.copy": "Copiar reporte",
   "mods.report.copied": "Copiado",
@@ -61,5 +61,15 @@
   "settings.window_scale_description": "Tamaño máximo de las ventanas alojadas en el Framework. Las ventanas se seguirán encogiendo automáticamente para ajustarse al área segura actual.",
   "search.mods": "Buscar mods...",
   "search.settings": "Buscar ajustes...",
-  "search.no_results": "No se encontraron coincidencias."
+  "search.no_results": "No se encontraron coincidencias.",
+  "import.enabled": "Importar ajustes de mods independientes",
+  "import.enabled_description": "Mostrar ajustes compatibles de plugins BepInEx cargados. Vuelve a la lista de mods después de cambiar esta opción.",
+  "import.excluded": "IDs de plugins excluidos",
+  "import.excluded_description": "El ID original aparece en la línea ID de los detalles del mod y en Source plugin del informe copiado. Separa varios IDs con comas y vuelve a la lista de mods después de cambiarlos.",
+  "import.badge": "CONFIG",
+  "import.scope": "Solo ajustes; funcionamiento sin verificar",
+  "import.label": "Ajustes importados",
+  "import.description": "Edita la configuración original del plugin. Cada plugin decide cuándo aplica los cambios; reinicia el juego si tienes dudas. Framework no controla este plugin ni verifica su funcionamiento en el juego.",
+  "import.readonly": "Este tipo de ajuste o editor no está admitido; solo lectura.",
+  "sections.Import": "Importación de ajustes"
 }

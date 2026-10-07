@@ -37,6 +37,9 @@ namespace GK2.Framework
                     string.Empty,
                     new Color(0.28f, 0.28f, 0.28f, 1f));
 
+            if (mod.Instance is ImportedSettingsMod)
+                return new ModUiState(ModUiSeverity.Warning,
+                    FrameworkUi.L("import.badge", "CONFIG"), string.Empty, new Color(0.25f, 0.40f, 0.60f, 1f));
             switch (mod.Status)
             {
                 case ModCompatibilityStatus.Faulted:
