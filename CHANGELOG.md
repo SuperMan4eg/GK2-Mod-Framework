@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.23 — 2026-10-08
+
+- Reduce repeated language-detection work when mods request translated text, while keeping language changes up to date.
+- Thanks to OrionAF for reporting the issue and suggesting language caching.
+
 ## 0.1.22 — 2026-10-06
 
 - Corrected the reported Framework version so update checkers and the Mods menu identify the installed release correctly.

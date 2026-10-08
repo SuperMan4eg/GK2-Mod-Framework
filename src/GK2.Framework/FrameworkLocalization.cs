@@ -16,6 +16,13 @@ namespace GK2.Framework
         private static readonly object Sync = new object();
         private static readonly Dictionary<string, Dictionary<string, string>> Cache =
             new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        private static string cachedLanguage;
+        private static string observedRuntimeLanguage;
+
+        static FrameworkLocalization()
+        {
+            GameSettings.OnLanguageChanged += OnLanguageChanged;
+        }
 
         // Legacy host override kept for 0.1.x compatibility. Returning null/empty falls back to language files.
         public static Func<string, string> Resolver { get; set; }
@@ -56,7 +63,10 @@ namespace GK2.Framework
 
         public static void Reload()
         {
-            lock (Sync) Cache.Clear();
+            lock (Sync)
+            {
+                Cache.Clear();
+            }
         }
 
         public static void Reload(string modId)
@@ -134,11 +144,37 @@ namespace GK2.Framework
 
         private static string ResolveCurrentLanguage()
         {
-            string persisted = GetSavedLanguage();
-            if (!string.IsNullOrWhiteSpace(persisted))
-                return NormalizeLanguage(persisted);
+            string runtimeLanguage = LLBase.CurrentLang;
+            lock (Sync)
+            {
+                if (cachedLanguage == null)
+                {
+                    // Preserve saved-language detection before game settings are initialized.
+                    string persisted = GetSavedLanguage();
+                    cachedLanguage = NormalizeLanguage(string.IsNullOrWhiteSpace(persisted)
+                        ? runtimeLanguage : persisted);
+                }
+                else if (!string.Equals(observedRuntimeLanguage, runtimeLanguage, StringComparison.Ordinal))
+                {
+                    // Also handle language loaders that do not raise the settings event.
+                    cachedLanguage = NormalizeLanguage(runtimeLanguage);
+                }
+                observedRuntimeLanguage = runtimeLanguage;
+                return cachedLanguage;
+            }
+        }
 
-            return NormalizeLanguage(LLBase.CurrentLang);
+        private static void OnLanguageChanged()
+        {
+            lock (Sync)
+            {
+                // The event follows applying the active settings, even before they are saved.
+                // Custom packs may have a settings ID different from their base LL language.
+                string selected = GameSettings.Instance.language;
+                observedRuntimeLanguage = LLBase.CurrentLang;
+                cachedLanguage = NormalizeLanguage(string.IsNullOrWhiteSpace(selected)
+                    ? observedRuntimeLanguage : selected);
+            }
         }
 
         private static string GetSavedLanguage()

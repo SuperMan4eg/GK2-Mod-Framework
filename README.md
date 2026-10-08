@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.22
+# GK2 Mod Framework 0.1.23
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
