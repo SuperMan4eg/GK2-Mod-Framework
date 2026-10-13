@@ -12,3 +12,8 @@ publisher.json
 *.user
 *.suo
 *.log
+
+# Local assistant instructions and internal development notes
+AGENTS.md
+NEXT_RELEASE_IDEAS.md
+Research/
