@@ -71,5 +71,10 @@
   "import.label": "导入的设置",
   "import.description": "编辑插件的原始配置。设置何时生效由插件决定；不确定时请重启游戏。Framework 不控制该插件，也不验证其游戏功能。",
   "import.readonly": "不支持此设置类型或编辑器；仅供查看。",
-  "sections.Import": "设置导入"
+  "sections.Import": "设置导入",
+  "settings.changed": "已更改默认值。",
+  "settings.key_conflict": "也被以下模组使用：{0}。",
+  "mods.copy_loaded": "复制模组列表",
+  "mods.list_copied": "模组列表已复制",
+  "settings.key_scope": "仅检查 Framework 可见的按键绑定。"
 }

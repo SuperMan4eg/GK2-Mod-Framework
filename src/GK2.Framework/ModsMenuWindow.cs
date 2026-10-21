@@ -59,6 +59,7 @@ namespace GK2.Framework
                 FrameworkLog.Source?.LogInfo(
                     "GK2_MODS_UI_LANGUAGE_REBUILD: from=" + instance.builtLanguage
                     + ";to=" + currentLanguage);
+                instance.settingsPage?.HideWithoutLog();
                 GameObject stale = instance.gameObject;
                 instance = null;
                 if (stale != null)
@@ -285,6 +286,20 @@ namespace GK2.Framework
             detailPanel.transform.SetParent(mainPage.transform, true);
             mainPage.transform.SetParent(panelRect, true);
 
+            LazyButton copyLoaded = FrameworkUi.CreateButton(
+                "CopyLoadedMods", panelRect, template,
+                FrameworkUi.L("mods.copy_loaded", "Copy mod list"),
+                new Vector2(58f, 12f), new Vector2(238f, 38f),
+                new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
+            FrameworkUi.ApplyDialogButton(copyLoaded);
+            copyLoaded.onClick.AddListener(() =>
+            {
+                GUIUtility.systemCopyBuffer = LoadedModsReport.Build();
+                copyLoaded.GetComponentInChildren<TextMeshProUGUI>(true).text = FrameworkUi.L("mods.list_copied", "Mod list copied");
+            });
+            copyLoaded.SetCallbacksIntoGamepadNavigationItem();
+            copyLoaded.transform.SetParent(mainPage.transform, true);
+
             frameworkSettingsButton = FrameworkUi.CreateButton(
                 "FrameworkSettings",
                 panelRect,
@@ -380,6 +395,7 @@ namespace GK2.Framework
         {
             modList.CancelSearchEditing();
             settingsPage.TryCancelTextInputEditing();
+            settingsPage.HideWithoutLog();
             if (restartConfirmation != null) restartConfirmation.SetActive(false);
             restartReturnFocus = null;
             LazyWindow<LazyWidgetDataBase> target = returnWindow;

@@ -71,5 +71,10 @@
   "import.label": "Imported settings",
   "import.description": "Edits the original plugin configuration. When changes take effect depends on the plugin; restart if unsure. Framework does not manage this plugin or verify its gameplay compatibility.",
   "import.readonly": "This setting type or editor is not supported; shown read-only.",
-  "sections.Import": "Settings import"
+  "sections.Import": "Settings import",
+  "settings.changed": "Changed from default.",
+  "settings.key_conflict": "Also used by: {0}.",
+  "mods.copy_loaded": "Copy mod list",
+  "mods.list_copied": "Mod list copied",
+  "settings.key_scope": "Only Framework-visible bindings are checked."
 }

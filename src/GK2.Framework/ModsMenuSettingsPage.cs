@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -22,6 +22,39 @@ namespace GK2.Framework
         private readonly LazyButton resetAllButton;
         private readonly List<NavigationRow> navigationRows = new List<NavigationRow>();
 
+        private readonly List<IGk2Setting> diagnosticSubscriptions = new List<IGk2Setting>();
+        private readonly List<Action> annotationRefresh = new List<Action>();
+        private readonly List<Func<float, float>> rowLayouts = new List<Func<float, float>>();
+        private readonly List<GameObject> conflictPanels = new List<GameObject>();
+        private TextMeshProUGUI diagnosticsNote;
+        private void LayoutRows()
+        {
+            float y = -6f;
+            foreach (var layout in rowLayouts) y -= layout(y);
+            bool conflicts = conflictPanels.Any(panel => panel != null && panel.activeSelf);
+            if (diagnosticsNote != null)
+            {
+                diagnosticsNote.text = "* " + FrameworkUi.L("settings.changed", "Changed from default.")
+                    + (conflicts ? "\n" + FrameworkUi.L("settings.key_scope", "Only Framework-visible bindings are checked.") : string.Empty);
+                float height = Mathf.Ceil(diagnosticsNote.GetPreferredValues(diagnosticsNote.text, Mathf.Max(250f, content.rect.width - 26f), 1000f).y);
+                FrameworkUi.SetRect(diagnosticsNote.rectTransform, new Vector2(13f, y - height - 6f), new Vector2(-13f, y - 6f), new Vector2(0f, 1f), Vector2.one);
+                y -= height + 12f;
+            }
+            FrameworkUi.SetContentHeight(content, Mathf.Max(0f, -y + 10f));
+        }
+        private bool annotationsDirty;
+        private int diagnosticModCount;
+        private void OnDiagnosticValueChanged(IGk2Setting setting) => annotationsDirty = true;
+        private void SubscribeDiagnostics()
+        {
+            foreach (var setting in diagnosticSubscriptions) setting.ValueChanged -= OnDiagnosticValueChanged;
+            diagnosticSubscriptions.Clear();
+            foreach (var mod in FrameworkApi.Mods)
+                foreach (var setting in mod.Settings.Items)
+                    if (!setting.IsReadOnly) { setting.ValueChanged += OnDiagnosticValueChanged; diagnosticSubscriptions.Add(setting); }
+            diagnosticModCount = FrameworkApi.Mods.Count;
+            annotationsDirty = true;
+        }
         private RegisteredMod selected;
         private IGk2Setting capturingKeybind;
         private TextMeshProUGUI captureLabel;
@@ -138,6 +171,7 @@ namespace GK2.Framework
 
             DetachPresentationEvents();
             selected = mod;
+            SubscribeDiagnostics();
             search.Input.SetTextWithoutNotify(string.Empty);
             selected.Settings.PresentationChanged += OnPresentationChanged;
             selected.Settings.RefreshConditions();
@@ -168,6 +202,14 @@ namespace GK2.Framework
 
         internal bool HandleUpdate()
         {
+            if (!IsOpen) return false;
+            if (diagnosticModCount != FrameworkApi.Mods.Count) SubscribeDiagnostics();
+            if (annotationsDirty)
+            {
+                annotationsDirty = false;
+                foreach (var refresh in annotationRefresh) refresh();
+                LayoutRows();
+            }
             if (search.HandleUpdate()) return true;
             if (IsVirtualKeyboardOpen)
             {
@@ -196,6 +238,9 @@ namespace GK2.Framework
 
         private void DetachPresentationEvents()
         {
+            foreach (var setting in diagnosticSubscriptions) setting.ValueChanged -= OnDiagnosticValueChanged;
+            diagnosticSubscriptions.Clear();
+            annotationRefresh.Clear();
             if (selected != null)
                 selected.Settings.PresentationChanged -= OnPresentationChanged;
 
@@ -381,6 +426,9 @@ namespace GK2.Framework
         {
             presentationRefreshPending = false;
             navigationRows.Clear();
+            annotationRefresh.Clear();
+            rowLayouts.Clear();
+            conflictPanels.Clear();
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 content.GetChild(i).gameObject.SetActive(false);
@@ -426,7 +474,9 @@ namespace GK2.Framework
                 y -= rowHeight + 3f;
             }
 
-            FrameworkUi.SetContentHeight(content, Mathf.Max(0f, -y + 10f));
+            diagnosticsNote = FrameworkUi.CreateText("DiagnosticsNote", content, 12f, TextAlignmentOptions.TopLeft, new Color(0.65f, 0.65f, 0.65f));
+            FrameworkUi.ApplyLabelText(diagnosticsNote);
+            LayoutRows();
             ConfigureGamepadNavigation();
             if (scroll != null) scroll.verticalNormalizedPosition = 1f;
         }
@@ -482,6 +532,10 @@ namespace GK2.Framework
                 text.color = NativeUiSkin.ValueColor;
             }
             text.text = section;
+            rowLayouts.Add(top => {
+                FrameworkUi.SetRect(header.rectTransform, new Vector2(5f, top - 23f), new Vector2(-5f, top), new Vector2(0f, 1f), Vector2.one);
+                return 27f;
+            });
         }
 
         private float CreateSettingRow(IGk2Setting setting, float y)
@@ -511,6 +565,27 @@ namespace GK2.Framework
                 TextAlignmentOptions.TopLeft,
                 new Color(0.82f, 0.78f, 0.73f));
             description.text = GetDescription(setting);
+            Image conflictPanel = FrameworkUi.CreateImage("KeyConflict", row.rectTransform, new Color(0.48f, 0.30f, 0.08f, 0.28f));
+            conflictPanel.raycastTarget = false;
+            TextMeshProUGUI conflictText = FrameworkUi.CreateText("ConflictText", conflictPanel.transform, 13f, TextAlignmentOptions.TopLeft, new Color(1f, 0.76f, 0.32f));
+            FrameworkUi.ApplyLabelText(conflictText);
+            conflictText.color = new Color(1f, 0.76f, 0.32f);
+            conflictText.textWrappingMode = TextWrappingModes.Normal;
+            conflictPanel.gameObject.SetActive(false);
+            conflictPanels.Add(conflictPanel.gameObject);
+            Action refreshAnnotation = () =>
+            {
+                if (name == null || conflictText == null) return;
+                name.text = (SettingsDiagnostics.IsChanged(setting) ? "* " : string.Empty) + GetDisplayName(setting);
+                var conflicts = SettingsDiagnostics.Conflicts(selected, setting, FrameworkApi.Mods);
+                conflictPanel.gameObject.SetActive(conflicts.Count > 0);
+                string names = string.Join(", ", conflicts.Select(mod => LoadedModsReport.OneLine(FrameworkModLocalization.ModName(mod))));
+                if (names.Length > 90) names = names.Substring(0, 87) + "...";
+                conflictText.text = conflicts.Count == 0 ? string.Empty : "! " + FormatKeybind(setting.Value) + " — "
+                    + FrameworkUi.L("settings.key_conflict", "Also used by: {0}.").Replace("{0}", names);
+            };
+            refreshAnnotation();
+            annotationRefresh.Add(refreshAnnotation);
             if (NativeUiSkin.IsReady)
             {
                 FrameworkUi.ApplyLabelText(description);
@@ -524,11 +599,17 @@ namespace GK2.Framework
                 ? 0f
                 : Mathf.Max(14f, Mathf.Ceil(
                     description.GetPreferredValues(description.text, textWidth, 1000f).y));
-            float rowHeight = Mathf.Max(
-                36f,
-                string.IsNullOrWhiteSpace(description.text)
-                    ? 36f
-                    : 24f + descriptionHeight + 2f);
+            float baseHeight = Mathf.Max(36f, 24f + descriptionHeight + 4f);
+            float rowHeight = baseHeight;
+            rowLayouts.Add(top => {
+                float warningHeight = conflictPanel.gameObject.activeSelf
+                    ? Mathf.Ceil(conflictText.GetPreferredValues(conflictText.text, Mathf.Max(250f, content.rect.width - 42f), 1000f).y) + 12f : 0f;
+                float totalHeight = baseHeight + (warningHeight > 0f ? warningHeight + 5f : 0f);
+                FrameworkUi.SetRect(row.rectTransform, new Vector2(5f, top - totalHeight), new Vector2(-5f, top), new Vector2(0f, 1f), Vector2.one);
+                FrameworkUi.SetRect(conflictPanel.rectTransform, new Vector2(8f, -totalHeight + 3f), new Vector2(-8f, -baseHeight - 2f), new Vector2(0f, 1f), Vector2.one);
+                FrameworkUi.SetRect(conflictText.rectTransform, new Vector2(7f, 5f), new Vector2(-7f, -5f), Vector2.zero, Vector2.one);
+                return totalHeight + 3f;
+            });
 
             FrameworkUi.SetRect(
                 row.rectTransform,
@@ -544,7 +625,7 @@ namespace GK2.Framework
                 new Vector2(0f, 1f),
                 new Vector2(0f, 1f));
 
-            if (!string.IsNullOrWhiteSpace(description.text))
+            if (!string.IsNullOrWhiteSpace(description.text) || !setting.IsReadOnly)
             {
                 FrameworkUi.SetRect(
                     description.rectTransform,
@@ -563,10 +644,10 @@ namespace GK2.Framework
             control.SetParent(row.transform, false);
             FrameworkUi.SetRect(
                 control,
-                new Vector2(-326f, -13f),
-                new Vector2(setting.IsReadOnly ? -6f : -62f, 13f),
-                new Vector2(1f, 0.5f),
-                new Vector2(1f, 0.5f));
+                new Vector2(-326f, -30f),
+                new Vector2(setting.IsReadOnly ? -6f : -62f, -4f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 1f));
 
             GamepadNavigationItem primaryNavigation = null;
             GamepadNavigationItem secondaryNavigation = null;
@@ -607,10 +688,10 @@ namespace GK2.Framework
                     row.rectTransform,
                     null,
                     FrameworkUi.L("settings.reset", "Reset"),
-                    new Vector2(-56f, -13f),
-                    new Vector2(-6f, 13f),
-                    new Vector2(1f, 0.5f),
-                    new Vector2(1f, 0.5f));
+                    new Vector2(-56f, -30f),
+                    new Vector2(-6f, -4f),
+                    new Vector2(1f, 1f),
+                    new Vector2(1f, 1f));
                 reset.onClick.AddListener(() => ResetSetting(setting));
                 reset.SetCallbacksIntoGamepadNavigationItem();
                 resetNavigation = reset.GetComponent<GamepadNavigationItem>();
@@ -1072,6 +1153,7 @@ namespace GK2.Framework
                 Vector2.one);
             TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
             FrameworkUi.ApplyValueText(text);
+            annotationRefresh.Add(() => { if (text != null && capturingKeybind != setting) text.text = FormatKeybind(setting.Value); });
             button.onClick.AddListener(() =>
             {
                 capturingKeybind = setting;

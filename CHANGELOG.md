@@ -1,4 +1,10 @@
-# Changelog
+﻿# Changelog
+
+## 0.1.24 — 2026-10-21
+
+- Warn about matching key combinations in different mods whose bindings are visible to the Framework, including imported settings. Warnings do not change bindings.
+- Mark editable settings changed from their defaults and refresh markers when values change or reset.
+- Add a Copy mod list button for support reports with loaded plugin versions and Framework states, without configuration values or installation paths.
 
 ## 0.1.23 — 2026-10-08
 

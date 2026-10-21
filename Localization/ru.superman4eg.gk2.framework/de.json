@@ -71,5 +71,10 @@
   "import.label": "Importierte Einstellungen",
   "import.description": "Bearbeitet die ursprüngliche Plugin-Konfiguration. Der Zeitpunkt der Anwendung hängt vom Plugin ab; im Zweifel das Spiel neu starten. Framework steuert dieses Plugin nicht und prüft seine Spielfunktionen nicht.",
   "import.readonly": "Dieser Einstellungstyp oder Editor wird nicht unterstützt; nur lesbar.",
-  "sections.Import": "Einstellungsimport"
+  "sections.Import": "Einstellungsimport",
+  "settings.changed": "Vom Standardwert abweichend.",
+  "settings.key_conflict": "Auch verwendet von: {0}.",
+  "mods.copy_loaded": "Modliste kopieren",
+  "mods.list_copied": "Modliste kopiert",
+  "settings.key_scope": "Es werden nur für Framework sichtbare Tastenbelegungen geprüft."
 }

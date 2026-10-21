@@ -71,5 +71,10 @@
   "import.label": "가져온 설정",
   "import.description": "플러그인의 원래 설정을 편집합니다. 적용 시점은 플러그인에 따라 다르므로 확실하지 않으면 게임을 다시 시작하세요. Framework는 이 플러그인을 제어하거나 게임 기능을 검증하지 않습니다.",
   "import.readonly": "이 설정 유형이나 편집기는 지원되지 않으며 읽기만 가능합니다.",
-  "sections.Import": "설정 가져오기"
+  "sections.Import": "설정 가져오기",
+  "settings.changed": "기본값에서 변경됨.",
+  "settings.key_conflict": "다음 모드에서도 사용: {0}.",
+  "mods.copy_loaded": "모드 목록 복사",
+  "mods.list_copied": "목록 복사됨",
+  "settings.key_scope": "Framework에서 확인할 수 있는 단축키만 검사합니다."
 }

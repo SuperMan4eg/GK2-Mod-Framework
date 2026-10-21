@@ -71,5 +71,10 @@
   "import.label": "Réglages importés",
   "import.description": "Modifie la configuration originale du plugin. Chaque plugin décide quand appliquer les modifications ; redémarrer le jeu en cas de doute. Framework ne contrôle pas ce plugin et ne vérifie pas son fonctionnement en jeu.",
   "import.readonly": "Ce type de réglage ou cet éditeur ne sont pas pris en charge ; lecture seule.",
-  "sections.Import": "Importation des réglages"
+  "sections.Import": "Importation des réglages",
+  "settings.changed": "Valeur différente de celle par défaut.",
+  "settings.key_conflict": "Également utilisé par : {0}.",
+  "mods.copy_loaded": "Copier les mods",
+  "mods.list_copied": "Liste copiée",
+  "settings.key_scope": "Seuls les raccourcis visibles par Framework sont vérifiés."
 }

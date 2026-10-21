@@ -1,4 +1,4 @@
-# GK2 Mod Framework 0.1.23
+﻿# GK2 Mod Framework 0.1.24
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -47,6 +47,8 @@ To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and 
 - Installed framework mod list and detailed metadata
 - Fixed search fields above the mod list and settings: filter while typing, clear with ×, and use the on-screen keyboard with a controller. Mod search includes names and IDs; settings search includes names, descriptions, categories and keys. Search ignores letter case and does not change saved settings. Returning from settings preserves the mod search; opening settings starts a fresh settings search.
 - Compatibility and dependency status
+- `*` marks editable settings that differ from the mod-provided default. Reset removes the marker. Matching key combinations in different Framework-visible mod settings show an informational warning; bindings outside the Framework cannot be checked, and matching keys can be intentional.
+- **Copy mod list** in the Mods window copies loaded BepInEx plugin names, versions and Framework states for a bug report. Imported settings are matched to their source plugin; unmatched Framework registrations are listed separately. Config values and installation paths are omitted. Clipboard contents change only when you press the button.
 - **Copy report** on a selected mod copies its version, current compatibility status, game and Unity versions, and game assembly fingerprint for support requests. Review the clipboard text before sharing it.
 - Opt-in structural compatibility checks so validated mods can survive unrelated game updates without waiting for a new whole-assembly fingerprint
 - Runtime enable/disable for mods that explicitly support it
@@ -80,6 +82,8 @@ Starting with 0.1.19, an integration can pass existing BepInEx configuration ent
 Metadata and dependency versions accept common prerelease and build suffixes such as `1.2.3-beta.1+build.4`. Dependency comparisons use the numeric version core; prerelease ordering is not implemented. Empty or malformed suffixes are rejected.
 
 ## Compatibility and known limitations
+
+- Framework 0.1.24 settings diagnostics, copied mod list and clean startup passed focused checks on Windows Steam build `25910882`, with eight Framework UI languages. The owner accepted the revised settings layout. The whole-game fingerprint remains unknown; these checks do not certify every mod or gameplay feature.
 
 - Framework 0.1.21 custom font handling and Vietnamese characters passed focused runtime checks on Windows Steam build `25676698`, alongside the built-in English, Russian, Korean, Japanese and Chinese fonts. The owner accepted the update. This does not certify every community language pack; each pack must supply a font containing its translated characters.
 

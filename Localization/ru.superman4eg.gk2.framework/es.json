@@ -71,5 +71,10 @@
   "import.label": "Ajustes importados",
   "import.description": "Edita la configuración original del plugin. Cada plugin decide cuándo aplica los cambios; reinicia el juego si tienes dudas. Framework no controla este plugin ni verifica su funcionamiento en el juego.",
   "import.readonly": "Este tipo de ajuste o editor no está admitido; solo lectura.",
-  "sections.Import": "Importación de ajustes"
+  "sections.Import": "Importación de ajustes",
+  "settings.changed": "Modificado respecto al valor predeterminado.",
+  "settings.key_conflict": "También usado por: {0}.",
+  "mods.copy_loaded": "Copiar lista de mods",
+  "mods.list_copied": "Lista copiada",
+  "settings.key_scope": "Solo se comprueban las teclas visibles para Framework."
 }
