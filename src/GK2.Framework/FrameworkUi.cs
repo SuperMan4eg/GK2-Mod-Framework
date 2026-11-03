@@ -1,4 +1,4 @@
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using LazyBearTechnology;
 using TMPro;
 using UnityEngine;
@@ -270,7 +270,13 @@ namespace GK2.Framework
             Vector2 size = content.sizeDelta;
             size.y = Mathf.Max(0f, height);
             content.sizeDelta = size;
-            content.anchoredPosition = Vector2.zero;
+            // Relayout is also used for live setting annotations: keep the viewport at
+            // the same offset, clamping only when the content has become shorter.
+            RectTransform viewport = content.parent as RectTransform;
+            float maxOffset = Mathf.Max(0f, size.y - (viewport != null ? viewport.rect.height : 0f));
+            Vector2 position = content.anchoredPosition;
+            position.y = Mathf.Clamp(position.y, 0f, maxOffset);
+            content.anchoredPosition = position;
         }
 
         internal static void Stretch(RectTransform rect)

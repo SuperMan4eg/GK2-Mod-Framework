@@ -1,4 +1,4 @@
-﻿# GK2 Mod Framework 0.1.24
+﻿# GK2 Mod Framework 0.1.25
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -36,6 +36,10 @@ To verify loading, open `BepInEx/LogOutput.log` and look for `GK2_FRAMEWORK_READ
 To update, close the game and extract the new archive into the game folder, allowing it to replace the existing Framework files. Starting with 0.1.8, the archive includes localization files under `BepInEx/plugins/GK2.Framework/Localization`, so updating only `GK2.Framework.dll` is not sufficient. Existing BepInEx configuration files are preserved.
 
 To uninstall, close the game and remove `BepInEx/plugins/GK2.Framework.dll` and the `BepInEx/plugins/GK2.Framework` folder. Mods that require the framework will no longer load. Their configuration files and save data are not removed automatically.
+
+## Scroll position
+
+Version 0.1.25 fixes scroll position resets when editing mod settings and when returning to the Mods list. Live layout and state refresh preserve the current offset, clamped to the new content bounds. A new search or newly opened settings page starts at the top. The owner accepted the update after testing.
 
 ## Player features
 

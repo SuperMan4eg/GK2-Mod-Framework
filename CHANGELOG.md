@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## 0.1.25 — 2026-11-03
+
+- Keep the scroll position when changing mod settings, resetting values and updating live setting warnings or visibility.
+- Keep the Mods list scroll position when returning from settings. New searches still start at the top.
+
 ## 0.1.24 — 2026-10-21
 
 - Warn about matching key combinations in different mods whose bindings are visible to the Framework, including imported settings. Warnings do not change bindings.

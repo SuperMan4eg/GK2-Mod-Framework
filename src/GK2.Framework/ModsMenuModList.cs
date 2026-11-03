@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -31,7 +31,7 @@ namespace GK2.Framework
             FrameworkUi.SetRect(scroll.viewport, Vector2.zero, new Vector2(0f, -46f), Vector2.zero, Vector2.one);
             search = new ModsMenuSearch(frame.rectTransform, (RectTransform)frame.transform.parent.parent,
                 FrameworkUi.L("search.mods", "Search mods..."), -8f,
-                value => { this.onSelected(Refresh(this.selectedId)); RefreshNavigation(); });
+                value => { this.onSelected(Refresh(this.selectedId, resetScroll: true)); RefreshNavigation(); });
         }
 
         internal bool HandleSearchUpdate() => search.HandleUpdate();
@@ -47,7 +47,7 @@ namespace GK2.Framework
             }
         }
 
-        internal RegisteredMod Refresh(string selectedId)
+        internal RegisteredMod Refresh(string selectedId, bool resetScroll = false)
         {
             selectionMarks.Clear();
             statusBadges.Clear();
@@ -94,7 +94,7 @@ namespace GK2.Framework
             }
 
             FrameworkUi.SetContentHeight(content, 18f + mods.Count * 40f);
-            if (scroll != null) scroll.verticalNormalizedPosition = 1f;
+            if (resetScroll && scroll != null) { scroll.StopMovement(); scroll.verticalNormalizedPosition = 1f; }
 
             float y = -10f;
             if (mods.Count == 0)

@@ -422,7 +422,7 @@ namespace GK2.Framework
                     : "GK2_SETTINGS_FALLBACK_KEYBOARD_CANCEL");
         }
 
-        private void BuildControls()
+        private void BuildControls(bool resetScroll = true)
         {
             presentationRefreshPending = false;
             navigationRows.Clear();
@@ -478,7 +478,7 @@ namespace GK2.Framework
             FrameworkUi.ApplyLabelText(diagnosticsNote);
             LayoutRows();
             ConfigureGamepadNavigation();
-            if (scroll != null) scroll.verticalNormalizedPosition = 1f;
+            if (resetScroll && scroll != null) { scroll.StopMovement(); scroll.verticalNormalizedPosition = 1f; }
         }
 
         private string GetDisplayName(IGk2Setting setting)
@@ -1590,11 +1590,7 @@ namespace GK2.Framework
                     controller.FocusedItem);
             }
 
-            float scrollY = content.anchoredPosition.y;
-            BuildControls();
-            content.anchoredPosition = new Vector2(
-                content.anchoredPosition.x,
-                scrollY);
+            BuildControls(resetScroll: false);
 
             if (!restoreGamepadFocus)
                 return;
