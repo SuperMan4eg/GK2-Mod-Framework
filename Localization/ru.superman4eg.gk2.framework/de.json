@@ -76,5 +76,19 @@
   "settings.key_conflict": "Auch verwendet von: {0}.",
   "mods.copy_loaded": "Modliste kopieren",
   "mods.list_copied": "Modliste kopiert",
-  "settings.key_scope": "Es werden nur für Framework sichtbare Tastenbelegungen geprüft."
+  "settings.key_scope": "Es werden nur für Framework sichtbare Tastenbelegungen geprüft.",
+  "appearance.preset": "Farbthema",
+  "appearance.preset_description": "Game stellt den Spielstil wieder her. Custom nutzt die drei Farben unten. Änderungen gelten sofort.",
+  "appearance.background": "Eigene Hintergrundfarbe",
+  "appearance.text": "Eigene Textfarbe",
+  "appearance.accent": "Eigene Akzentfarbe",
+  "appearance.color_description": "Nur für Custom. #RRGGBB eingeben, z. B. #20232D. Bei ungültigen oder schlecht lesbaren Farben gelten die Spielfarben.",
+  "appearance.status": "Themenstatus",
+  "appearance.status_description": "Warnungen und Fehler behalten ihre eigenen Farben.",
+  "appearance.valid": "Bereit",
+  "appearance.reset": "Spielfarben wiederherstellen",
+  "appearance.reset_description": "Thema und eigene Farben auf Standardwerte zurücksetzen.",
+  "appearance.invalid": "Alle drei Farben als #RRGGBB eingeben. Spielfarben sind aktiv.",
+  "appearance.contrast": "Kontrast von Text und Akzenten zum Hintergrund erhöhen. Spielfarben sind aktiv.",
+  "appearance.section": "Darstellung"
 }

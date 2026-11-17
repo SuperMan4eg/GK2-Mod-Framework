@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -570,6 +570,7 @@ namespace GK2.Framework
             TextMeshProUGUI conflictText = FrameworkUi.CreateText("ConflictText", conflictPanel.transform, 13f, TextAlignmentOptions.TopLeft, new Color(1f, 0.76f, 0.32f));
             FrameworkUi.ApplyLabelText(conflictText);
             conflictText.color = new Color(1f, 0.76f, 0.32f);
+            FrameworkAppearance.Unbind(conflictText);
             conflictText.textWrappingMode = TextWrappingModes.Normal;
             conflictPanel.gameObject.SetActive(false);
             conflictPanels.Add(conflictPanel.gameObject);
@@ -590,6 +591,7 @@ namespace GK2.Framework
             {
                 FrameworkUi.ApplyLabelText(description);
                 description.color = Color.Lerp(NativeUiSkin.HintColor, Color.white, 0.22f);
+                FrameworkAppearance.Bind(description, AppearanceRole.Text);
             }
             description.textWrappingMode = TextWrappingModes.Normal;
             description.overflowMode = TextOverflowModes.Truncate;

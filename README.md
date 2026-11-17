@@ -1,4 +1,4 @@
-﻿# GK2 Mod Framework 0.1.25
+# GK2 Mod Framework 0.1.26
 
 GK2 Mod Framework is a shared foundation for **Graveyard Keeper 2** code mods. It runs on BepInEx 5 and adds an in-game Mods menu, reusable settings, mod metadata, dependency checks, lifecycle events, and game-build compatibility reporting.
 
@@ -12,9 +12,18 @@ The repository tracks current development. Use the Nexus Mods page for packaged 
 
 Use the Nexus file version to identify the available download.
 
+## Appearance
+
+Open **Mods → Framework settings (gear) → Appearance** to choose **Game**, **Slate**, **Parchment**, **High contrast** or **Custom**. Game is the default and restores the game-style interface.
+
+Custom accepts opaque background, text and accent colors as `#RRGGBB`. Changes apply immediately. If a code is invalid or the colors are too difficult to read, the game palette stays active and Theme status explains why. **Restore game colors** resets the theme and custom color fields. Warnings and mod status indicators keep their own colors.
+
+This changes Framework-hosted windows, including mod settings displayed there. It does not recolor the game's own menus or another mod's independent interface.
+
 ## Requirements
 
 - Graveyard Keeper 2 for Windows x64
+- Current Framework menu and appearance checks: Steam build `26624074`; this does not certify the gameplay compatibility of dependent mods
 - Known full-release Steam fingerprints: `25457344`, `25467846`, `25506711`
 - Structural unknown-build path verified on Steam builds `25509347` and `25533739`
 - Demo build `25344626` remains supported

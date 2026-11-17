@@ -76,5 +76,19 @@
   "settings.key_conflict": "Използва се и от: {0}.",
   "mods.copy_loaded": "Копиране на модовете",
   "mods.list_copied": "Списъкът е копиран",
-  "settings.key_scope": "Проверяват се само клавишите, видими за Framework."
+  "settings.key_scope": "Проверяват се само клавишите, видими за Framework.",
+  "appearance.preset": "Цветова тема",
+  "appearance.preset_description": "Game връща стила на играта. Custom използва трите цвята по-долу. Промените се прилагат веднага.",
+  "appearance.background": "Собствен фон",
+  "appearance.text": "Собствен текст",
+  "appearance.accent": "Собствен акцент",
+  "appearance.color_description": "Само за Custom. Въведете #RRGGBB, например #20232D. При невалидни или нечетливи цветове се използват тези на играта.",
+  "appearance.status": "Състояние на темата",
+  "appearance.status_description": "Предупрежденията и грешките запазват цветовете си.",
+  "appearance.valid": "Готово",
+  "appearance.reset": "Върни цветовете на играта",
+  "appearance.reset_description": "Връща темата и собствените цветове към стандартните стойности.",
+  "appearance.invalid": "Въведете трите цвята като #RRGGBB. Използват се цветовете на играта.",
+  "appearance.contrast": "Увеличете контраста на текста и акцентите спрямо фона. Използват се цветовете на играта.",
+  "appearance.section": "Оформление"
 }

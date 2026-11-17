@@ -245,8 +245,8 @@ namespace GK2.Framework
                 panelRect,
                 null,
                 FrameworkUi.L("common.back", "Back"),
-                new Vector2(-48f, 12f),
-                new Vector2(48f, 38f),
+                new Vector2(-48f, 18f),
+                new Vector2(48f, 44f),
                 new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f));
             FrameworkUi.ApplyDialogButton(closeButton);
@@ -254,7 +254,7 @@ namespace GK2.Framework
             quitToApplyButton = FrameworkUi.CreateButton(
                 "QuitToApply", panelRect, template,
                 FrameworkUi.L("mods.restart.quit_to_apply", "Quit to apply"),
-                new Vector2(-218f, 12f), new Vector2(-58f, 38f),
+                new Vector2(-218f, 18f), new Vector2(-58f, 44f),
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
             FrameworkUi.ApplyDialogButton(quitToApplyButton);
             quitToApplyButton.onClick.AddListener(ShowRestartConfirmation);
@@ -289,7 +289,7 @@ namespace GK2.Framework
             LazyButton copyLoaded = FrameworkUi.CreateButton(
                 "CopyLoadedMods", panelRect, template,
                 FrameworkUi.L("mods.copy_loaded", "Copy mod list"),
-                new Vector2(58f, 12f), new Vector2(238f, 38f),
+                new Vector2(58f, 18f), new Vector2(238f, 44f),
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f));
             FrameworkUi.ApplyDialogButton(copyLoaded);
             copyLoaded.onClick.AddListener(() =>
@@ -305,8 +305,8 @@ namespace GK2.Framework
                 panelRect,
                 null,
                 string.Empty,
-                new Vector2(-50f, 8f),
-                new Vector2(-14f, 44f),
+                new Vector2(-49f, 14f),
+                new Vector2(-15f, 48f),
                 new Vector2(1f, 0f),
                 new Vector2(1f, 0f));
             FrameworkUi.ApplyGearButton(frameworkSettingsButton);

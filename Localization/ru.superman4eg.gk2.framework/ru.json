@@ -76,5 +76,19 @@
   "settings.key_conflict": "Также используется: {0}.",
   "mods.copy_loaded": "Копировать моды",
   "mods.list_copied": "Список скопирован",
-  "settings.key_scope": "Проверяются только привязки, доступные Framework."
+  "settings.key_scope": "Проверяются только привязки, доступные Framework.",
+  "appearance.preset": "Цветовая тема",
+  "appearance.preset_description": "Game возвращает игровой стиль. Custom использует три цвета ниже. Изменения применяются сразу.",
+  "appearance.background": "Свой цвет фона",
+  "appearance.text": "Свой цвет текста",
+  "appearance.accent": "Свой цвет акцентов",
+  "appearance.color_description": "Только для Custom. Введите #RRGGBB, например #20232D. При ошибке или низкой читаемости используются игровые цвета.",
+  "appearance.status": "Состояние темы",
+  "appearance.status_description": "Предупреждения и ошибки сохраняют свои цвета.",
+  "appearance.valid": "Готово",
+  "appearance.reset": "Вернуть игровые цвета",
+  "appearance.reset_description": "Вернуть тему и собственные цвета к значениям по умолчанию.",
+  "appearance.invalid": "Введите три цвета в формате #RRGGBB. Используются игровые цвета.",
+  "appearance.contrast": "Увеличьте контраст текста и акцентов с фоном. Используются игровые цвета.",
+  "appearance.section": "Оформление"
 }

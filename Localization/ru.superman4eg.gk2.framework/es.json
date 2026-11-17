@@ -76,5 +76,19 @@
   "settings.key_conflict": "También usado por: {0}.",
   "mods.copy_loaded": "Copiar lista de mods",
   "mods.list_copied": "Lista copiada",
-  "settings.key_scope": "Solo se comprueban las teclas visibles para Framework."
+  "settings.key_scope": "Solo se comprueban las teclas visibles para Framework.",
+  "appearance.preset": "Tema de color",
+  "appearance.preset_description": "Game restaura el estilo del juego. Custom usa los tres colores de abajo. Los cambios se aplican al instante.",
+  "appearance.background": "Fondo personalizado",
+  "appearance.text": "Texto personalizado",
+  "appearance.accent": "Acento personalizado",
+  "appearance.color_description": "Solo para Custom. Introduce #RRGGBB, por ejemplo #20232D. Si no es válido o legible, se usan los colores del juego.",
+  "appearance.status": "Estado del tema",
+  "appearance.status_description": "Los avisos y errores conservan sus propios colores.",
+  "appearance.valid": "Listo",
+  "appearance.reset": "Restaurar colores del juego",
+  "appearance.reset_description": "Restablece el tema y los colores personalizados.",
+  "appearance.invalid": "Introduce los tres colores como #RRGGBB. Se usan los colores del juego.",
+  "appearance.contrast": "Aumenta el contraste del texto y los acentos con el fondo. Se usan los colores del juego.",
+  "appearance.section": "Apariencia"
 }

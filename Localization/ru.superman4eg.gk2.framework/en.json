@@ -76,5 +76,19 @@
   "settings.key_conflict": "Also used by: {0}.",
   "mods.copy_loaded": "Copy mod list",
   "mods.list_copied": "Mod list copied",
-  "settings.key_scope": "Only Framework-visible bindings are checked."
+  "settings.key_scope": "Only Framework-visible bindings are checked.",
+  "appearance.preset": "Color theme",
+  "appearance.preset_description": "Game restores the original style. Custom uses the three color fields below. Changes apply immediately.",
+  "appearance.background": "Custom background",
+  "appearance.text": "Custom text",
+  "appearance.accent": "Custom accent",
+  "appearance.color_description": "Custom theme only. Enter #RRGGBB, e.g. #20232D. Invalid or unreadable combinations keep game colors.",
+  "appearance.status": "Theme status",
+  "appearance.status_description": "Warnings and errors keep their own colors.",
+  "appearance.valid": "Ready",
+  "appearance.reset": "Restore game colors",
+  "appearance.reset_description": "Reset the theme and custom color fields to their defaults.",
+  "appearance.invalid": "Use #RRGGBB for all three colors. Game colors are active.",
+  "appearance.contrast": "Increase text/accent contrast against the background. Game colors are active.",
+  "appearance.section": "Appearance"
 }

@@ -38,6 +38,7 @@ namespace GK2.Framework
 
             public override void OnRegister(Gk2ModContext context)
             {
+                FrameworkAppearance.Register(context.Settings);
                 ImportedSettings.Enabled = context.Settings.AddToggle("Import", "Enabled", true,
                     FrameworkLocalization.Get("import.enabled", "Import standalone mod settings"),
                     FrameworkLocalization.Get("import.enabled_description", "Show supported settings from loaded BepInEx plugins. Reopen the Mods list after changing this option."));

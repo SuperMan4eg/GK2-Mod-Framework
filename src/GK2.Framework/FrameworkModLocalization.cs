@@ -45,6 +45,8 @@ namespace GK2.Framework
                     "settings.general",
                     "General");
 
+            if (IsFramework(mod) && section == "Appearance")
+                return FrameworkUi.L("appearance.section", "Appearance");
             if (IsFramework(mod))
             {
                 return string.Equals(
@@ -65,6 +67,11 @@ namespace GK2.Framework
             RegisteredMod mod,
             IGk2Setting setting)
         {
+            if (IsFramework(mod) && setting.Section == "Appearance")
+            {
+                string key = AppearanceKey(setting.Key);
+                return FrameworkUi.L("appearance." + key, setting.DisplayName);
+            }
             if (IsFramework(mod) && setting.UniqueKey == "Import.Enabled")
                 return FrameworkUi.L("import.enabled", setting.DisplayName);
             if (IsFramework(mod) && setting.UniqueKey == "Import.ExcludedIds")
@@ -89,6 +96,12 @@ namespace GK2.Framework
             RegisteredMod mod,
             IGk2Setting setting)
         {
+            if (IsFramework(mod) && setting.Section == "Appearance")
+            {
+                string key = setting.Key == "Background" || setting.Key == "Text" || setting.Key == "Accent"
+                    ? "color_description" : AppearanceKey(setting.Key) + "_description";
+                return FrameworkUi.L("appearance." + key, setting.Description);
+            }
             if (IsFramework(mod) && setting.UniqueKey == "Import.Enabled")
                 return FrameworkUi.L("import.enabled_description", setting.Description);
             if (IsFramework(mod) && setting.UniqueKey == "Import.ExcludedIds")
@@ -111,6 +124,8 @@ namespace GK2.Framework
                 "settings." + setting.UniqueKey + ".description",
                 setting.Description ?? string.Empty);
         }
+
+        private static string AppearanceKey(string key) => key == "Validation" ? "status" : key.ToLowerInvariant();
 
         private static bool IsFramework(RegisteredMod mod) =>
             string.Equals(

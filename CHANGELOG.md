@@ -1,4 +1,12 @@
-﻿# Changelog
+# Changelog
+
+## 0.1.26 — 2026-11-17
+
+- Restore the game-style Mods menu and settings after the game update.
+- Add Game, Slate, Parchment, High contrast and Custom color themes, with live background, text and accent colors and a reset to game colors.
+- Keep warnings and status colors distinct; use game colors when custom values are invalid or hard to read.
+- Restore colored game buttons with visible hover states and center the bottom buttons in their footer.
+- Keep Framework windows within the available screen area at smaller sizes and update appearance labels when changing language.
 
 ## 0.1.25 — 2026-11-03
 

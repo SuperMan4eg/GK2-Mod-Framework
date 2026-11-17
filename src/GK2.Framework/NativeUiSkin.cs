@@ -78,8 +78,13 @@ namespace GK2.Framework
                 TextMeshProUGUI valueText =
                     content?.Find("ResolutionSwitchBtn/Back/Value")?.GetComponent<TextMeshProUGUI>();
                 TextMeshProUGUI hintText =
-                    layout?.Find("ButtonTipsStr")?.GetComponent<TextMeshProUGUI>();
+                    (frame?.Find("ButtonTipsStr") ?? layout?.Find("ButtonTipsStr"))?.GetComponent<TextMeshProUGUI>();
 
+                // Inactive settings labels now resolve their font on first style application.
+                // Resolve the native style without opening/activating the game window.
+                PrepareTextStyle(labelText);
+                PrepareTextStyle(headerText);
+                PrepareTextStyle(valueText);
                 RegularFont = labelText?.font;
                 RegularMaterial = labelText?.fontSharedMaterial;
                 BoldFont = headerText?.font;
@@ -183,6 +188,12 @@ namespace GK2.Framework
                     "GK2 native UI skin capture failed; using framework fallback: " + ex.Message);
                 return false;
             }
+        }
+
+        private static void PrepareTextStyle(TextMeshProUGUI text)
+        {
+            TextStyleComponent style = text?.GetComponent<TextStyleComponent>();
+            if (style?.CurrentTextStyle != null) style.ApplyStyle();
         }
 
         private static Image GetImage(Transform transform) =>

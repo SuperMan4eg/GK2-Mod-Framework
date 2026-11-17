@@ -76,5 +76,19 @@
   "settings.key_conflict": "也被以下模组使用：{0}。",
   "mods.copy_loaded": "复制模组列表",
   "mods.list_copied": "模组列表已复制",
-  "settings.key_scope": "仅检查 Framework 可见的按键绑定。"
+  "settings.key_scope": "仅检查 Framework 可见的按键绑定。",
+  "appearance.preset": "配色主题",
+  "appearance.preset_description": "Game 恢复游戏风格，Custom 使用下方的三种颜色。更改立即生效。",
+  "appearance.background": "自定义背景色",
+  "appearance.text": "自定义文字颜色",
+  "appearance.accent": "自定义强调色",
+  "appearance.color_description": "仅用于 Custom。输入 #RRGGBB，例如 #20232D。颜色无效或难以阅读时使用游戏配色。",
+  "appearance.status": "主题状态",
+  "appearance.status_description": "警告和错误保留各自的颜色。",
+  "appearance.valid": "就绪",
+  "appearance.reset": "恢复游戏配色",
+  "appearance.reset_description": "将主题和自定义颜色恢复为默认值。",
+  "appearance.invalid": "请为三种颜色输入 #RRGGBB 格式。当前使用游戏配色。",
+  "appearance.contrast": "请提高文字、强调色与背景之间的对比度。当前使用游戏配色。",
+  "appearance.section": "外观"
 }

@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using LazyBearTechnology;
 using TMPro;
 using UnityEngine;
@@ -31,7 +31,7 @@ namespace GK2.Framework
             float fitWidth = Mathf.Max(0.01f, safeWidth - margin * 2f) / baseSize.x;
             float fitHeight = Mathf.Max(0.01f, safeHeight - margin * 2f) / baseSize.y;
             float fit = Mathf.Min(1f, fitWidth, fitHeight);
-            return Mathf.Clamp(Mathf.Min(fit, GetWindowScaleLimit()), 0.5f, 1f);
+            return Mathf.Clamp(Mathf.Min(fit, GetWindowScaleLimit()), 0.05f, 1f);
         }
 
         internal static Image CreateImage(string name, Transform parent, Color color)
@@ -40,6 +40,8 @@ namespace GK2.Framework
             go.transform.SetParent(parent, false);
             Image image = go.AddComponent<Image>();
             image.color = color;
+            if (FrameworkAppearance.IsPanel(name)) FrameworkAppearance.Bind(image, AppearanceRole.Background);
+            if (name == "Selected") FrameworkAppearance.Bind(image, AppearanceRole.Accent);
             return image;
         }
 
@@ -62,6 +64,7 @@ namespace GK2.Framework
             text.alignment = alignment;
             text.color = color;
             text.raycastTarget = false;
+            if (name != "ConflictText") FrameworkAppearance.Bind(text, AppearanceRole.Text);
             return text;
         }
 
@@ -132,6 +135,7 @@ namespace GK2.Framework
             if (text == null || !NativeUiSkin.IsReady) return;
             ApplyBoldFont(text);
             text.color = Color.white;
+            FrameworkAppearance.Bind(text, AppearanceRole.Text);
         }
 
         internal static void ApplyLabelText(TextMeshProUGUI text)
@@ -139,6 +143,7 @@ namespace GK2.Framework
             if (text == null || !NativeUiSkin.IsReady) return;
             ApplyRegularFont(text);
             text.color = NativeUiSkin.LabelColor;
+            FrameworkAppearance.Bind(text, AppearanceRole.Text);
         }
 
         internal static void ApplyValueText(TextMeshProUGUI text)
@@ -146,6 +151,7 @@ namespace GK2.Framework
             if (text == null || !NativeUiSkin.IsReady) return;
             ApplyRegularFont(text);
             text.color = NativeUiSkin.ValueColor;
+            FrameworkAppearance.Bind(text, AppearanceRole.Accent);
         }
 
         internal static void ApplyCell(Image image)
@@ -154,6 +160,7 @@ namespace GK2.Framework
             image.sprite = NativeUiSkin.CellSprite;
             image.type = Image.Type.Sliced;
             image.color = Color.white;
+            FrameworkAppearance.Bind(image, AppearanceRole.Background);
         }
 
         internal static void ApplyFrame(Image image)
@@ -185,6 +192,7 @@ namespace GK2.Framework
                 label.fontSize = 16f;
                 label.fontSizeMax = 16f;
                 label.color = NativeUiSkin.ButtonTextColor;
+                FrameworkAppearance.Bind(label, AppearanceRole.Accent);
             }
         }
 
